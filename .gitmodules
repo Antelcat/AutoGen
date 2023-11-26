@@ -1,0 +1,3 @@
+[submodule "extern/CodeAnalysis"]
+	path = extern/CodeAnalysis
+	url = https://github.com/feast107/CodeAnalysis
