@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\Antelcat.AutoGen\Antelcat.AutoGen.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+    </ItemGroup>
+
+</Project>

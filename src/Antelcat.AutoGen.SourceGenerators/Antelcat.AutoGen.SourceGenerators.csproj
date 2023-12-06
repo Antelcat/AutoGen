@@ -4,11 +4,11 @@
         <TargetFramework>netstandard2.0</TargetFramework>
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>preview</LangVersion>
 
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
-        <PackageId>Antelcat.AnyGenerator</PackageId>
+        <PackageId>Antelcat.AutoGen.SourceGenerators</PackageId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +28,8 @@
       <ProjectReference OutputItemType="Analyzer" Include="..\..\extern\CodeAnalysis\src\Feast.CodeAnalysis.SourceGenerators\Feast.CodeAnalysis.SourceGenerators.csproj" />
       <ProjectReference Include="..\..\extern\CodeAnalysis\src\Feast.CodeAnalysis\Feast.CodeAnalysis.csproj" />
     </ItemGroup>
+
+    <Import Project="..\Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems" Label="Shared" />
 
 
 </Project>

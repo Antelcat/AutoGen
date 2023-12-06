@@ -1,1 +1,0 @@
-﻿[assembly:Antelcat.AnyGenerator.GenerateStringTo]

@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-
-namespace Antelcat.AnyGenerator.Sample;
+namespace Antelcat.AutoGen.Sample;
 
 public class Examples
 {

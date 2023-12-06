@@ -2,21 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
 using System.Text.Json;
-using Antelcat.AnyGenerator.Generators;
-using Antelcat.AnyGenerator.Tests.Utils;
+using Antelcat.AutoGen.SourceGenerators.Generators;
 using Microsoft.CodeAnalysis.CSharp;
-using Xunit;
 
-namespace Antelcat.AnyGenerator.Tests;
+namespace Antelcat.AutoGen.Tests;
 
 public class SampleSourceGeneratorTests
 {
 
-    [Fact]
+    [Test]
     public void TestGenerator()
     {
         // Create an instance of the source generator.
@@ -45,7 +40,7 @@ public class SampleSourceGeneratorTests
         }, generatedFiles);*/
     }
 
-    [Fact]
+    [Test]
     public void TestSerialize()
     {
         var converter = TypeDescriptor.GetConverter(typeof(IEnumerable<int>));

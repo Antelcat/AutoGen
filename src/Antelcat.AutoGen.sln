@@ -1,18 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AnyGenerator", "Antelcat.AnyGenerator\Antelcat.AnyGenerator.csproj", "{2AF94890-5351-4827-933D-9A193812A811}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.SourceGenerators", "Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj", "{2AF94890-5351-4827-933D-9A193812A811}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AnyGenerator.Sample", "Antelcat.AnyGenerator.Sample\Antelcat.AnyGenerator.Sample.csproj", "{3473578A-8C02-42AC-BE81-ABB1DC3C4AAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.Sample", "Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj", "{3473578A-8C02-42AC-BE81-ABB1DC3C4AAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AnyGenerator.Tests", "Antelcat.AnyGenerator.Tests\Antelcat.AnyGenerator.Tests.csproj", "{0581DAB8-B73E-4225-B021-4486FC319F5C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.Tests", "Antelcat.AutoGen.Tests\Antelcat.AutoGen.Tests.csproj", "{0581DAB8-B73E-4225-B021-4486FC319F5C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extern", "Extern", "{EC8707B7-D7FD-49A2-9946-89C876B192EA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feast.CodeAnalysis.SourceGenerators", "..\extern\CodeAnalysis\src\Feast.CodeAnalysis.SourceGenerators\Feast.CodeAnalysis.SourceGenerators.csproj", "{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feast.CodeAnalysis", "..\extern\CodeAnalysis\src\Feast.CodeAnalysis\Feast.CodeAnalysis.csproj", "{6AAC1E4E-3928-4568-A3F9-D7AF64EF2531}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen", "Antelcat.AutoGen\Antelcat.AutoGen.csproj", "{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}"
 EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Feast.CodeAnalysis.Shared", "..\extern\CodeAnalysis\src\Feast.CodeAnalysis.Shared\Feast.CodeAnalysis.Shared.shproj", "{BBB1A609-763C-4529-9FB9-365A9D3B383A}"
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Antelcat.AutoGen.Shared", "Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.shproj", "{332D088C-0399-4ECE-9F4C-7B2495A1F718}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,14 +36,12 @@ Global
 		{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6AAC1E4E-3928-4568-A3F9-D7AF64EF2531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6AAC1E4E-3928-4568-A3F9-D7AF64EF2531}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6AAC1E4E-3928-4568-A3F9-D7AF64EF2531}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6AAC1E4E-3928-4568-A3F9-D7AF64EF2531}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3} = {EC8707B7-D7FD-49A2-9946-89C876B192EA}
-		{6AAC1E4E-3928-4568-A3F9-D7AF64EF2531} = {EC8707B7-D7FD-49A2-9946-89C876B192EA}
-		{BBB1A609-763C-4529-9FB9-365A9D3B383A} = {EC8707B7-D7FD-49A2-9946-89C876B192EA}
 	EndGlobalSection
 EndGlobal

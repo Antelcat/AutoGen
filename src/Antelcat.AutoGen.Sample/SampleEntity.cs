@@ -1,5 +1,5 @@
 
-namespace Antelcat.AnyGenerator.Sample;
+namespace Antelcat.AutoGen.Sample;
 
 // This code will not compile until you build the project with the Source Generators
 

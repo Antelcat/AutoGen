@@ -2,7 +2,7 @@ using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Antelcat.AnyGenerator.Tests.Utils;
+namespace Antelcat.AutoGen.Tests.Utils;
 
 public class TestAdditionalFile : AdditionalText
 {
