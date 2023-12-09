@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Entity;
 using Microsoft.CodeAnalysis;
@@ -21,10 +20,10 @@ public class MapToGenerator : IIncrementalGenerator
     {
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
             GenerateMapTo,
-            (node, t) => node is ClassDeclarationSyntax,
-            (ctx, t) => ctx);
+            static (node, t) => node is ClassDeclarationSyntax,
+            static (ctx, t) => ctx);
 
-        context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), (ctx, t) =>
+        context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), static (ctx, t) =>
         {
             foreach (var syntax in t.Right)
             {
@@ -56,7 +55,8 @@ public class MapToGenerator : IIncrementalGenerator
 
                 var extraMethods = @class.GetMembers()
                     .OfType<IMethodSymbol>()
-                    .Where(static x => x.Parameters.Length == 1);
+                    .Where(static x => x.Parameters.Length == 1)
+                    .ToList();
 
                 var partial = ClassDeclaration(@class.Name)
                     .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
@@ -89,37 +89,32 @@ public class MapToGenerator : IIncrementalGenerator
                         .ToList();
 
 
-                    var method = MethodDeclaration(ParseTypeName(
-                            typeSymbol.GetFullyQualifiedName()), mapperName)
-                        .WithModifiers(SyntaxTokenList.Create(Token(typeSymbol.DeclaredAccessibility switch
-                        {
-                            Accessibility.Public   => SyntaxKind.PublicKeyword,
-                            Accessibility.Internal => SyntaxKind.InternalKeyword,
-                            _                      => throw new ArgumentOutOfRangeException()
-                        })));
-                    var canEmpty = false;
-                    if (typeSymbol.TypeKind == TypeKind.Class)
-                    {
-                        if (typeSymbol.Constructors.Any(static x => x.Parameters.Length == 0))
-                            canEmpty = true;
-                    }
+                    var method = MethodDeclaration(ParseTypeName(typeSymbol.GetFullyQualifiedName()), mapperName)
+                        .WithModifiers(SyntaxTokenList.Create(Token(typeSymbol.DeclaredAccessibility.GetSyntaxKind().First())));
+                    var canNew = CanNew(typeSymbol);
 
                     const string argName = "target";
 
                     var targetFullName = typeSymbol.GetFullyQualifiedName();
                     method = method.WithParameterList(
-                        canEmpty
+                        canNew
                             ? ParameterList()
                             : ParseParameterList($"({targetFullName}  {argName})"));
 
+                    var extra = string.Empty;
+                    if (attr.Extra is { Length: > 0 })
+                    {
+                        
+                    }
+
                     partial = partial.AddMembers(method.WithBody(Block(
                         ParseStatement(
-                            canEmpty
+                            canNew
                                 ? $$"""
                                     var {{argName}} = new {{targetFullName}}()
                                     {
                                         {{string.Join(",\n", MapProp(targetMembers, availableMembers
-                                            .Where(x => IsValidAccessibility(x.property.DeclaredAccessibility,attr.Accessibility))
+                                            .Where(x => IsValidAccessibility(x.property.DeclaredAccessibility, attr.Accessibility))
                                             .ToList()!, typeSymbol))}}
                                     };
                                     """
@@ -172,7 +167,9 @@ public class MapToGenerator : IIncrementalGenerator
                 targetAccessibility.HasFlag(ComponentModel.Accessibility.Internal),
             _ => false
         };
-    
+
+    private static bool CanNew(INamedTypeSymbol symbol) => symbol.TypeKind == TypeKind.Class && symbol.Constructors.Any(static x => x.Parameters.Length == 0);
+
     private static IEnumerable<string> MapProp(
         IReadOnlyCollection<IPropertySymbol> targetProps,
         IEnumerable<(IPropertySymbol property, List<MapConfig> configs)> thisProps,

@@ -14,6 +14,8 @@ public partial class Entity
     [MapToName(nameof(Dto.Name), ValidOn = typeof(Entity))]
     public string KK { get; set; }
 
+    [MapToName(nameof(Dto.id))]
+    [MapIgnore(typeof(Entity))]
     protected internal int Id { get; set; }
 
     private int Number { get; set; }
