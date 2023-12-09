@@ -1,21 +1,29 @@
+using Antelcat.AutoGen.ComponentModel.Entity;
+
 namespace Antelcat.AutoGen.Sample;
 
-public class Examples
+[GenerateMapBetween(typeof(Entity), typeof(Dto))]
+public static class Mapper
 {
-    public enum E
-    {
-        A
-    }
-    // Create generated entities, based on DDD.UbiquitousLanguageRegistry.txt
-    public object[] CreateEntities()
-    {
-        return new object[]
-        {
-        };
-    }
+    
+}
 
-    // Execute generated method Report
-    public void CreateEntityReport(SampleEntity entity)
-    {
-    }
+[GenerateMapTo(typeof(Dto))]
+public partial class Entity
+{
+    [MapToName(nameof(Dto.Name), ValidOn = typeof(Entity))]
+    public string KK { get; set; }
+
+    protected internal int Id { get; set; }
+
+    private int Number { get; set; }
+}
+
+public class Dto
+{
+    public string Name { get; set; }
+    
+    public int id { get; set; }
+    
+    internal int Number { get; set; }
 }

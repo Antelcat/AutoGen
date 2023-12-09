@@ -1,16 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.SourceGenerators", "Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj", "{2AF94890-5351-4827-933D-9A193812A811}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antelcat.AutoGen.SourceGenerators", "Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj", "{2AF94890-5351-4827-933D-9A193812A811}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.Sample", "Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj", "{3473578A-8C02-42AC-BE81-ABB1DC3C4AAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antelcat.AutoGen.Sample", "Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj", "{3473578A-8C02-42AC-BE81-ABB1DC3C4AAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.Tests", "Antelcat.AutoGen.Tests\Antelcat.AutoGen.Tests.csproj", "{0581DAB8-B73E-4225-B021-4486FC319F5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antelcat.AutoGen.Tests", "Antelcat.AutoGen.Tests\Antelcat.AutoGen.Tests.csproj", "{0581DAB8-B73E-4225-B021-4486FC319F5C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extern", "Extern", "{EC8707B7-D7FD-49A2-9946-89C876B192EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feast.CodeAnalysis.SourceGenerators", "..\extern\CodeAnalysis\src\Feast.CodeAnalysis.SourceGenerators\Feast.CodeAnalysis.SourceGenerators.csproj", "{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Feast.CodeAnalysis.SourceGenerators", "..\extern\CodeAnalysis\src\Feast.CodeAnalysis.SourceGenerators\Feast.CodeAnalysis.SourceGenerators.csproj", "{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen", "Antelcat.AutoGen\Antelcat.AutoGen.csproj", "{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antelcat.AutoGen", "Antelcat.AutoGen\Antelcat.AutoGen.csproj", "{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Antelcat.AutoGen.Shared", "Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.shproj", "{332D088C-0399-4ECE-9F4C-7B2495A1F718}"
 EndProject
@@ -41,7 +44,15 @@ Global
 		{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BF0E91F-7E68-4077-812D-F3BD310E5F4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3} = {EC8707B7-D7FD-49A2-9946-89C876B192EA}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems*{2af94890-5351-4827-933d-9a193812a811}*SharedItemsImports = 5
+		Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems*{332d088c-0399-4ece-9f4c-7b2495a1f718}*SharedItemsImports = 13
+		Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems*{5bf0e91f-7e68-4077-812d-f3bd310e5f4e}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using TypeInfo = Feast.CodeAnalysis.Utils.TypeInfo;
 
 namespace Antelcat.AutoGen.SourceGenerators;
 

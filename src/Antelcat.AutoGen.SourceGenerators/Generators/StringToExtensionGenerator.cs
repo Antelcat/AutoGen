@@ -59,19 +59,8 @@ public class StringToExtensionGenerator : IIncrementalGenerator
                     .SelectMany(x => x.Attributes)
                     .Select(x =>
                     {
-                        var access = Accessibility.Public;
-                        var name   = nameof(System);
-                        if (x.ConstructorArguments.Length > 0)
-                        {
-                            name = x.ConstructorArguments[0].GetArgumentString() ?? nameof(System);
-                        }
-
-                        if (x.ConstructorArguments.Length > 1)
-                        {
-                            access = x.ConstructorArguments[1].GetArgumentEnum<Accessibility>();
-                        }
-
-                        return (name, access);
+                        var attr = x.ToAttribute<GenerateStringToAttribute>();
+                        return (name: attr.Namespace, access: attr.Accessibility);
                     })
                     .Where(x => x.name.IsInvalidNamespace())
                     .GroupBy(x => x.name);
@@ -84,16 +73,17 @@ public class StringToExtensionGenerator : IIncrementalGenerator
                             NamespaceDeclaration(IdentifierName(name))
                                 .AddMembers(
                                     ClassDeclaration(ClassName)
-                                        .AddModifiers(access is Accessibility.Public
-                                            ? SyntaxKind.PublicKeyword
-                                            : SyntaxKind.InternalKeyword, SyntaxKind.StaticKeyword)
+                                        .AddModifiers(access switch
+                                        {
+                                            Accessibility.Public   => SyntaxKind.PublicKeyword,
+                                            _ => SyntaxKind.InternalKeyword
+                                        }, SyntaxKind.StaticKeyword)
                                         .AddMembers(Content))
                                 .WithLeadingTrivia(Header));
                     ctx.AddSource($"{name}.{ClassName}.g.cs", unit
                         .NormalizeWhitespace()
                         .GetText(Encoding.UTF8));
                 }
-
             });
 
     }
