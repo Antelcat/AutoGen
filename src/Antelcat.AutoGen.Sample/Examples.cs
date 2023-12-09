@@ -8,17 +8,21 @@ public static class Mapper
     
 }
 
-[GenerateMapTo(typeof(Dto))]
+[GenerateMapTo(typeof(Dto),Extra = [nameof(Map)])]
 public partial class Entity
 {
     [MapToName(nameof(Dto.Name), ValidOn = typeof(Entity))]
     public string KK { get; set; }
 
     [MapToName(nameof(Dto.id))]
-    [MapIgnore(typeof(Entity))]
     protected internal int Id { get; set; }
 
     private int Number { get; set; }
+
+    private void Map(Dto o)
+    {
+
+    }
 }
 
 public class Dto

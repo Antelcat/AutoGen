@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Entity;
@@ -101,10 +102,13 @@ public class MapToGenerator : IIncrementalGenerator
                             ? ParameterList()
                             : ParseParameterList($"({targetFullName}  {argName})"));
 
-                    var extra = string.Empty;
+                    var extra = new List<StatementSyntax>();
                     if (attr.Extra is { Length: > 0 })
                     {
-                        
+                        extra.AddRange(
+                            from m in attr.Extra.Where(static x => !string.IsNullOrWhiteSpace(x))
+                            where extraMethods.Any(x => x.Name == m)
+                            select ParseStatement($"{m}({argName});"));
                     }
 
                     partial = partial.AddMembers(method.WithBody(Block(
@@ -118,9 +122,9 @@ public class MapToGenerator : IIncrementalGenerator
                                             .ToList()!, typeSymbol))}}
                                     };
                                     """
-                                : ""),
-                        ParseStatement($"return {argName};")
-                    )));
+                                : "")
+                    )).AddBodyStatements(extra.ToArray())
+                    .AddBodyStatements(ParseStatement($"return {argName};")));
                 }
 
 
