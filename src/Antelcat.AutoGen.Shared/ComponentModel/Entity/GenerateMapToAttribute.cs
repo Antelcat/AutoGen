@@ -24,7 +24,7 @@ public class GenerateMapToAttribute(
     public string? Alias { get; set; }
 
     /// <summary>
-    /// Extra mapper methods
+    /// Extra mapper methods' name, should be one argument of target type
     /// </summary>
     public string[]? Extra { get; set; }
 }
