@@ -98,7 +98,9 @@ public class MapToGenerator : IIncrementalGenerator
 
 
                     var method = MethodDeclaration(ParseTypeName(typeSymbol.GetFullyQualifiedName()), mapperName)
-                        .WithModifiers(SyntaxTokenList.Create(Token(typeSymbol.DeclaredAccessibility.GetSyntaxKind().First())));
+                        .WithModifiers(SyntaxTokenList.Create(Token(typeSymbol.DeclaredAccessibility
+                            .GetSyntaxKind()
+                            .First()))).WithGenerateAttribute(typeof(MapToGenerator));
                     var canNew = CanNew(typeSymbol);
 
                     const string argName = "target";

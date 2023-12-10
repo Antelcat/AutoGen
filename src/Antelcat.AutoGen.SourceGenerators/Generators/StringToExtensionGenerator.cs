@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -42,15 +43,15 @@ public class StringToExtensionGenerator : IIncrementalGenerator
     
     private static readonly MemberDeclarationSyntax[] Content = 
         StringExtensions()
-        .Select(x => ParseMemberDeclaration(x)!)
+        .Select(static x => ParseMemberDeclaration(x)!)
         .ToArray();
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
             typeof(GenerateStringToAttribute).FullName!,
-            (node, _) => node is CompilationUnitSyntax or ClassDeclarationSyntax,
-            (ctx, t) =>
+            static (node, _) => node is CompilationUnitSyntax or ClassDeclarationSyntax,
+            static (ctx, t) =>
                 (ctx.TargetNode, ctx.Attributes, Context: ctx));
         context.RegisterSourceOutput(context
                 .CompilationProvider
@@ -58,8 +59,8 @@ public class StringToExtensionGenerator : IIncrementalGenerator
             (ctx, t) =>
             {
                 var classes = t.Right
-                    .Where(x => x.TargetNode is ClassDeclarationSyntax)
-                    .GroupBy(x => x.Context.TargetSymbol, SymbolEqualityComparer.Default);
+                    .Where(static x => x.TargetNode is ClassDeclarationSyntax)
+                    .GroupBy(static x => x.Context.TargetSymbol, SymbolEqualityComparer.Default);
                 foreach (var group in classes)
                 {
                     var unit = CompilationUnit()
@@ -75,15 +76,15 @@ public class StringToExtensionGenerator : IIncrementalGenerator
                         .GetText(Encoding.UTF8));
                 }
                 var assemblies = t.Right
-                    .Where(x => x.TargetNode is CompilationUnitSyntax)
-                    .SelectMany(x => x.Attributes)
-                    .Select(x =>
+                    .Where(static x => x.TargetNode is CompilationUnitSyntax)
+                    .SelectMany(static x => x.Attributes)
+                    .Select(static x =>
                     {
                         var attr = x.ToAttribute<GenerateStringToAttribute>();
                         return (name: attr.Namespace, access: attr.Accessibility);
                     })
-                    .Where(x => x.name.IsInvalidNamespace())
-                    .GroupBy(x => x.name);
+                    .Where(static x => x.name.IsInvalidNamespace())
+                    .GroupBy(static x => x.name);
                 foreach (var group in assemblies)
                 {
                     var name = group.First().name;
@@ -114,7 +115,7 @@ public class StringToExtensionGenerator : IIncrementalGenerator
         foreach (var type in typeof(string).Assembly.ExportedTypes)
         {
             var method = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(x => x.Name == nameof(int.TryParse) && x.GetParameters().Length == 2);
+                .FirstOrDefault(static x => x.Name == nameof(int.TryParse) && x.GetParameters().Length == 2);
             if (method is null) continue;
             contexts.Add(method.IsGenericMethod
                 ? (type, method, method.GetGenericArguments().First())
@@ -122,12 +123,14 @@ public class StringToExtensionGenerator : IIncrementalGenerator
         }
 
         return contexts
-            .Select(x =>
+            .Select(static x =>
                 $"""
 
                  /// <summary>
                  /// Convert from <see cref="string"/> to <see cref="{Global(x.Type)}"/>
                  /// </summary>
+                 {GeneratedCodeAttribute(typeof(StringToExtensionGenerator)).GetText(Encoding.UTF8)}
+                 {ExcludeFromCodeCoverageAttribute().GetText(Encoding.UTF8)}
                  public static {x.GType?.Name ?? Global(x.Type)}{Nullable(x.GType ?? x.Type)} To{x.Type.Name}{Generic(x.GType?.Name)}(this string? str){
                      GetGenericConversion(x.GType)} => {Global(x.Type)}.{nameof(int.TryParse)}{Generic(x.GType?.Name)}(str, out var result) ? result : default;
                  """); 

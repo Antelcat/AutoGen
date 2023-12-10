@@ -1,4 +1,7 @@
+using System.CodeDom.Compiler;
+using System.Diagnostics.CodeAnalysis;
 using Antelcat.AutoGen.ComponentModel.Entity;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antelcat.AutoGen.Sample;
 
