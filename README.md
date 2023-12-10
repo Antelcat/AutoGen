@@ -1,17 +1,17 @@
 # Antelcat.AutoGen
 
-Auto generate anything you want
-> ~~Unless we aren't able to~~
+自动生成任何你想要的东西
+> ~~除非做不到~~
 
-## Supports
+## 已支持
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
 + **`[GenerateStringTo(string, Accessibility)]`**
 
-    Auto generate 'string To' extensions
+    自动生成 string To 的扩展
 
-    which is valid on `assembly` and `static partial class`
+    仅能在 `assembly` 和 `static partial class` 上使用
 
     ![GenerateStringTo](./docs/GenerateStringTo.png)
 
@@ -19,16 +19,18 @@ Auto generate anything you want
 
   + **`[GenerateMapTo(Type, Accessibility)]`**
 
-    Auto generate mapping function to target type
+    自动生成与其他类型的映射代码
 
-    which is valid only on `partial class`
+    只能在 `partial class` 上使用
 
     ![GenerateStringTo](./docs/GenerateMapTo.png)
 
+    > 你可以使用它生成 `浅拷贝`
+
   + **`[MapToName(string, Type)]`**
 
-    Specified property name when mapping to target type
+    指定在目标对象上映射的属性名
 
   + **`[MapIgnore(params Type[])]`**
 
-    Ignored when generate mapping fun, if given type, only be ignored when mapping to these types
+    在生成映射代码时忽略，如果指定类型，则仅在生成面向目标类型时忽略
