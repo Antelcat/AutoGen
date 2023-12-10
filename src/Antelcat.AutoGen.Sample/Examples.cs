@@ -12,13 +12,13 @@ public static class Mapper
 [GenerateMapTo(typeof(Dto), Extra = [nameof(Map),nameof(Map2)])]
 public partial class Entity
 {
-    [MapToName(nameof(Dto.Name), ValidOn = typeof(Entity))]
+    [MapToName(nameof(Dto.Name), ValidOn = typeof(Dto))]
     public required string KK { get; set; }
 
     [MapToName(nameof(Dto.id))] 
     protected internal int Id { get; set; }
 
-    [MapIgnore(typeof(Dto))]
+    [MapIgnore]
     private int Number { get; set; }
 
     private void Map(Dto o)
