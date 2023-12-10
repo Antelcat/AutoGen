@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Antelcat.AutoGen.ComponentModel.Entity;
 
 namespace Antelcat.AutoGen.Sample;
@@ -8,27 +9,38 @@ public static class Mapper
     
 }
 
-[GenerateMapTo(typeof(Dto), Extra = [nameof(Map)])]
+[GenerateMapTo(typeof(Dto), Extra = [nameof(Map),nameof(Map2)])]
 public partial class Entity
 {
     [MapToName(nameof(Dto.Name), ValidOn = typeof(Entity))]
-    public string KK { get; set; }
+    public required string KK { get; set; }
 
-    [MapToName(nameof(Dto.id))] protected internal int Id { get; set; }
+    [MapToName(nameof(Dto.id))] 
+    protected internal int Id { get; set; }
 
     private int Number { get; set; }
 
     private void Map(Dto o)
     {
+    }
 
+    private void Map2(Dto o)
+    {
+        
     }
 }
 
-public class Dto
+[GenerateMapTo(typeof(Entity), Extra = [nameof(Set)])]
+public partial class Dto
 {
-    public string Name { get; set; }
-    
-    public int id { get; set; }
-    
+    [MapToName(nameof(Entity.KK))] internal string Name { get; set; }
+
+    [MapToName(nameof(Entity.Id))] public int id { get; set; }
+
     internal int Number { get; set; }
+
+    private void Set(Entity e)
+    {
+        e.Id = id;
+    }
 }

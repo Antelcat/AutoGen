@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Entity;
@@ -138,9 +137,11 @@ public class MapToGenerator : IIncrementalGenerator
         });
     }
 
-    private static bool Match(string name, string? targetName)
+    private static bool Match(string name, string targetName)
     {
-        return string.Equals(name, targetName, StringComparison.OrdinalIgnoreCase);
+        return string.Equals(
+            name.Replace("_", ""),
+            targetName.Replace("_", ""), StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsValidProperty(IPropertySymbol symbol, 
@@ -153,7 +154,10 @@ public class MapToGenerator : IIncrementalGenerator
                    IsStatic  : false,
                }
                && allowInternal && accessibility.HasFlag(ComponentModel.Accessibility.Internal)
-            ? symbol.DeclaredAccessibility is Accessibility.Internal or Accessibility.Public
+            ? symbol.DeclaredAccessibility is
+                Accessibility.Internal
+                or Accessibility.Public
+                or Accessibility.ProtectedOrInternal
             : symbol.DeclaredAccessibility == Accessibility.Public;
     }
 
@@ -181,52 +185,42 @@ public class MapToGenerator : IIncrementalGenerator
     {
         foreach (var thisProp in thisProps)
         {
-            string? candidate = null;
-            var     ignored   = false;
-            var     certain   = false;
+            IPropertySymbol? targetProp = null;
+            var              ignored    = false;
+            var              certain    = false;
             if (thisProp.configs.Count > 0)
             {
                 foreach (var config in thisProp.configs)
                 {
                     if (config.IsIgnore)
                     {
-                        if (config.Types == null 
-                            || config.Types.Length == 0
-                            || config.Types!.Contains(targetType, SymbolEqualityComparer.Default))
-                        {
-                            ignored = true;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (config.Type is null)
-                        {
-                            if(certain) continue;
-                            if (targetProps.All(x => Match(x.Name, config.Name))) continue;
-                            candidate = config.Name;
+                        if (config.Types           != null
+                            && config.Types.Length != 0
+                            && !config.Types!.Contains(targetType, SymbolEqualityComparer.Default))
                             continue;
-                        }
-
-                        if (!SymbolEqualityComparer.Default.Equals(config.Type, targetType)) continue;
-                        if (targetProps.All(x => Match(x.Name, config.Name))) continue;
-                        candidate = config.Name;
-                        certain   = true;
+                        ignored = true;
                         break;
                     }
+
+                    if (config.Type is null)
+                    {
+                        if (certain) continue;
+                        targetProp = targetProps.FirstOrDefault(x => Match(x.Name, config.Name!));
+                        continue;
+                    }
+
+                    if (!SymbolEqualityComparer.Default.Equals(config.Type, targetType)) continue;
+                    targetProp = targetProps.FirstOrDefault(x => Match(x.Name, config.Name!));
+                    certain    = true;
                 }
             }
             if(ignored) continue;
-            
-            if (candidate != null)
+            targetProp ??= targetProps.FirstOrDefault(x => Match(x.Name, thisProp.property.Name));
+
+            if (targetProp == null)
             {
-                yield return $"{candidate} = this.{thisProp.property.Name}";
                 continue;
             }
-
-            var targetProp = targetProps.FirstOrDefault(x => 
-                Match(x.Name, thisProp.property.Name));
-            if (targetProp == null) continue;
             yield return $"{targetProp.Name} = this.{thisProp.property.Name}";
         }
     }
@@ -243,10 +237,12 @@ public class MapToGenerator : IIncrementalGenerator
             var name = attribute.AttributeClass!.ToDisplayString();
             if (name == MapToName)
             {
+                var nameArg = attribute.ConstructorArguments[0].GetArgumentString();
+                if (string.IsNullOrWhiteSpace(nameArg)) return null;
                 return new MapConfig
                 {
                     IsIgnore = false,
-                    Name     = attribute.ConstructorArguments[0].GetArgumentString()!,
+                    Name     = nameArg,
                     Type = attribute.NamedArguments.Length == 0
                         ? null
                         : attribute.NamedArguments.First().Value.Value as INamedTypeSymbol
