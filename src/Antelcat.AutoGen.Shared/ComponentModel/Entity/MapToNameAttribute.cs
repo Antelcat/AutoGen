@@ -10,8 +10,9 @@ namespace Antelcat.AutoGen.ComponentModel.Entity;
 public class MapToNameAttribute(string propertyName) : Attribute
 {
     internal string PropertyName = propertyName;
+    
     /// <summary>
     /// Limit type valid on this mapper
     /// </summary>
-    public Type? ValidOn { get; set; }
+    public Type? ValidOn { get; set; } 
 }
