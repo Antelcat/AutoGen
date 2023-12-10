@@ -7,7 +7,7 @@
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
-+ #### `[GenerateStringTo(string, Accessibility)]`
++ #### `[GenerateStringTo(string, Accessibility)]` :  
 
     自动生成 string To 的扩展
 
@@ -15,9 +15,9 @@
 
     ![GenerateStringTo](./docs/GenerateStringTo.png)
 
-+ #### `Entity`
++ #### `Entity` :  
 
-  + #### `[GenerateMapTo(Type, Accessibility)]`
+  + #### `[GenerateMapTo(Type, Accessibility)]` :  
 
     自动生成与其他类型的映射代码
 
@@ -27,10 +27,10 @@
 
     > 你可以使用它生成 `浅拷贝`
 
-  + #### `[MapToName(string, Type)]`
+  + #### `[MapToName(string, Type)]` :  
 
     指定在目标对象上映射的属性名
 
-  + #### `[MapIgnore(params Type[])]`
+  + #### `[MapIgnore(params Type[])]` :  
 
     在生成映射代码时忽略，如果指定类型，则仅在生成面向目标类型时忽略
