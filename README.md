@@ -29,10 +29,6 @@ Auto generate anything you want
 
     Specified property name when mapping to target type
 
-    which is valid only on `property`
-
   + `[MapIgnore(params Type[])]`
 
     Ignored when generate mapping fun, if given type, only be ignored when mapping to these types
-
-    which is valid only on `property`
