@@ -40,22 +40,42 @@ public class StringToExtensionGenerator : IIncrementalGenerator
         return sb.Remove(sb.Length - 1, 1).ToString();
     }
     
-    private static readonly MemberDeclarationSyntax[] Content = StringExtensions().Select(x => ParseMemberDeclaration(x)!).ToArray();
+    private static readonly MemberDeclarationSyntax[] Content = 
+        StringExtensions()
+        .Select(x => ParseMemberDeclaration(x)!)
+        .ToArray();
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
-             typeof(GenerateStringToAttribute).FullName!,
-            (node, t) => node is CompilationUnitSyntax,
-            (ctx, t) => 
-                ((ctx.TargetNode as CompilationUnitSyntax)!, 
-                ctx.Attributes));
+            typeof(GenerateStringToAttribute).FullName!,
+            (node, _) => node is CompilationUnitSyntax or ClassDeclarationSyntax,
+            (ctx, t) =>
+                (ctx.TargetNode, ctx.Attributes, Context: ctx));
         context.RegisterSourceOutput(context
                 .CompilationProvider
                 .Combine(provider.Collect()),
             (ctx, t) =>
             {
-                var args = t.Right
+                var classes = t.Right
+                    .Where(x => x.TargetNode is ClassDeclarationSyntax)
+                    .GroupBy(x => x.Context.TargetSymbol, SymbolEqualityComparer.Default);
+                foreach (var group in classes)
+                {
+                    var unit = CompilationUnit()
+                        .AddMembers(
+                            NamespaceDeclaration(IdentifierName(group.Key.ContainingNamespace.ToDisplayString()))
+                                .AddMembers(
+                                    ClassDeclaration(group.Key.Name)
+                                        .AddModifiers(SyntaxKind.PartialKeyword)
+                                        .AddMembers(Content))
+                                .WithLeadingTrivia(Header));
+                    ctx.AddSource($"{group.Key.Name}.g.cs", unit
+                        .NormalizeWhitespace()
+                        .GetText(Encoding.UTF8));
+                }
+                var assemblies = t.Right
+                    .Where(x => x.TargetNode is CompilationUnitSyntax)
                     .SelectMany(x => x.Attributes)
                     .Select(x =>
                     {
@@ -64,7 +84,7 @@ public class StringToExtensionGenerator : IIncrementalGenerator
                     })
                     .Where(x => x.name.IsInvalidNamespace())
                     .GroupBy(x => x.name);
-                foreach (var group in args)
+                foreach (var group in assemblies)
                 {
                     var name = group.First().name;
                     var access = group.First().access;

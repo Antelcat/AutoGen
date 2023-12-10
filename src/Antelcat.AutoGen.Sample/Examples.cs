@@ -18,6 +18,7 @@ public partial class Entity
     [MapToName(nameof(Dto.id))] 
     protected internal int Id { get; set; }
 
+    [MapIgnore(typeof(Dto))]
     private int Number { get; set; }
 
     private void Map(Dto o)

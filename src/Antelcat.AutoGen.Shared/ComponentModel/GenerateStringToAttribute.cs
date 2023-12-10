@@ -3,7 +3,12 @@ using Antelcat.AutoGen.ComponentModel.Abstractions;
 
 namespace Antelcat.AutoGen.ComponentModel;
 
-[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+/// <summary>
+/// Auto generate string.To() extension method, which should be <see langword="partial"/> <see langword="static"/>
+/// </summary>
+/// <param name="namespace"></param>
+/// <param name="accessibility">Specify the accessibility of the extension, accepts only <see cref="Accessibility.Public"/> or <see cref="Accessibility.Internal"/> </param>
+[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class, AllowMultiple = true)]
 public class GenerateStringToAttribute(
     string? @namespace = nameof(System),
     Accessibility accessibility = Accessibility.Public) : GenerateAttribute

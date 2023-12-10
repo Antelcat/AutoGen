@@ -4,7 +4,7 @@ using Antelcat.AutoGen.ComponentModel.Abstractions;
 namespace Antelcat.AutoGen.ComponentModel.Entity;
 
 /// <summary>
-/// Auto generate To() method from current and target
+/// Auto generate To() method from current to target
 /// </summary>
 /// <param name="target">target type</param>
 /// <param name="accessibility">the property with which accessibility included in the map</param>
@@ -16,7 +16,11 @@ public class GenerateMapToAttribute(
     : GenerateAttribute
 {
     internal readonly Accessibility Accessibility = accessibility;
-    public            Accessibility TargetAccessibility { get; set; } = Accessibility.Internal;
+
+    /// <summary>
+    /// Specified the most strict target property's accessibility, only accept <see cref="Accessibility.Public"/> or <see cref="Accessibility.Internal"/>
+    /// </summary>
+    public Accessibility TargetAccessibility { get; set; } = Accessibility.Internal;
 
     /// <summary>
     /// Alias naming
