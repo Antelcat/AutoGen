@@ -7,7 +7,7 @@ Auto generate anything you want
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
-+ `[GenerateStringTo(string, Accessibility)]`
++ **`[GenerateStringTo(string, Accessibility)]`**
 
     Auto generate 'string To' extensions
 
@@ -15,9 +15,9 @@ Auto generate anything you want
 
     ![GenerateStringTo](./docs/GenerateStringTo.png)
 
-+ `Entity`
++ **`Entity`**
 
-  + `[GenerateMapTo(Type, Accessibility)]`
+  + **`[GenerateMapTo(Type, Accessibility)]`**
 
     Auto generate mapping function to target type
 
@@ -25,10 +25,10 @@ Auto generate anything you want
 
     ![GenerateStringTo](./docs/GenerateMapTo.png)
 
-  + `[MapToName(string, Type)]`
+  + **`[MapToName(string, Type)]`**
 
     Specified property name when mapping to target type
 
-  + `[MapIgnore(params Type[])]`
+  + **`[MapIgnore(params Type[])]`**
 
     Ignored when generate mapping fun, if given type, only be ignored when mapping to these types
