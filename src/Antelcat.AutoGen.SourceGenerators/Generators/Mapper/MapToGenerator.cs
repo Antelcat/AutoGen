@@ -69,6 +69,14 @@ public class MapToGenerator : IIncrementalGenerator
                     var attr = attribute.ToAttribute<GenerateMapToAttribute>();
                     var type = attribute.ConstructorArguments[0].Value;
                     if (type is not INamedTypeSymbol typeSymbol) continue;
+                    if (typeSymbol.IsStatic)
+                    {
+                        ctx.ReportDiagnostic(Diagnostic.Create(
+                            Diagnostics.Error.AA0001(nameof(MapToGenerator)),
+                            syntax.TargetNode.GetLocation(),
+                            nameof(GenerateMapToAttribute), "[static] keyword"));
+                        continue;
+                    }
                     if (generated.Contains(typeSymbol, SymbolEqualityComparer.Default)) continue; //repeated
                     generated.Add(typeSymbol);
 
@@ -106,7 +114,8 @@ public class MapToGenerator : IIncrementalGenerator
                     {
                         extra.AddRange(
                             from m in attr.Extra.Where(static x => !string.IsNullOrWhiteSpace(x))
-                            where extraMethods.Any(x => x.Name == m)
+                            where extraMethods.Any(x =>
+                                x.Name == m && SymbolEqualityComparer.Default.Equals(x.Parameters[0].Type, @class))
                             select ParseStatement($"{m}({argName});"));
                     }
 

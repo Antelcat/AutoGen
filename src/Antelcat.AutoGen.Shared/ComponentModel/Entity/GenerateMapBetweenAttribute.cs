@@ -4,7 +4,7 @@ using Antelcat.AutoGen.ComponentModel.Abstractions;
 namespace Antelcat.AutoGen.ComponentModel.Entity;
 
 
-public class GenerateMapBetweenAttribute(Type one, Type another) : GenerateAttribute
+public class GenerateMapBetweenAttribute(Type from, Type to) : GenerateAttribute
 {
     /// <summary>
     /// Extra mapper actions
