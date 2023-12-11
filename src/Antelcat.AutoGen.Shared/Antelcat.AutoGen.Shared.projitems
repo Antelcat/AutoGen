@@ -11,10 +11,11 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Abstractions\GenerateAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Accessibility.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Entity\GenerateMapBetweenAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Entity\GenerateMapToAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Entity\MapIgnoreAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Entity\MapToNameAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\GenerateStringToAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\GenerateMapAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapExcludeAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapBetweenAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapIgnoreAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapIncludeAttribute.cs" />
   </ItemGroup>
 </Project>

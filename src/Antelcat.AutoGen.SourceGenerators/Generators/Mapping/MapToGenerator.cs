@@ -2,28 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Antelcat.AutoGen.ComponentModel.Entity;
+using Antelcat.AutoGen.ComponentModel.Mapping;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapper;
+namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 
 [Generator(LanguageNames.CSharp)]
 public class MapToGenerator : IIncrementalGenerator
 {
-    private static readonly string GenerateMapTo = $"{typeof(GenerateMapToAttribute).FullName}";
-    private static readonly string MapToName     = $"{typeof(MapToNameAttribute).FullName}";
-    private static readonly string MapIgnore     = $"{typeof(MapIgnoreAttribute).FullName}";
+    private static readonly string AutoMap    = $"{typeof(GenerateMapAttribute).FullName}";
+    private static readonly string MapBetween = $"{typeof(MapBetweenAttribute).FullName}";
+    private static readonly string MapIgnore  = $"{typeof(MapIgnoreAttribute).FullName}";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
-            GenerateMapTo,
-            static (node, t) => node is ClassDeclarationSyntax,
+            "",
+            static (node, t) => node is MethodDeclarationSyntax,
             static (ctx, t) => ctx);
 
-        context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), static (ctx, t) =>
+        context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), 
+            static (ctx, t) =>
         {
             foreach (var syntax in t.Right)
             {
@@ -31,9 +32,9 @@ public class MapToGenerator : IIncrementalGenerator
                 if (@class.IsStatic)
                 {
                     ctx.ReportDiagnostic(Diagnostic.Create(
-                        Diagnostics.Error.AA0001(nameof(MapToGenerator)),
+                        Diagnostics.Error.AM0001(nameof(MapToGenerator)),
                         syntax.TargetNode.GetLocation(),
-                        nameof(GenerateMapToAttribute), "[static] keyword"));
+                        nameof(GenerateMapAttribute), "[static] keyword"));
                     continue;
                 }
 
@@ -64,26 +65,25 @@ public class MapToGenerator : IIncrementalGenerator
 
                 var generated = new List<ITypeSymbol>();
                 foreach (var attribute in syntax.Attributes.Where(static x =>
-                             x.AttributeClass?.ToDisplayString() == GenerateMapTo))
+                             x.AttributeClass?.ToDisplayString() == AutoMap))
                 {
-                    var attr = attribute.ToAttribute<GenerateMapToAttribute>();
+                    var attr = attribute.ToAttribute<GenerateMapAttribute>();
                     var type = attribute.ConstructorArguments[0].Value;
                     if (type is not INamedTypeSymbol typeSymbol) continue;
                     if (typeSymbol.IsStatic)
                     {
                         ctx.ReportDiagnostic(Diagnostic.Create(
-                            Diagnostics.Error.AA0001(nameof(MapToGenerator)),
+                            Diagnostics.Error.AM0001(nameof(MapToGenerator)),
                             syntax.TargetNode.GetLocation(),
-                            nameof(GenerateMapToAttribute), "[static] keyword"));
+                            nameof(GenerateMapAttribute), "[static] keyword"));
                         continue;
                     }
                     if (generated.Contains(typeSymbol, SymbolEqualityComparer.Default)) continue; //repeated
                     generated.Add(typeSymbol);
 
 
-                    var mapperName = string.IsNullOrWhiteSpace(attr.Alias)
-                        ? "To" + typeSymbol.MetadataName
-                        : attr.Alias!;
+                    var mapperName = "To" + typeSymbol.MetadataName;
+                       
 
                     var allowInternal = SymbolEqualityComparer.Default.Equals(
                         typeSymbol.ContainingAssembly,
@@ -93,14 +93,14 @@ public class MapToGenerator : IIncrementalGenerator
                     var targetMembers = typeSymbol
                         .GetMembers()
                         .OfType<IPropertySymbol>()
-                        .Where(x => IsValidProperty(x, allowInternal, attr.TargetAccessibility))
+                        .Where(x => IsValidProperty(x, allowInternal, attr.ExportTo))
                         .ToList();
 
 
                     var method = MethodDeclaration(ParseTypeName(typeSymbol.GetFullyQualifiedName()), mapperName)
                         .WithModifiers(SyntaxTokenList.Create(Token(typeSymbol.DeclaredAccessibility
                             .GetSyntaxKind()
-                            .First()))).WithGenerateAttribute(typeof(MapToGenerator));
+                            .First()))).AddGenerateAttribute(typeof(MapToGenerator));
                     var canNew = CanNew(typeSymbol);
 
                     const string argName = "target";
@@ -128,7 +128,7 @@ public class MapToGenerator : IIncrementalGenerator
                                     var {{argName}} = new {{targetFullName}}()
                                     {
                                         {{string.Join(",\n", MapProp(targetMembers, availableMembers
-                                            .Where(x => IsValidAccessibility(x.property.DeclaredAccessibility, attr.Accessibility))
+                                            .Where(x => x.property.DeclaredAccessibility.IsIncludedIn(attr.ExportFrom))
                                             .ToList()!, typeSymbol))}}
                                     };
                                     """
@@ -172,20 +172,6 @@ public class MapToGenerator : IIncrementalGenerator
             : symbol.DeclaredAccessibility == Accessibility.Public;
     }
 
-    private static bool IsValidAccessibility(Accessibility accessibility,
-        ComponentModel.Accessibility targetAccessibility)
-
-        => accessibility switch
-        {
-            Accessibility.Public    => targetAccessibility.HasFlag(ComponentModel.Accessibility.Public),
-            Accessibility.Private   => targetAccessibility.HasFlag(ComponentModel.Accessibility.Private),
-            Accessibility.Internal  => targetAccessibility.HasFlag(ComponentModel.Accessibility.Internal),
-            Accessibility.Protected => targetAccessibility.HasFlag(ComponentModel.Accessibility.Protected),
-            Accessibility.ProtectedOrInternal =>
-                targetAccessibility.HasFlag(ComponentModel.Accessibility.Protected) &&
-                targetAccessibility.HasFlag(ComponentModel.Accessibility.Internal),
-            _ => false
-        };
 
     private static bool CanNew(INamedTypeSymbol symbol) => symbol.TypeKind == TypeKind.Class && symbol.Constructors.Any(static x => x.Parameters.Length == 0);
 
@@ -246,7 +232,7 @@ public class MapToGenerator : IIncrementalGenerator
         public static MapConfig? FromAttributeData(AttributeData attribute)
         {
             var name = attribute.AttributeClass!.ToDisplayString();
-            if (name == MapToName)
+            if (name == MapBetween)
             {
                 var nameArg = attribute.ConstructorArguments[0].GetArgumentString();
                 if (string.IsNullOrWhiteSpace(nameArg)) return null;

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.CodeDom.Compiler;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Antelcat.AutoGen.ComponentModel.Abstractions;
@@ -61,9 +59,25 @@ internal static class General
             Attribute(ParseName("global::" + ExcludeFromCodeCoverage))));
     }
 
-    internal static MethodDeclarationSyntax WithGenerateAttribute(this MethodDeclarationSyntax syntax, Type category) =>
+    internal static MethodDeclarationSyntax AddGenerateAttribute(this MethodDeclarationSyntax syntax, Type category) =>
         syntax.AddAttributeLists(GeneratedCodeAttribute(category), ExcludeFromCodeCoverageAttribute());
 
-    internal static MemberDeclarationSyntax WithGenerateAttribute(this MemberDeclarationSyntax syntax, Type category) =>
+    internal static MemberDeclarationSyntax AddGenerateAttribute(this MemberDeclarationSyntax syntax, Type category) =>
         syntax.AddAttributeLists(GeneratedCodeAttribute(category), ExcludeFromCodeCoverageAttribute());
+
+
+    internal static bool IsIncludedIn(this Accessibility accessibility,
+        ComponentModel.Accessibility targetAccessibility)
+
+        => accessibility switch
+        {
+            Accessibility.Public    => targetAccessibility.HasFlag(AutoGen.ComponentModel.Accessibility.Public),
+            Accessibility.Private   => targetAccessibility.HasFlag(AutoGen.ComponentModel.Accessibility.Private),
+            Accessibility.Internal  => targetAccessibility.HasFlag(AutoGen.ComponentModel.Accessibility.Internal),
+            Accessibility.Protected => targetAccessibility.HasFlag(AutoGen.ComponentModel.Accessibility.Protected),
+            Accessibility.ProtectedOrInternal =>
+                targetAccessibility.HasFlag(AutoGen.ComponentModel.Accessibility.Protected) ||
+                targetAccessibility.HasFlag(AutoGen.ComponentModel.Accessibility.Internal),
+            _ => false
+        };
 }

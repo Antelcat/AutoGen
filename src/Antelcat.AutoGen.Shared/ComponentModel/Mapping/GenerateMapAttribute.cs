@@ -1,31 +1,24 @@
 ﻿using System;
 using Antelcat.AutoGen.ComponentModel.Abstractions;
 
-namespace Antelcat.AutoGen.ComponentModel.Entity;
+namespace Antelcat.AutoGen.ComponentModel.Mapping;
 
 /// <summary>
 /// Auto generate To() method from current to target
 /// </summary>
-/// <param name="target">target type</param>
-/// <param name="accessibility">the property with which accessibility included in the map</param>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true)]
-public class GenerateMapToAttribute(
-    Type target,
-    Accessibility accessibility =
+/// <param name="exportFrom">the property with which accessibility included in the map</param>
+[AttributeUsage(AttributeTargets.Method)]
+public class GenerateMapAttribute(
+    Accessibility exportFrom =
         Accessibility.Public | Accessibility.Internal | Accessibility.Protected | Accessibility.Private)
     : GenerateAttribute
 {
-    internal readonly Accessibility Accessibility = accessibility;
+    internal readonly Accessibility ExportFrom = exportFrom;
 
     /// <summary>
     /// Specified the most strict target property's accessibility, only accept <see cref="Accessibility.Public"/> or <see cref="Accessibility.Internal"/>
     /// </summary>
-    public Accessibility TargetAccessibility { get; set; } = Accessibility.Internal;
-
-    /// <summary>
-    /// Alias naming
-    /// </summary>
-    public string? Alias { get; set; }
+    public Accessibility ExportTo { get; set; } = Accessibility.Internal | Accessibility.Public;
 
     /// <summary>
     /// Extra mapper methods' name, should be one argument of target type
