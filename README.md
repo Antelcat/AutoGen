@@ -15,22 +15,30 @@
 
     ![GenerateStringTo](./docs/GenerateStringTo.png)
 
-+ #### `Entity` :  
++ #### `Mapping` :  
 
-  + #### `[GenerateMapTo(Type, Accessibility)]` :  
+  + #### `[GenerateMap(Accessibility)]` :  
 
     自动生成与其他类型的映射代码
 
-    只能在 `partial class` 上使用
+    只能在 `partial method` 上使用
 
-    ![GenerateStringTo](./docs/GenerateMapTo.png)
+    ![GenerateMapTo](./docs/GenerateMap.png)
 
     > 你可以使用它生成 `浅拷贝`
 
-  + #### `[MapToName(string, Type)]` :  
+  + #### `[MapBetween(string, string)]` :  
 
-    指定在目标对象上映射的属性名
+    指定在两者类型上的属性映射
 
-  + #### `[MapIgnore(params Type[])]` :  
+  + #### `[MapIgnore]` :  
 
-    在生成映射代码时忽略，如果指定类型，则仅在生成面向目标类型时忽略
+    在生成映射代码时忽略
+
+  + #### `[MapInclude(string, Type)]` :  
+
+    显式添加参与映射的被 `[MapIgnore]` 的属性
+
+  + #### `[MapExclude(string, Type)]` :  
+
+    将属性在映射中移除

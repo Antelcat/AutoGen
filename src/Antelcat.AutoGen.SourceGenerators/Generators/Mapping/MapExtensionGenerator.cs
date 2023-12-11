@@ -94,15 +94,16 @@ public class MapExtensionGenerator : IIncrementalGenerator
                             .WithAttributeLists([])
                             .AddGenerateAttribute(typeof(MapExtensionGenerator))
                             .WithSemicolonToken(default)
-                            .WithBody(GenerateMethod(method, fromType, toType, mode is MethodMode.MapSelf,
-                                method.GetAttributes()
-                                    .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(GenerateMap))
-                                    .ToAttribute<GenerateMapAttribute>())));
+                            .WithBody(GenerateMethod(method, fromType, toType, mode is MethodMode.MapSelf, method
+                                .GetAttributes()
+                                .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(GenerateMap))
+                                .ToAttribute<GenerateMapAttribute>())));
                     }
 
                     var unit = CompilationUnit()
                         .AddMembers(
                             NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
+                                .WithLeadingTrivia(Header)
                                 .AddMembers(partial));
                     ctx.AddSource($"{@class.Name}.g.cs", unit.NormalizeWhitespace().GetText(Encoding.UTF8));
                 }
@@ -198,6 +199,7 @@ public class MapExtensionGenerator : IIncrementalGenerator
             .Where(x => x != null)
             .ToList();
 
+        
 
         var matches = fromProps.Select(x =>
             {
@@ -218,16 +220,32 @@ public class MapExtensionGenerator : IIncrementalGenerator
             .Where(x => x.to != null)
             .ToArray();
 
-        var main = ParseStatement(
-            $$"""
-              var {{toName}} = new {{to.GetFullyQualifiedName()}}()
-              {
-              {{string.Join("\n", matches.Select(x => MapOne(x.from, x.to!)))}}
-              };
-              """
-        );
+        var statements = new List<StatementSyntax>
+        {
+            ParseStatement(
+                $$"""
+                  var {{toName}} = new {{to.GetFullyQualifiedName()}}()
+                  {
+                  {{string.Join("\n", matches.Select(x => MapOne(x.from, x.to!)))}}
+                  };
+                  """)
+        };
+        
+        if (mapConfig.Extra is { Length: > 0 })
+        {
+            statements.AddRange(method.ContainingType.GetMembers()
+                .OfType<IMethodSymbol>()
+                .Where(x => mapConfig.Extra.Contains(x.Name) && (isSelf
+                    ? x.Parameters.Length == 1 && x.Parameters[0].Type.Is(to)
+                    : x.Parameters.Length == 2 && x.Parameters[0].Type.Is(from) && x.Parameters[1].Type.Is(to) || x.Parameters[1].Type.Is(from) && x.Parameters[0].Type.Is(to)))
+                .Select(symbol => ParseStatement(isSelf
+                    ? $"this.{symbol.Name}({toName})"
+                    : $"{symbol.ContainingType.GetFullyQualifiedName()}.{symbol.Name}({
+                        (symbol.Parameters[0].Type.Is(from) ? $"{fromName}, {toName}" : $"{toName}, {fromName}")
+                    });")));
+        }
 
-        return Block(main, ParseStatement($"return {toName};"));
+        return Block(statements.Append(ParseStatement($"return {toName};")));
 
         
 

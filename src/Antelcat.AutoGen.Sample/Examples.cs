@@ -5,10 +5,15 @@ namespace Antelcat.AutoGen.Sample;
 
 public static partial class Mapper
 {
-    [GenerateMap]
+    [GenerateMap(Extra = [nameof(Map)])]
     [MapBetween(nameof(Entity.KK), nameof(Dto.Name))]
     [MapInclude(nameof(Entity.Id),typeof(Entity))]
     public static partial Entity Fun(this Dto d);
+
+    private static void Map(Dto e, Entity d)
+    {
+        
+    }
 }
 
 public partial class Entity
@@ -20,9 +25,15 @@ public partial class Entity
 
     internal int Number { get; set; }
 
-    [GenerateMap]
+    [GenerateMap(Extra = [nameof(Ext)])]
     [MapBetween(nameof(KK), nameof(Dto.Name))]
+    [MapInclude(nameof(Id),typeof(Entity))]
     private partial Dto ToDto();
+
+    private void Ext(Dto d)
+    {
+        
+    }
 }
 
 public partial class Dto
