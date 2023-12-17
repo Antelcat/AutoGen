@@ -7,5 +7,4 @@ namespace Antelcat.AutoGen.ComponentModel.Mapping;
 /// </summary>
 /// <param name="belongsTo"><see cref="Type"/> which the property belongs to</param>
 /// <param name="property">Name of the property</param>
-[AttributeUsage(AttributeTargets.Method,AllowMultiple = true)]
-public class MapExcludeAttribute(string property, Type belongsTo) : Attribute;
+public class MapExcludeAttribute(string property, Type belongsTo) : MapConfigAttribute(property, belongsTo);

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Mapping;
@@ -7,17 +9,19 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Accessibility = Antelcat.AutoGen.ComponentModel.Accessibility;
+using Type = Feast.CodeAnalysis.CompileTime.Type;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 
 [Generator(LanguageNames.CSharp)]
 public class MapExtensionGenerator : IIncrementalGenerator
 {
-    private static readonly string GenerateMap = typeof(GenerateMapAttribute).FullName!;
-    private static readonly string MapBetween  = typeof(MapBetweenAttribute).FullName!;
-    private static readonly string MapExclude  = typeof(MapExcludeAttribute).FullName!;
-    private static readonly string MapInclude  = typeof(MapIncludeAttribute).FullName!;
-    private static readonly string MapIgnore   = typeof(MapIgnoreAttribute).FullName!;
+    private static readonly string GenerateMap    = typeof(GenerateMapAttribute).FullName!;
+    private static readonly string MapBetween     = typeof(MapBetweenAttribute).FullName!;
+    private static readonly string MapExclude     = typeof(MapExcludeAttribute).FullName!;
+    private static readonly string MapInclude     = typeof(MapIncludeAttribute).FullName!;
+    private static readonly string MapIgnore      = typeof(MapIgnoreAttribute).FullName!;
+    private static readonly string MapConstructor = typeof(MapConstructorAttribute).FullName!;
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -94,10 +98,7 @@ public class MapExtensionGenerator : IIncrementalGenerator
                             .WithAttributeLists([])
                             .AddGenerateAttribute(typeof(MapExtensionGenerator))
                             .WithSemicolonToken(default)
-                            .WithBody(GenerateMethod(method, fromType, toType, mode is MethodMode.MapSelf, method
-                                .GetAttributes()
-                                .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(GenerateMap))
-                                .ToAttribute<GenerateMapAttribute>())));
+                            .WithBody(GenerateMethod(method, fromType, toType, mode is MethodMode.MapSelf)));
                     }
 
                     var unit = CompilationUnit()
@@ -145,6 +146,17 @@ public class MapExtensionGenerator : IIncrementalGenerator
                 ));
             return MethodMode.Invalid;
         }
+        
+        if (method.ReturnType is { TypeKind: TypeKind.Class, IsAbstract: true })
+        {
+            context.ReportDiagnostic(
+                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapExtensionGenerator)),
+                    location,
+                    nameof(GenerateMapAttribute),
+                    "return none abstract type"
+                ));
+            return MethodMode.Invalid;
+        }
 
         return method.Parameters.Length switch
         {
@@ -166,8 +178,7 @@ public class MapExtensionGenerator : IIncrementalGenerator
         IMethodSymbol method,
         ITypeSymbol from,
         ITypeSymbol to,
-        bool isSelf,
-        GenerateMapAttribute mapConfig)
+        bool isSelf)
     {
         var fromName = isSelf ? "this" : method.Parameters[0].Name;
         var toName   = isSelf ? "ret" : method.Parameters[0].Name == "ret" ? "retVal" : "ret";
@@ -175,14 +186,21 @@ public class MapExtensionGenerator : IIncrementalGenerator
         var fromAccess = GetAccess(method, from);
         var toAccess   = GetAccess(method, to);
 
-        var configs = GetExcludes(method, from, to);
+        var attrs = method.GetAttributes();
 
+        var configs = GetExcludes(attrs, from, to);
+
+        var mapConfig = attrs
+            .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(GenerateMap))
+            .ToAttribute<GenerateMapAttribute>();
+        
         var fromProps = from.GetMembers()
             .OfType<IPropertySymbol>()
             .Where(x =>
                 !x.IsWriteOnly                                             &&
                 x.DeclaredAccessibility.IsIncludedIn(mapConfig.ExportFrom) &&
-                QualifiedProperty(x, fromAccess, configs.fromExcludes, configs.fromIncludes));
+                QualifiedProperty(x, fromAccess, configs.fromExcludes, configs.fromIncludes))
+            .ToList();
 
         var toProps = to.GetMembers()
             .OfType<IPropertySymbol>()
@@ -192,39 +210,82 @@ public class MapExtensionGenerator : IIncrementalGenerator
                 QualifiedProperty(x, toAccess, configs.toExcludes, configs.toIncludes))
             .ToList();
 
-        var betweens = method.GetAttributes().Select(x =>
+        var pairs = attrs.Select(static x =>
                 x.AttributeClass!.HasFullyQualifiedMetadataName(MapBetween)
                     ? x.ToAttribute<MapBetweenAttribute>()
                     : null)
-            .Where(x => x != null)
+            .Where(static x => x != null)
             .ToList();
-
-        
 
         var matches = fromProps.Select(x =>
             {
-                var name   = x.Name;
-                var config = betweens.FirstOrDefault(a => a!.FromProperty == name || a.ToProperty == name);
+                var fromProp = x.Name;
+                var config   = pairs.FirstOrDefault(a => a!.FromProperty == fromProp || a.ToProperty == fromProp);
                 if (config != null)
                 {
-                    var another = config.FromProperty == name ? config.ToProperty : config.FromProperty;
+                    var another = config.FromProperty == fromProp ? config.ToProperty : config.FromProperty;
                     if (toProps.Any(p => p.Name == another))
                     {
-                        return (from: name, to: another);
+                        return (from: fromProp, to: another);
                     }
                 }
 
-                var match = toProps.FirstOrDefault(y => Compatible(name, y.Name));
-                return (from: x.Name, to: match?.Name);
+                var match = toProps.FirstOrDefault(y => Compatible(fromProp, y.Name));
+                return (from: fromProp, to: match?.Name);
             })
             .Where(x => x.to != null)
             .ToArray();
 
+        var mapCtor = attrs.FirstOrDefault(static x => x.AttributeClass!.HasFullyQualifiedMetadataName(MapConstructor));
+        if (mapCtor != null)
+        {
+            try
+            {
+
+                var c = typeof(MapConstructorAttribute)
+                    .GetConstructors()
+                    .First();
+                var param = c
+                    .GetParameters();
+                var args = mapCtor.ConstructorArguments
+                    .Select((x, i) => x.GetArgumentValue(param[i].ParameterType))
+                    .ToArray();
+                var ins = Activator.CreateInstance(typeof(MapConstructorAttribute), args);
+                var publicProps = typeof(MapConstructorAttribute)
+                    .GetProperties(global::System.Reflection.BindingFlags.Public |
+                                   global::System.Reflection.BindingFlags.Instance)
+                    .Where(static x => x.CanWrite)
+                    .ToDictionary(static x => x.Name,static x => x);
+                foreach (var argument in mapCtor.NamedArguments)
+                {
+                    if (!publicProps.TryGetValue(argument.Key, out var prop)) continue;
+                    prop.SetValue(ins, argument.Value.GetArgumentValue(prop.PropertyType));
+                }
+
+                var attr = mapCtor.ToAttribute<MapConstructorAttribute>();
+            }
+            catch (Exception e)
+            {
+                switch (e)
+                {
+                    case ArgumentException:
+                    case MissingMethodException:
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        }
+        var ctor = mapCtor == null
+            ? GenerateCtor(to, fromName, fromProps)
+            : GenerateSpecifiedCtor(to, fromName, mapCtor.ToAttribute<MapConstructorAttribute>().PropertyNames);
+        
         var statements = new List<StatementSyntax>
         {
             ParseStatement(
                 $$"""
-                  var {{toName}} = new {{to.GetFullyQualifiedName()}}()
+                  var {{toName}} = {{ctor}}
                   {
                   {{string.Join("\n", matches.Select(x => MapOne(x.from, x.to!)))}}
                   };
@@ -239,29 +300,63 @@ public class MapExtensionGenerator : IIncrementalGenerator
                     ? x.Parameters.Length == 1 && x.Parameters[0].Type.Is(to)
                     : x.Parameters.Length == 2 && x.Parameters[0].Type.Is(from) && x.Parameters[1].Type.Is(to) || x.Parameters[1].Type.Is(from) && x.Parameters[0].Type.Is(to)))
                 .Select(symbol => ParseStatement(isSelf
-                    ? $"this.{symbol.Name}({toName})"
+                    ? $"this.{symbol.Name}({toName});"
                     : $"{symbol.ContainingType.GetFullyQualifiedName()}.{symbol.Name}({
                         (symbol.Parameters[0].Type.Is(from) ? $"{fromName}, {toName}" : $"{toName}, {fromName}")
                     });")));
         }
-
+        
         return Block(statements.Append(ParseStatement($"return {toName};")));
 
         
 
-        string MapOne(string toProperty, string fromProperty)
+        string MapOne(string fromProperty, string toProperty)
         {
             return $"{toProperty} = {fromName}.{fromProperty},";
         }
     }
 
+    private static string GenerateSpecifiedCtor(
+        ITypeSymbol type,
+        string fromName,
+        string[] specifiedProps) =>
+        $"new {type.GetFullyQualifiedName()}({string.Join(", ", specifiedProps.Select(x => $"{fromName}.{x}"))})";
+
+    private static string GenerateCtor(
+        ITypeSymbol type,
+        string fromName,
+        IList<IPropertySymbol> fromProps)
+    {
+        if (type is not INamedTypeSymbol namedTypeSymbol ||
+            namedTypeSymbol.Constructors.Any(x => x.Parameters.Length == 0))
+            return $"new {type.GetFullyQualifiedName()}()";
+        foreach (var ctor in namedTypeSymbol.Constructors.OrderBy(x => x.Parameters.Length))
+        {
+            var parameters = ctor.Parameters;
+            var matches    = new List<string>();
+            foreach (var prop in parameters
+                         .Select(parameter => fromProps
+                             .FirstOrDefault(x => Compatible(parameter.Name, x.Name))))
+            {
+                if (prop == null)
+                    goto notfound;
+                matches.Add($"{fromName}.{prop.Name}");
+            }
+
+            return  $"new {type.GetFullyQualifiedName()}({string.Join(", ", matches)})";
+            notfound:
+            continue;
+        }
+        return $"new {type.GetFullyQualifiedName()}()";
+    }
+    
     private static (
         HashSet<string> fromExcludes,
         HashSet<string> toExcludes,
         HashSet<string> fromIncludes,
         HashSet<string> toIncludes
         ) 
-        GetExcludes(ISymbol method,
+        GetExcludes(ImmutableArray<AttributeData> attributes,
         ISymbol fromType,
         ISymbol toType)
     {
@@ -269,20 +364,22 @@ public class MapExtensionGenerator : IIncrementalGenerator
         var toExcludes   = new HashSet<string>();
         var fromIncludes = new HashSet<string>();
         var toIncludes   = new HashSet<string>();
-        foreach (var attribute in method.GetAttributes())
+        foreach (var attribute in attributes)
         {
-            if (attribute.AttributeClass!.HasFullyQualifiedMetadataName(MapExclude))
+            if (attribute.AttributeClass!.ToDisplayString() == MapExclude)
             {
-                var name = attribute.ConstructorArguments[0].GetArgumentString()!;
-                var type = attribute.ConstructorArguments[1].GetArgumentType()!;
+                var attr = attribute.ToAttribute<MapExcludeAttribute>();
+                var name = attr.Property;
+                var type = ((Type)attr.BelongsTo).Symbol;
                 if (type.Is(fromType)) fromExcludes.Add(name);
                 if (type.Is(toType)) toExcludes.Add(name);
             }
 
-            if (attribute.AttributeClass!.HasFullyQualifiedMetadataName(MapInclude))
+            if (attribute.AttributeClass!.ToDisplayString() == MapInclude)
             {
-                var name = attribute.ConstructorArguments[0].GetArgumentString()!;
-                var type = attribute.ConstructorArguments[1].GetArgumentType()!;
+                var attr = attribute.ToAttribute<MapIncludeAttribute>();
+                var name = attr.Property;
+                var type = ((Type)attr.BelongsTo).Symbol;
                 if (type.Is(fromType)) fromIncludes.Add(name);
                 if (type.Is(toType)) toIncludes.Add(name);
             }

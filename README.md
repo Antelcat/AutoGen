@@ -29,7 +29,7 @@
 
   + #### `[MapBetween(string, string)]` :  
 
-    指定在两者类型上的属性映射
+    指定在两者类型上的属性名称映射
 
   + #### `[MapIgnore]` :  
 
@@ -42,3 +42,7 @@
   + #### `[MapExclude(string, Type)]` :  
 
     将属性在映射中移除
+
+  + #### `[MapConstructor(params string[])]` :  
+
+    指定构造目标函数所提供的属性，如果为空则尝试自动匹配

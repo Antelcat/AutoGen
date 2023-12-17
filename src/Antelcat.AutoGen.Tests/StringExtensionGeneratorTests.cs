@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Antelcat.AutoGen.ComponentModel;
+using Antelcat.AutoGen.ComponentModel.Mapping;
 using Antelcat.AutoGen.SourceGenerators.Generators;
+using Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -22,9 +24,9 @@ public class SampleIncrementalSourceGeneratorTests
     public void Test()
     {
         var sourceDir = Path.GetFullPath("../../../../");
-        var file      = Path.Combine(sourceDir, @"Antelcat.AutoGen.Sample\AssemblyInfo.cs");
+        var file      = Path.Combine(sourceDir, @"Antelcat.AutoGen.Sample\Examples.cs");
         // Create an instance of the source generator.
-        var generator = new StringToExtensionGenerator();
+        var generator = new MapExtensionGenerator();
 
         // Source generators should be tested using 'GeneratorDriver'.
         var driver = CSharpGeneratorDriver.Create(generator);
@@ -39,7 +41,7 @@ public class SampleIncrementalSourceGeneratorTests
             {
                 // To support 'System.Attribute' inheritance, add reference to 'System.Private.CoreLib'.
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(GenerateStringToAttribute).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(MapConstructorAttribute).Assembly.Location),
                 MetadataReference.CreateFromFile(@"C:\Users\13532\.nuget\packages\netstandard.library\2.0.3\build\netstandard2.0\ref\netstandard.dll")
             });
 

@@ -1,4 +1,3 @@
-using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.ComponentModel.Mapping;
 
 namespace Antelcat.AutoGen.Sample;
@@ -6,22 +5,24 @@ namespace Antelcat.AutoGen.Sample;
 public static partial class Mapper
 {
     [GenerateMap(Extra = [nameof(Map)])]
-    [MapBetween(nameof(Entity.KK), nameof(Dto.Name))]
+    [MapConstructor(nameof(Dto.Name),nameof(Dto.Id))]
+    [MapBetween(nameof(Dto.Name),nameof(Entity.KK))]
     [MapInclude(nameof(Entity.Id),typeof(Entity))]
     public static partial Entity Fun(this Dto d);
 
     private static void Map(Dto e, Entity d)
     {
-        
+        d.KK = d.Id.ToString();
     }
 }
-
 public partial class Entity
 {
+    public Entity(string name, int id) { }
+
     public required string KK { get; set; }
 
     [MapIgnore]
-    public int Id { get; set; }
+    public int Id { get; init; }
 
     internal int Number { get; set; }
 

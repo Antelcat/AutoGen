@@ -55,13 +55,12 @@ public class SampleSourceGeneratorTests
         var json = JsonSerializer.Serialize(obj);
         var obj2 = JsonSerializer.Deserialize<SomeClass>(json);
         Debugger.Break();
-        
     }
 
-    public class SomeClass
+    public record SomeClass()
     {
-        public string? Name { get; set; }
-
+        public string Name { get; set; }
+        
         public Guid Guid { get; set; }
 
         public Version Version { get; set; }
