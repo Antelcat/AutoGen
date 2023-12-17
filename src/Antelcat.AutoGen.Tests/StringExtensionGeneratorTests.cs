@@ -26,7 +26,7 @@ public class SampleIncrementalSourceGeneratorTests
         var sourceDir = Path.GetFullPath("../../../../");
         var file      = Path.Combine(sourceDir, @"Antelcat.AutoGen.Sample\Examples.cs");
         // Create an instance of the source generator.
-        var generator = new MapExtensionGenerator();
+        var generator = new MapperGenerator();
 
         // Source generators should be tested using 'GeneratorDriver'.
         var driver = CSharpGeneratorDriver.Create(generator);

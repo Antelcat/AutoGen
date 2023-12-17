@@ -11,10 +11,10 @@ using Accessibility = Antelcat.AutoGen.ComponentModel.Accessibility;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 public class StringToExtensionGenerator : IIncrementalGenerator
 {
-    private const string AttributeName = nameof(GenerateStringToAttribute);
+    private const string AttributeName = nameof(AutoStringToAttribute);
 
     private const string ClassName = "StringToExtension";
 
@@ -47,7 +47,7 @@ public class StringToExtensionGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
-            typeof(GenerateStringToAttribute).FullName!,
+            typeof(AutoStringToAttribute).FullName!,
             static (node, _) => node is CompilationUnitSyntax or ClassDeclarationSyntax,
             static (ctx, t) =>
                 (ctx.TargetNode, ctx.Attributes, Context: ctx));
@@ -78,7 +78,7 @@ public class StringToExtensionGenerator : IIncrementalGenerator
                     .SelectMany(static x => x.Attributes)
                     .Select(static x =>
                     {
-                        var attr = x.ToAttribute<GenerateStringToAttribute>();
+                        var attr = x.ToAttribute<AutoStringToAttribute>();
                         return (name: attr.Namespace, access: attr.Accessibility);
                     })
                     .Where(static x => x.name.IsInvalidNamespace())

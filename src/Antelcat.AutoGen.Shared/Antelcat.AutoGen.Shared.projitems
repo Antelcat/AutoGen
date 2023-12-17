@@ -9,10 +9,10 @@
     <Import_RootNamespace>Antelcat.AnyGenerator.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Abstractions\GenerateAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Abstractions\AutoGenAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Accessibility.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\GenerateStringToAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\GenerateMapAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoStringToAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\AutoMapAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapConfigAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapConstructorAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapExcludeAttribute.cs" />

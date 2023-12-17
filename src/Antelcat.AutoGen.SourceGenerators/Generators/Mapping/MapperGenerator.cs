@@ -14,9 +14,9 @@ using Type = Feast.CodeAnalysis.CompileTime.Type;
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 
 [Generator(LanguageNames.CSharp)]
-public class MapExtensionGenerator : IIncrementalGenerator
+public class MapperGenerator : IIncrementalGenerator
 {
-    private static readonly string GenerateMap    = typeof(GenerateMapAttribute).FullName!;
+    private static readonly string AutoMap    = typeof(AutoMapAttribute).FullName!;
     private static readonly string MapBetween     = typeof(MapBetweenAttribute).FullName!;
     private static readonly string MapExclude     = typeof(MapExcludeAttribute).FullName!;
     private static readonly string MapInclude     = typeof(MapIncludeAttribute).FullName!;
@@ -26,7 +26,7 @@ public class MapExtensionGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
-            GenerateMap,
+            AutoMap,
             static (ctx, t) => ctx is MethodDeclarationSyntax,
             static (ctx, t) => ctx);
 
@@ -49,9 +49,9 @@ public class MapExtensionGenerator : IIncrementalGenerator
                         if (@class.TypeKind == TypeKind.Interface)
                         {
                             ctx.ReportDiagnostic(
-                                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapExtensionGenerator)),
+                                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                                     location,
-                                    nameof(GenerateMapAttribute),
+                                    nameof(AutoMapAttribute),
                                     "not be declared in an interface"
                                 ));
                             continue;
@@ -64,9 +64,9 @@ public class MapExtensionGenerator : IIncrementalGenerator
                         {
                             case MethodMode.ArgumentError:
                                 ctx.ReportDiagnostic(
-                                    Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapExtensionGenerator)),
+                                    Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                                         location,
-                                        nameof(GenerateMapAttribute),
+                                        nameof(AutoMapAttribute),
                                         "zero or one parameter"
                                     ));
                                 continue;
@@ -74,9 +74,9 @@ public class MapExtensionGenerator : IIncrementalGenerator
                                 if (@class.IsStatic)
                                 {
                                     ctx.ReportDiagnostic(
-                                        Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapExtensionGenerator)),
+                                        Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                                             location,
-                                            nameof(GenerateMapAttribute),
+                                            nameof(AutoMapAttribute),
                                             "not in a static class"
                                         ));
                                     continue;
@@ -96,7 +96,7 @@ public class MapExtensionGenerator : IIncrementalGenerator
                         partial = partial.AddMembers(
                             (syntax.TargetNode as MethodDeclarationSyntax)!
                             .WithAttributeLists([])
-                            .AddGenerateAttribute(typeof(MapExtensionGenerator))
+                            .AddGenerateAttribute(typeof(MapperGenerator))
                             .WithSemicolonToken(default)
                             .WithBody(GenerateMethod(method, fromType, toType, mode is MethodMode.MapSelf)));
                     }
@@ -118,9 +118,9 @@ public class MapExtensionGenerator : IIncrementalGenerator
         if (!method.IsPartialDefinition)
         {
             context.ReportDiagnostic(
-                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapExtensionGenerator)),
+                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                     location,
-                    nameof(GenerateMapAttribute),
+                    nameof(AutoMapAttribute),
                     "should be partial definition"
                 ));
         }
@@ -128,9 +128,9 @@ public class MapExtensionGenerator : IIncrementalGenerator
         if (method.ReturnsVoid)
         {
             context.ReportDiagnostic(
-                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapExtensionGenerator)),
+                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                     location,
-                    nameof(GenerateMapAttribute),
+                    nameof(AutoMapAttribute),
                     "not return void"
                 ));
             return MethodMode.Invalid;
@@ -139,9 +139,9 @@ public class MapExtensionGenerator : IIncrementalGenerator
         if (method.ReturnType.TypeKind == TypeKind.Interface)
         {
             context.ReportDiagnostic(
-                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapExtensionGenerator)),
+                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                     location,
-                    nameof(GenerateMapAttribute),
+                    nameof(AutoMapAttribute),
                     "return actual type"
                 ));
             return MethodMode.Invalid;
@@ -150,9 +150,9 @@ public class MapExtensionGenerator : IIncrementalGenerator
         if (method.ReturnType is { TypeKind: TypeKind.Class, IsAbstract: true })
         {
             context.ReportDiagnostic(
-                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapExtensionGenerator)),
+                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                     location,
-                    nameof(GenerateMapAttribute),
+                    nameof(AutoMapAttribute),
                     "return none abstract type"
                 ));
             return MethodMode.Invalid;
@@ -191,8 +191,8 @@ public class MapExtensionGenerator : IIncrementalGenerator
         var configs = GetExcludes(attrs, from, to);
 
         var mapConfig = attrs
-            .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(GenerateMap))
-            .ToAttribute<GenerateMapAttribute>();
+            .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(AutoMap))
+            .ToAttribute<AutoMapAttribute>();
         
         var fromProps = from.GetMembers()
             .OfType<IPropertySymbol>()

@@ -4,7 +4,7 @@ namespace Antelcat.AutoGen.Sample;
 
 public static partial class Mapper
 {
-    [GenerateMap(Extra = [nameof(Map)])]
+    [AutoMap(Extra = [nameof(Map)])]
     [MapConstructor(nameof(Dto.Name),nameof(Dto.Id))]
     [MapBetween(nameof(Dto.Name),nameof(Entity.KK))]
     [MapInclude(nameof(Entity.Id),typeof(Entity))]
@@ -26,7 +26,7 @@ public partial class Entity
 
     internal int Number { get; set; }
 
-    [GenerateMap(Extra = [nameof(Ext)])]
+    [AutoMap(Extra = [nameof(Ext)])]
     [MapBetween(nameof(KK), nameof(Dto.Name))]
     [MapInclude(nameof(Id),typeof(Entity))]
     private partial Dto ToDto();

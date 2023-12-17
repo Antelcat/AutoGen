@@ -7,23 +7,23 @@
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
-+ #### `[GenerateStringTo(string, Accessibility)]` :  
++ #### `[AutoStringTo(string, Accessibility)]` :  
 
     自动生成 string To 的扩展
 
     仅能在 `assembly` 和 `static partial class` 上使用
 
-    ![GenerateStringTo](./docs/GenerateStringTo.png)
+    ![AutoStringTo](./docs/GenerateStringTo.png)
 
 + #### `Mapping` :  
 
-  + #### `[GenerateMap(Accessibility)]` :  
+  + #### `[AutoMap(Accessibility)]` :  
 
     自动生成与其他类型的映射代码
 
     只能在 `partial method` 上使用
 
-    ![GenerateMapTo](./docs/GenerateMap.png)
+    ![AutoMapTo](./docs/GenerateMap.png)
 
     > 你可以使用它生成 `浅拷贝`
 

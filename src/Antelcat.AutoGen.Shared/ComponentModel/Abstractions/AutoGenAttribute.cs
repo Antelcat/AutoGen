@@ -2,4 +2,4 @@
 
 namespace Antelcat.AutoGen.ComponentModel.Abstractions;
 
-public class GenerateAttribute : Attribute;
+public class AutoGenAttribute : Attribute;

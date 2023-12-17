@@ -9,9 +9,9 @@ namespace Antelcat.AutoGen.ComponentModel;
 /// <param name="namespace"></param>
 /// <param name="accessibility">Specify the accessibility of the extension, accepts only <see cref="Accessibility.Public"/> or <see cref="Accessibility.Internal"/> </param>
 [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class, AllowMultiple = true)]
-public class GenerateStringToAttribute(
+public class AutoStringToAttribute(
     string? @namespace = nameof(System),
-    Accessibility accessibility = Accessibility.Public) : GenerateAttribute
+    Accessibility accessibility = Accessibility.Public) : AutoGenAttribute
 {
     internal readonly string Namespace = @namespace ?? nameof(System);
 

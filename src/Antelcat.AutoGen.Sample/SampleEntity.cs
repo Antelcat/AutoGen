@@ -12,7 +12,7 @@ public partial class SampleEntity
 }
 
 
-[GenerateStringTo]
+[AutoStringTo]
 public static partial class Extensions
 {
     

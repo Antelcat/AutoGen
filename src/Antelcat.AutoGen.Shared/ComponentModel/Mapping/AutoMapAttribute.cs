@@ -8,10 +8,10 @@ namespace Antelcat.AutoGen.ComponentModel.Mapping;
 /// </summary>
 /// <param name="exportFrom">the property with which accessibility included in the map</param>
 [AttributeUsage(AttributeTargets.Method)]
-public class GenerateMapAttribute(
+public class AutoMapAttribute(
     Accessibility exportFrom =
         Accessibility.Public | Accessibility.Internal | Accessibility.Protected | Accessibility.Private)
-    : GenerateAttribute
+    : AutoGenAttribute
 {
     internal readonly Accessibility ExportFrom = exportFrom;
 

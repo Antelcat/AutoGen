@@ -48,7 +48,7 @@ internal static class General
                     AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression,
                         Literal(category.FullName!))),
                     AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression,
-                        Literal(typeof(GenerateAttribute).Assembly.GetName().Version.ToString())))
+                        Literal(typeof(AutoGenAttribute).Assembly.GetName().Version.ToString())))
                 )));
     }
     private static readonly string ExcludeFromCodeCoverage = typeof(ExcludeFromCodeCoverageAttribute).FullName!;
