@@ -197,10 +197,11 @@ public class MapperGenerator : IIncrementalGenerator
         var mapConfig = attrs
             .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(AutoMap))
             .ToAttribute<AutoMapAttribute>();
-        
+
         var fromProps = from.GetMembers()
             .OfType<IPropertySymbol>()
             .Where(x =>
+                !x.IsStatic                                                &&
                 !x.IsWriteOnly                                             &&
                 x.DeclaredAccessibility.IsIncludedIn(mapConfig.FromAccess) &&
                 QualifiedProperty(x, fromAccess, configs.fromExcludes, configs.fromIncludes))
@@ -209,6 +210,7 @@ public class MapperGenerator : IIncrementalGenerator
         var toProps = to.GetMembers()
             .OfType<IPropertySymbol>()
             .Where(x =>
+                !x.IsStatic                                              &&
                 !x.IsReadOnly                                            &&
                 x.DeclaredAccessibility.IsIncludedIn(mapConfig.ToAccess) &&
                 QualifiedProperty(x, toAccess, configs.toExcludes, configs.toIncludes))
