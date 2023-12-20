@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Mapping;
@@ -9,14 +8,13 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Accessibility = Antelcat.AutoGen.ComponentModel.Accessibility;
-using Type = Feast.CodeAnalysis.CompileTime.Type;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 
 [Generator(LanguageNames.CSharp)]
 public class MapperGenerator : IIncrementalGenerator
 {
-    private static readonly string AutoMap    = typeof(AutoMapAttribute).FullName!;
+    private static readonly string AutoMap        = typeof(AutoMapAttribute).FullName!;
     private static readonly string MapBetween     = typeof(MapBetweenAttribute).FullName!;
     private static readonly string MapExclude     = typeof(MapExcludeAttribute).FullName!;
     private static readonly string MapInclude     = typeof(MapIncludeAttribute).FullName!;
@@ -92,21 +90,27 @@ public class MapperGenerator : IIncrementalGenerator
                             case MethodMode.Invalid:
                             default: continue;
                         }
-
+                        
+                        var methodSyntax = (syntax.TargetNode as MethodDeclarationSyntax)!;
                         partial = partial.AddMembers(
-                            (syntax.TargetNode as MethodDeclarationSyntax)!
+                            methodSyntax
+                            .WithParameterList(ParameterList(
+                                methodSyntax.ParameterList.Parameters.Aggregate(new SeparatedSyntaxList<ParameterSyntax>(),
+                                    (l,x) => l.Add(x.WithAttributeLists([])))
+                            ))
                             .WithAttributeLists([])
                             .AddGenerateAttribute(typeof(MapperGenerator))
                             .WithSemicolonToken(default)
                             .WithBody(GenerateMethod(method, fromType, toType, mode is MethodMode.MapSelf)));
                     }
-
+                    
                     var unit = CompilationUnit()
                         .AddMembers(
                             NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
                                 .WithLeadingTrivia(Header)
                                 .AddMembers(partial));
                     ctx.AddSource($"{@class.Name}.g.cs", unit.NormalizeWhitespace().GetText(Encoding.UTF8));
+
                 }
             });
     }
@@ -188,7 +192,7 @@ public class MapperGenerator : IIncrementalGenerator
 
         var attrs = method.GetAttributes();
 
-        var configs = GetExcludes(attrs, from, to);
+        var configs = GetIncludesAndExcludes(method, attrs, isSelf);
 
         var mapConfig = attrs
             .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(AutoMap))
@@ -198,7 +202,7 @@ public class MapperGenerator : IIncrementalGenerator
             .OfType<IPropertySymbol>()
             .Where(x =>
                 !x.IsWriteOnly                                             &&
-                x.DeclaredAccessibility.IsIncludedIn(mapConfig.ExportFrom) &&
+                x.DeclaredAccessibility.IsIncludedIn(mapConfig.FromAccess) &&
                 QualifiedProperty(x, fromAccess, configs.fromExcludes, configs.fromIncludes))
             .ToList();
 
@@ -206,80 +210,47 @@ public class MapperGenerator : IIncrementalGenerator
             .OfType<IPropertySymbol>()
             .Where(x =>
                 !x.IsReadOnly                                            &&
-                x.DeclaredAccessibility.IsIncludedIn(mapConfig.ExportTo) &&
+                x.DeclaredAccessibility.IsIncludedIn(mapConfig.ToAccess) &&
                 QualifiedProperty(x, toAccess, configs.toExcludes, configs.toIncludes))
             .ToList();
-
+        
         var pairs = attrs.Select(static x =>
                 x.AttributeClass!.HasFullyQualifiedMetadataName(MapBetween)
                     ? x.ToAttribute<MapBetweenAttribute>()
-                    : null)
-            .Where(static x => x != null)
-            .ToList();
-
-        var matches = fromProps.Select(x =>
+                    : null!)
+            .Where(static x => x != null);
+        
+        var matches = pairs.Select(x =>
+            {
+                var fromIndex = fromProps.FindIndex(p => p.Name == x.FromProperty);
+                if (fromIndex < 0) return (from: null!, to: null);
+                var toIndex = toProps.FindIndex(p => p.Name == x.ToProperty);
+                if (toIndex < 0) return (from: null!, to: null);
+                fromProps.RemoveAt(fromIndex);
+                toProps.RemoveAt(toIndex);
+                return (from: x.FromProperty, to: x.ToProperty);
+            })
+            .Concat(fromProps.Select(x =>
             {
                 var fromProp = x.Name;
-                var config   = pairs.FirstOrDefault(a => a!.FromProperty == fromProp || a.ToProperty == fromProp);
-                if (config != null)
-                {
-                    var another = config.FromProperty == fromProp ? config.ToProperty : config.FromProperty;
-                    if (toProps.Any(p => p.Name == another))
-                    {
-                        return (from: fromProp, to: another);
-                    }
-                }
-
-                var match = toProps.FirstOrDefault(y => Compatible(fromProp, y.Name));
-                return (from: fromProp, to: match?.Name);
-            })
+                var match = toProps
+                    .Select(static (p, i) => (p, i))
+                    .FirstOrDefault(y => Compatible(fromProp, y.p.Name));
+                if (match.p != null) toProps.RemoveAt(match.i);
+                return (from: fromProp, to: match.p?.Name);
+            }))
             .Where(x => x.to != null)
             .ToArray();
 
+
+        
         var mapCtor = attrs.FirstOrDefault(static x => x.AttributeClass!.HasFullyQualifiedMetadataName(MapConstructor));
-        if (mapCtor != null)
-        {
-            try
-            {
 
-                var c = typeof(MapConstructorAttribute)
-                    .GetConstructors()
-                    .First();
-                var param = c
-                    .GetParameters();
-                var args = mapCtor.ConstructorArguments
-                    .Select((x, i) => x.GetArgumentValue(param[i].ParameterType))
-                    .ToArray();
-                var ins = Activator.CreateInstance(typeof(MapConstructorAttribute), args);
-                var publicProps = typeof(MapConstructorAttribute)
-                    .GetProperties(global::System.Reflection.BindingFlags.Public |
-                                   global::System.Reflection.BindingFlags.Instance)
-                    .Where(static x => x.CanWrite)
-                    .ToDictionary(static x => x.Name,static x => x);
-                foreach (var argument in mapCtor.NamedArguments)
-                {
-                    if (!publicProps.TryGetValue(argument.Key, out var prop)) continue;
-                    prop.SetValue(ins, argument.Value.GetArgumentValue(prop.PropertyType));
-                }
-
-                var attr = mapCtor.ToAttribute<MapConstructorAttribute>();
-            }
-            catch (Exception e)
-            {
-                switch (e)
-                {
-                    case ArgumentException:
-                    case MissingMethodException:
-                        break;
-                    default:
-                        break;
-                }
-
-            }
-        }
         var ctor = mapCtor == null
             ? GenerateCtor(to, fromName, fromProps)
             : GenerateSpecifiedCtor(to, fromName, mapCtor.ToAttribute<MapConstructorAttribute>().PropertyNames);
+        
+
         
         var statements = new List<StatementSyntax>
         {
@@ -307,9 +278,7 @@ public class MapperGenerator : IIncrementalGenerator
         }
         
         return Block(statements.Append(ParseStatement($"return {toName};")));
-
         
-
         string MapOne(string fromProperty, string toProperty)
         {
             return $"{toProperty} = {fromName}.{fromProperty},";
@@ -319,7 +288,7 @@ public class MapperGenerator : IIncrementalGenerator
     private static string GenerateSpecifiedCtor(
         ITypeSymbol type,
         string fromName,
-        string[] specifiedProps) =>
+        IEnumerable<string> specifiedProps) =>
         $"new {type.GetFullyQualifiedName()}({string.Join(", ", specifiedProps.Select(x => $"{fromName}.{x}"))})";
 
     private static string GenerateCtor(
@@ -349,43 +318,47 @@ public class MapperGenerator : IIncrementalGenerator
         }
         return $"new {type.GetFullyQualifiedName()}()";
     }
-    
+
     private static (
         HashSet<string> fromExcludes,
         HashSet<string> toExcludes,
         HashSet<string> fromIncludes,
         HashSet<string> toIncludes
-        ) 
-        GetExcludes(ImmutableArray<AttributeData> attributes,
-        ISymbol fromType,
-        ISymbol toType)
+        )
+        GetIncludesAndExcludes(IMethodSymbol method,
+            ImmutableArray<AttributeData> attributes,
+            bool isSelf)
     {
         var fromExcludes = new HashSet<string>();
         var toExcludes   = new HashSet<string>();
         var fromIncludes = new HashSet<string>();
         var toIncludes   = new HashSet<string>();
-        foreach (var attribute in attributes)
-        {
-            if (attribute.AttributeClass!.ToDisplayString() == MapExclude)
-            {
-                var attr = attribute.ToAttribute<MapExcludeAttribute>();
-                var name = attr.Property;
-                var type = ((Type)attr.BelongsTo).Symbol;
-                if (type.Is(fromType)) fromExcludes.Add(name);
-                if (type.Is(toType)) toExcludes.Add(name);
-            }
+        var fromAttrs = isSelf ? attributes : method.Parameters[0].GetAttributes();
+            
+        Map(fromAttrs, fromIncludes, fromExcludes);
+        Map(method.GetReturnTypeAttributes(), toIncludes, toExcludes);
+       
+        return (fromExcludes, toExcludes, fromIncludes, toIncludes);
 
-            if (attribute.AttributeClass!.ToDisplayString() == MapInclude)
+        static void Map(ImmutableArray<AttributeData> attributes, ISet<string> includes, ISet<string> excludes)
+        {
+            foreach (var attribute in attributes)
             {
-                var attr = attribute.ToAttribute<MapIncludeAttribute>();
-                var name = attr.Property;
-                var type = ((Type)attr.BelongsTo).Symbol;
-                if (type.Is(fromType)) fromIncludes.Add(name);
-                if (type.Is(toType)) toIncludes.Add(name);
+                if (attribute.AttributeClass!.ToDisplayString() == MapExclude)
+                {
+                    var attr = attribute.ToAttribute<MapExcludeAttribute>();
+                    var name = attr.Property;
+                    excludes.Add(name);
+                }
+
+                if (attribute.AttributeClass!.ToDisplayString() == MapInclude)
+                {
+                    var attr = attribute.ToAttribute<MapIncludeAttribute>();
+                    var name = attr.Property;
+                    includes.Add(name);
+                }
             }
         }
-
-        return (fromExcludes, toExcludes, fromIncludes, toIncludes);
     }
 
     private static bool QualifiedProperty(IPropertySymbol property,

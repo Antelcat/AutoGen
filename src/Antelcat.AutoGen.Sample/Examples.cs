@@ -5,11 +5,11 @@ namespace Antelcat.AutoGen.Sample;
 public static partial class Mapper
 {
     [AutoMap(Extra = [nameof(Map)])]
-    [MapConstructor(nameof(Dto.Name),nameof(Dto.Id))]
-    [MapBetween(nameof(Dto.Name),nameof(Entity.KK))]
-    [MapInclude(nameof(Entity.Id),typeof(Entity))]
-    public static partial Entity Fun(this Dto d);
-
+    [MapConstructor(nameof(Dto.Name), nameof(Dto.Id))]
+    [MapBetween(nameof(Dto.Name), nameof(Entity.KK))]
+    [return: MapExclude(nameof(Entity.Name))]
+    public static partial Entity ToEntity([MapInclude(nameof(Dto.Id))] Dto d);
+    
     private static void Map(Dto e, Entity d)
     {
         d.KK = d.Id.ToString();
@@ -19,7 +19,9 @@ public partial class Entity
 {
     public Entity(string name, int id) { }
 
+    public string? Name { get; set; }
     public required string KK { get; set; }
+    
 
     [MapIgnore]
     public int Id { get; init; }
@@ -28,12 +30,12 @@ public partial class Entity
 
     [AutoMap(Extra = [nameof(Ext)])]
     [MapBetween(nameof(KK), nameof(Dto.Name))]
-    [MapInclude(nameof(Id),typeof(Entity))]
+    [MapInclude(nameof(Id))]
     private partial Dto ToDto();
 
     private void Ext(Dto d)
     {
-        
+
     }
 }
 

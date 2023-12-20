@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.Json;
 using Antelcat.AutoGen.SourceGenerators.Generators;
 using Microsoft.CodeAnalysis.CSharp;
@@ -43,18 +44,12 @@ public class SampleSourceGeneratorTests
     [Test]
     public void TestSerialize()
     {
-        var converter = TypeDescriptor.GetConverter(typeof(IEnumerable<int>));
-        var res       = converter.ConvertToString(null, null, new List<int> { 1, 2, 3, 4 });
-        var guid      = converter.ConvertFromString(res);
-        var obj = new SomeClass
-        {
-            Name = "Test",
-            Guid = Guid.NewGuid(),
-            Version = new Version(1,1,1,1)
-        };
-        var json = JsonSerializer.Serialize(obj);
-        var obj2 = JsonSerializer.Deserialize<SomeClass>(json);
-        Debugger.Break();
+        var res = typeof(object)
+            .Assembly
+            .ExportedTypes
+            .Select((x, i) => (x, i))
+            .FirstOrDefault(x => x.x.Name == "???");
+        
     }
 
     public record SomeClass()

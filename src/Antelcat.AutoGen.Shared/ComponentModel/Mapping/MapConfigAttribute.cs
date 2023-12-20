@@ -2,9 +2,8 @@
 
 namespace Antelcat.AutoGen.ComponentModel.Mapping;
 
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public abstract class MapConfigAttribute(string property, Type belongsTo) : Attribute
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.ReturnValue | AttributeTargets.Parameter, AllowMultiple = true)]
+public abstract class MapConfigAttribute(string property) : Attribute
 {
     internal readonly string Property  = property;
-    internal readonly Type   BelongsTo = belongsTo;
 }
