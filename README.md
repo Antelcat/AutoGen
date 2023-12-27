@@ -21,25 +21,27 @@
 
     自动生成与其他类型的映射代码
 
-    只能在 `partial method` 上使用
+    > 只能在 `partial method` 上使用
 
     ![AutoMapTo](./docs/GenerateMap.png)
 
     > 你可以使用它生成 `浅拷贝`
 
-  + #### `[MapBetween(string, string)]` :  
+  + #### `[MapBetween(fromProperty, toProperty)]` :  
 
     指定在两者类型上的属性名称映射
+
+    + `By` : 映射属性时使用的转换方法
 
   + #### `[MapIgnore]` :  
 
     在生成映射代码时忽略
 
-  + #### `[MapInclude(string, Type)]` :  
+  + #### `[MapInclude(property)]` :  
 
     显式添加参与映射的被 `[MapIgnore]` 的属性
 
-  + #### `[MapExclude(string, Type)]` :  
+  + #### `[MapExclude(string)]` :  
 
     将属性在映射中移除
 

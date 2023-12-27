@@ -12,4 +12,9 @@ public class MapBetweenAttribute(string fromProperty, string toProperty) : Attri
 {
     internal readonly string FromProperty = fromProperty;
     internal readonly string ToProperty   = toProperty;
+    
+    /// <summary>
+    /// Map through a converter
+    /// </summary>
+    public string? By { get; set ; }
 }
