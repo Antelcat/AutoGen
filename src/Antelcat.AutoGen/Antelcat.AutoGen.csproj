@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>1.0.0-pre-alpha-4</Version>
+        <Version>1.0.0-pre-alpha-5</Version>
         <FileVersion>1.0.0</FileVersion>
         <AssemblyVersion>1.0.0</AssemblyVersion>
         
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Fix static map argument type not fully qulified</PackageReleaseNotes>
+        <PackageReleaseNotes>Relax prop selection and add base type props</PackageReleaseNotes>
     </PropertyGroup>
 
     <Import Project="..\Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems" Label="Shared" />

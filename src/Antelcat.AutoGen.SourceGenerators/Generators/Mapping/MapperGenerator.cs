@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Mapping;
@@ -205,8 +206,7 @@ public class MapperGenerator : IIncrementalGenerator
             .First(x => x.AttributeClass!.HasFullyQualifiedMetadataName(AutoMap))
             .ToAttribute<AutoMapAttribute>();
 
-        var fromProps = from.GetMembers()
-            .OfType<IPropertySymbol>()
+        var fromProps = GetProperties(from)
             .Where(x =>
                 !x.IsStatic                                                &&
                 !x.IsWriteOnly                                             &&
@@ -214,8 +214,7 @@ public class MapperGenerator : IIncrementalGenerator
                 QualifiedProperty(x, fromAccess, configs.fromExcludes, configs.fromIncludes))
             .ToList();
 
-        var toProps = to.GetMembers()
-            .OfType<IPropertySymbol>()
+        var toProps = GetProperties(to)
             .Where(x =>
                 !x.IsStatic                                              &&
                 !x.IsReadOnly                                            &&
@@ -231,14 +230,13 @@ public class MapperGenerator : IIncrementalGenerator
 
         var matches = pairs.Select(x =>
             {
-                var fromIndex = fromProps.FindIndex(p => p.Name == x.FromProperty);
-                if (fromIndex < 0) return (from: null!, to: null, by: null!);
-                var toIndex = toProps.FindIndex(p => p.Name == x.ToProperty);
-                if (toIndex < 0) return (from: null!, to: null, by: null!);
+                /*var fromIndex = fromProps.FindIndex(p => p.Name == x.FromProperty);
+                if (fromIndex < 0) return (from: null!, to: null, by: null!);*/
+                var by      = extra.FirstOrDefault(m => m.Name == x.By);
+                var toIndex = toProps.FindIndex(p => p.Name    == x.ToProperty);
+                if (toIndex >= 0) toProps.RemoveAt(toIndex);
                 /*fromProps.RemoveAt(fromIndex);*/
-                toProps.RemoveAt(toIndex);
-                var by = extra.FirstOrDefault(m => m.Name == x.By);
-                return (from: x.FromProperty, to: x.ToProperty, by);
+                return (from: x.FromProperty, to: (string?)x.ToProperty, by);
             })
             .Concat(fromProps.Select(x =>
             {
@@ -424,5 +422,23 @@ public class MapperGenerator : IIncrementalGenerator
             one.Replace("_", ""),
             another.Replace("_", ""),
             StringComparison.OrdinalIgnoreCase);
+    }
+    
+    
+    private static IEnumerable<IPropertySymbol> GetProperties(ITypeSymbol type)
+    {
+        var props = type.GetMembers().OfType<IPropertySymbol>();
+        if (type.BaseType == null) return props;
+        return props.Concat(GetProperties(type.BaseType))
+            .Distinct(PropNameComparator.Comparator);
+    }
+
+    private class PropNameComparator : IEqualityComparer<IPropertySymbol>
+    {
+        public bool Equals(IPropertySymbol x, IPropertySymbol y) => x.MetadataName == y.MetadataName;
+
+        public int GetHashCode(IPropertySymbol obj) => obj.GetHashCode();
+
+        public static PropNameComparator Comparator { get; } = new();
     }
 }
