@@ -102,7 +102,8 @@ public class MapperGenerator : IIncrementalGenerator
                                         (l, x) => l.Add(
                                             x
                                                 .WithType(ParseName(
-                                                    (syntax.SemanticModel.GetSymbolInfo(x.Type!).Symbol as INamedTypeSymbol)!.GetFullyQualifiedName()))
+                                                    (syntax.SemanticModel.GetSymbolInfo(x.Type!).Symbol as INamedTypeSymbol)!
+                                                    .GetFullyQualifiedName()))
                                                 .WithAttributeLists([])))
                                 ))
                                 .WithAttributeLists([])

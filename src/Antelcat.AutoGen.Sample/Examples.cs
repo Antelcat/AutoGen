@@ -1,3 +1,4 @@
+using System;
 using Antelcat.AutoGen.ComponentModel.Mapping;
 
 namespace Antelcat.AutoGen.Sample;
@@ -24,35 +25,38 @@ public partial class Entity
     {
     }
 
-    public          string? Name { get; set; }
-    public required string  KK   { get; set; }
+    public             string? Name   { get; set; }
+    public required    string  KK     { get; set; }
+    [MapIgnore] public int     Id     { get; init; }
+    internal           int     Number { get; set; }
 
-
-    [MapIgnore] public int Id { get; init; }
-
-    internal int Number { get; set; }
-
-    [AutoMap(Extra = [nameof(Ext)])]
-    [MapBetween(nameof(KK), nameof(Dto.Name), By = nameof(Transform))]
+    [AutoMap]
+    [MapBetween(nameof(KK), nameof(Dto.Name))]
     [MapInclude(nameof(Id))]
     private partial Dto ToDto();
 
-    private void Ext(Dto d)
-    {
-    }
-
-    private static string Transform(string str) => string.Concat("");
+    public Dto Test() =>
+        new()
+        {
+            Id     = 1,
+            Name   = "123",
+            Number = 123,
+        };
 }
 
 public partial class Dto
 {
-    internal string Name { get; set; }
+    internal string Name   { get; set; }
+    public   int    Id     { get; set; }
+    internal int    Number { get; set; }
+}
 
-    public int Id { get; set; }
 
-    internal int Number { get; set; }
-
-    private void Set(Entity e)
-    {
-    }
+[Flags]
+public enum E
+{
+    Normal       = 0x0,
+    Access       = 0x1,
+    Removed      = 0x2,
+    AccessDenied = 0x4
 }
