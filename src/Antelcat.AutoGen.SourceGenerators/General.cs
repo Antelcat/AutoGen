@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Antelcat.AutoGen.ComponentModel.Abstractions;
+using Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,11 +16,12 @@ namespace Antelcat.AutoGen.SourceGenerators;
 internal static class General
 {
     internal const string Namespace = $"{nameof(Antelcat)}.{nameof(AutoGen)}";
-    
+
     internal const string ComponentModel = $"{Namespace}.{nameof(ComponentModel)}";
     internal static string Global(Type? type) => $"global::{type?.FullName}";
     internal static string Nullable(Type? type) => type?.IsValueType == true ? string.Empty : "?";
     internal static string Generic(string? name) => name             != null ? $"<{name}>" : string.Empty;
+
     internal static SourceText SourceText(string text) =>
         Microsoft.CodeAnalysis.Text.SourceText.From(text, Encoding.UTF8);
 
@@ -39,7 +41,7 @@ internal static class General
             Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true)));
 
     private static readonly string GeneratedCode = typeof(GeneratedCodeAttribute).FullName!;
-    
+
     internal static AttributeListSyntax GeneratedCodeAttribute(Type category)
     {
         return AttributeList(SingletonSeparatedList(
@@ -51,6 +53,7 @@ internal static class General
                         Literal(typeof(AutoGenAttribute).Assembly.GetName().Version.ToString())))
                 )));
     }
+
     private static readonly string ExcludeFromCodeCoverage = typeof(ExcludeFromCodeCoverageAttribute).FullName!;
 
     internal static AttributeListSyntax ExcludeFromCodeCoverageAttribute()
@@ -65,10 +68,40 @@ internal static class General
     internal static MemberDeclarationSyntax AddGenerateAttribute(this MemberDeclarationSyntax syntax, Type category) =>
         syntax.AddAttributeLists(GeneratedCodeAttribute(category), ExcludeFromCodeCoverageAttribute());
 
+    /// <summary>
+    /// 获取某方法对类型的访问权
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="method"></param>
+    /// <returns></returns>
+    internal static Antelcat.AutoGen.ComponentModel.Accessibility GetAccess(IMethodSymbol method, ITypeSymbol type)
+    {
+        var ret = Antelcat.AutoGen.ComponentModel.Accessibility.Public;
+        if (method.ContainingAssembly.Is(type.ContainingAssembly))
+            ret |= Antelcat.AutoGen.ComponentModel.Accessibility.Internal;
+        if (type.TypeKind == TypeKind.Interface) return ret;
+        var @class = method.ContainingType;
+        if (@class.Is(type))
+        {
+            ret |= Antelcat.AutoGen.ComponentModel.Accessibility.Protected |
+                   Antelcat.AutoGen.ComponentModel.Accessibility.Private;
+        }
+        else
+        {
+            while (@class.BaseType != null)
+            {
+                @class = @class.BaseType;
+                if (!@class.Is(type)) continue;
+                ret |= Antelcat.AutoGen.ComponentModel.Accessibility.Protected;
+                break;
+            }
+        }
+
+        return ret;
+    }
 
     internal static bool IsIncludedIn(this Accessibility accessibility,
         ComponentModel.Accessibility targetAccessibility)
-
         => accessibility switch
         {
             Accessibility.Public    => targetAccessibility.HasFlag(AutoGen.ComponentModel.Accessibility.Public),
@@ -80,4 +113,47 @@ internal static class General
                 targetAccessibility.HasFlag(AutoGen.ComponentModel.Accessibility.Internal),
             _ => false
         };
+
+    internal static Accessibility ToAccessibility(this Antelcat.AutoGen.ComponentModel.Accessibility accessibility) =>
+        accessibility switch
+        {
+            Antelcat.AutoGen.ComponentModel.Accessibility.Public => Accessibility.Public,
+            Antelcat.AutoGen.ComponentModel.Accessibility.Private => Accessibility.Private,
+            Antelcat.AutoGen.ComponentModel.Accessibility.Internal => Accessibility.Internal,
+            Antelcat.AutoGen.ComponentModel.Accessibility.Protected => Accessibility.Protected,
+            Antelcat.AutoGen.ComponentModel.Accessibility.ProtectedOrInternal => Accessibility.ProtectedOrInternal,
+            _ => throw new ArgumentOutOfRangeException(nameof(accessibility), accessibility, null)
+        };
+
+    internal static MethodDeclarationSyntax FullQualifiedPartialMethod(this MethodDeclarationSyntax method,
+        IMethodSymbol symbol) =>
+        method.WithReturnType(ParseName(symbol.ReturnType.GetFullyQualifiedName()))
+            .WithParameterList(ParameterList(
+                method.ParameterList.Parameters.Aggregate(new SeparatedSyntaxList<ParameterSyntax>(),
+                    (l, x) =>
+                        l.Add(
+                            x.WithType(
+                                    ParseName(symbol
+                                        .Parameters[l.Count]
+                                        .Type
+                                        .GetFullyQualifiedName()))
+                                .WithAttributeLists([])))
+            ))
+            .WithAttributeLists([])
+            .WithSemicolonToken(default);
+
+    internal static ClassDeclarationSyntax PartialClass(this ClassDeclarationSyntax syntax) =>
+        ClassDeclaration(syntax.Identifier).WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
+    
+    internal static ClassDeclarationSyntax PartialClass(this INamedTypeSymbol @class) =>
+        ClassDeclaration(@class.Name).WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
+
+    internal static CompilationUnitSyntax AddPartialClass(this CompilationUnitSyntax compilationUnit,
+        INamedTypeSymbol @class,
+        Func<ClassDeclarationSyntax, ClassDeclarationSyntax> map) =>
+        compilationUnit
+            .AddMembers(
+                NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
+                    .WithLeadingTrivia(Header)
+                    .AddMembers(map(@class.PartialClass())));
 }

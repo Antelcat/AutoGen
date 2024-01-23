@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Abstractions\AutoGenAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Accessibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoStringToAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoReport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\AutoMapAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapConfigAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapConstructorAttribute.cs" />

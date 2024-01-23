@@ -1,4 +1,5 @@
 ﻿using System;
+using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.ComponentModel.Mapping;
 using Antelcat.AutoGen.Sample.Models;
 
@@ -26,4 +27,7 @@ public partial class SampleEntity
     {
         //TODO
     }
+    
+    [AutoReport]
+    internal partial void Report(AutoReport.ReportHandler handler);
 }

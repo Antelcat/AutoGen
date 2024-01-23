@@ -1,12 +1,11 @@
-﻿using System;
+﻿using static Microsoft.CodeAnalysis.Diagnostic;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Mapping;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Accessibility = Antelcat.AutoGen.ComponentModel.Accessibility;
 
@@ -27,7 +26,7 @@ public class MapperGenerator : IIncrementalGenerator
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
             AutoMap,
             static (ctx, t) => ctx is MethodDeclarationSyntax,
-            static (ctx, t) => ctx);
+            static (ctx, _) => ctx);
 
         context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()),
             static (ctx, tuple) =>
@@ -36,11 +35,8 @@ public class MapperGenerator : IIncrementalGenerator
                              .GroupBy(static x =>
                                  (x.TargetSymbol as IMethodSymbol)!.ContainingType, SymbolEqualityComparer.Default))
                 {
-                    var @class = (group.Key as INamedTypeSymbol)!;
-
-                    var partial = ClassDeclaration(@class.Name)
-                        .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
-
+                    var @class  = (group.Key as INamedTypeSymbol)!;
+                    var partial = @class.PartialClass();
                     foreach (var syntax in group)
                     {
                         var method   = (syntax.TargetSymbol as IMethodSymbol)!;
@@ -48,7 +44,7 @@ public class MapperGenerator : IIncrementalGenerator
                         if (@class.TypeKind == TypeKind.Interface)
                         {
                             ctx.ReportDiagnostic(
-                                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
+                                Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                                     location,
                                     nameof(AutoMapAttribute),
                                     "not be declared in an interface"
@@ -63,7 +59,7 @@ public class MapperGenerator : IIncrementalGenerator
                         {
                             case MethodMode.ArgumentError:
                                 ctx.ReportDiagnostic(
-                                    Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
+                                    Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                                         location,
                                         nameof(AutoMapAttribute),
                                         "zero or one parameter"
@@ -73,7 +69,7 @@ public class MapperGenerator : IIncrementalGenerator
                                 if (@class.IsStatic)
                                 {
                                     ctx.ReportDiagnostic(
-                                        Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
+                                        Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                                             location,
                                             nameof(AutoMapAttribute),
                                             "not in a static class"
@@ -94,30 +90,17 @@ public class MapperGenerator : IIncrementalGenerator
 
                         var methodSyntax = (syntax.TargetNode as MethodDeclarationSyntax)!;
                         partial = partial.AddMembers(
-                            methodSyntax
-                                .WithReturnType(ParseName(toType.GetFullyQualifiedName()))
-                                .WithParameterList(ParameterList(
-                                    methodSyntax.ParameterList.Parameters.Aggregate(
-                                        new SeparatedSyntaxList<ParameterSyntax>(),
-                                        (l, x) => l.Add(
-                                            x
-                                                .WithType(ParseName(
-                                                    (syntax.SemanticModel.GetSymbolInfo(x.Type!).Symbol as INamedTypeSymbol)!
-                                                    .GetFullyQualifiedName()))
-                                                .WithAttributeLists([])))
-                                ))
-                                .WithAttributeLists([])
+                            methodSyntax.FullQualifiedPartialMethod(method)
                                 .AddGenerateAttribute(typeof(MapperGenerator))
-                                .WithSemicolonToken(default)
                                 .WithBody(GenerateMethod(method, fromType, toType, mode is MethodMode.MapSelf)));
                     }
 
-                    var unit = CompilationUnit()
-                        .AddMembers(
-                            NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
-                                .WithLeadingTrivia(Header)
-                                .AddMembers(partial));
-                    ctx.AddSource($"{@class.Name}.g.cs", unit.NormalizeWhitespace().GetText(Encoding.UTF8));
+                    ctx.AddSource($"{nameof(AutoMap)}__.{@class.GetFullyQualifiedName()
+                        .Replace("global::", string.Empty)}.g.cs",
+                        CompilationUnit()
+                            .AddPartialClass(@class, x => partial)
+                            .NormalizeWhitespace()
+                            .GetText(Encoding.UTF8));
                 }
             });
     }
@@ -129,17 +112,17 @@ public class MapperGenerator : IIncrementalGenerator
         if (!method.IsPartialDefinition)
         {
             context.ReportDiagnostic(
-                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
+                Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                     location,
                     nameof(AutoMapAttribute),
                     "should be partial definition"
                 ));
         }
-
+        
         if (method.ReturnsVoid)
         {
             context.ReportDiagnostic(
-                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
+                Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
                     location,
                     nameof(AutoMapAttribute),
                     "not return void"
@@ -147,28 +130,26 @@ public class MapperGenerator : IIncrementalGenerator
             return MethodMode.Invalid;
         }
 
-        if (method.ReturnType.TypeKind == TypeKind.Interface)
+        switch (method.ReturnType.TypeKind)
         {
-            context.ReportDiagnostic(
-                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
-                    location,
-                    nameof(AutoMapAttribute),
-                    "return actual type"
-                ));
-            return MethodMode.Invalid;
+            case TypeKind.Interface or TypeKind.Dynamic:
+                context.ReportDiagnostic(
+                    Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
+                        location,
+                        nameof(AutoMapAttribute),
+                        "return actual type"
+                    ));
+                return MethodMode.Invalid;
+            case TypeKind.Class when method.IsAbstract:
+                context.ReportDiagnostic(
+                    Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
+                        location,
+                        nameof(AutoMapAttribute),
+                        "return none abstract type"
+                    ));
+                return MethodMode.Invalid;
         }
-
-        if (method.ReturnType is { TypeKind: TypeKind.Class, IsAbstract: true })
-        {
-            context.ReportDiagnostic(
-                Diagnostic.Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
-                    location,
-                    nameof(AutoMapAttribute),
-                    "return none abstract type"
-                ));
-            return MethodMode.Invalid;
-        }
-
+     
         return method.Parameters.Length switch
         {
             0 => MethodMode.MapSelf,
@@ -276,7 +257,8 @@ public class MapperGenerator : IIncrementalGenerator
                 .OfType<IMethodSymbol>()
                 .Where(x => mapConfig.Extra.Contains(x.Name) && (isSelf
                     ? x.Parameters.Length == 1 && x.Parameters[0].Type.Is(to)
-                    : x.Parameters.Length == 2      && x.Parameters[0].Type.Is(from) && x.Parameters[1].Type.Is(to) ||
+                    : x.Parameters.Length == 2      &&
+                      x.Parameters[0].Type.Is(from) && x.Parameters[1].Type.Is(to) ||
                       x.Parameters[1].Type.Is(from) && x.Parameters[0].Type.Is(to)))
                 .Select(symbol => ParseStatement(isSelf
                     ? $"this.{symbol.Name}({toName});"
@@ -326,8 +308,7 @@ public class MapperGenerator : IIncrementalGenerator
             }
 
             return $"new {type.GetFullyQualifiedName()}({string.Join(", ", matches)})";
-            notfound:
-            continue;
+            notfound: ;
         }
 
         return $"new {type.GetFullyQualifiedName()}()";
@@ -387,35 +368,7 @@ public class MapperGenerator : IIncrementalGenerator
                    .Any(a => a.AttributeClass!.HasFullyQualifiedMetadataName(MapIgnore));
     }
 
-    /// <summary>
-    /// 获取某方法对类型的访问权
-    /// </summary>
-    /// <param name="type"></param>
-    /// <param name="method"></param>
-    /// <returns></returns>
-    private static Accessibility GetAccess(IMethodSymbol method, ITypeSymbol type)
-    {
-        var ret                                                        = Accessibility.Public;
-        if (method.ContainingAssembly.Is(type.ContainingAssembly)) ret |= Accessibility.Internal;
-        if (type.TypeKind == TypeKind.Interface) return ret;
-        var @class = method.ContainingType;
-        if (@class.Is(type))
-        {
-            ret |= Accessibility.Protected | Accessibility.Private;
-        }
-        else
-        {
-            while (@class.BaseType != null)
-            {
-                @class = @class.BaseType;
-                if (!@class.Is(type)) continue;
-                ret |= Accessibility.Protected;
-                break;
-            }
-        }
-
-        return ret;
-    }
+    
 
     private static bool Compatible(string one, string another)
     {
@@ -438,7 +391,9 @@ public class MapperGenerator : IIncrementalGenerator
     {
         public bool Equals(IPropertySymbol x, IPropertySymbol y) => x.MetadataName == y.MetadataName;
 
+#pragma warning disable RS1024
         public int GetHashCode(IPropertySymbol obj) => obj.GetHashCode();
+#pragma warning restore RS1024
 
         public static PropNameComparator Comparator { get; } = new();
     }

@@ -28,10 +28,15 @@
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageReleaseNotes>Relax prop selection and add base type props</PackageReleaseNotes>
+        
     </PropertyGroup>
 
     <Import Project="..\Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems" Label="Shared" />
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Antelcat.AutoGen.Sample" />
+    </ItemGroup>
+    
     <ItemGroup Label="Package">
         <!-- Pack the source generator binary -->
         <None Include="..\Antelcat.AutoGen.SourceGenerators\bin\$(Configuration)\netstandard2.0\Antelcat.AutoGen.SourceGenerators.dll" PackagePath="analyzers\dotnet\cs" Pack="true" />
