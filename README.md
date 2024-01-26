@@ -1,17 +1,19 @@
 # Antelcat.AutoGen
 
-自动生成任何你想要的东西
-> ~~除非做不到~~
+🇨🇳 [中文](./README.zh.md)
 
-## 已支持
+Auto generate anything you may want
+> ~~unless we can't~~
+
+## Supported
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
 + #### `[AutoStringTo(string, Accessibility)]` :  
 
-    自动生成 string To 的扩展
+    Auto generate string To extension
 
-    仅能在 `assembly` 和 `static partial class` 上使用
+    only on `assembly` and `static partial class`
 
     ![AutoStringTo](./docs/GenerateStringTo.png)
 
@@ -19,32 +21,32 @@
 
   + #### `[AutoMap(Accessibility)]` :  
 
-    自动生成与其他类型的映射代码
+    Auto generate mappings between types
 
-    > 只能在 `partial method` 上使用
+    > Only on `partial method`
 
     ![AutoMapTo](./docs/GenerateMap.png)
 
-    > 你可以使用它生成 `浅拷贝`
+    > You can use to generate `shallow copy`
 
   + #### `[MapBetween(fromProperty, toProperty)]` :  
 
-    指定在两者类型上的属性名称映射
+    Specify property mapping between types
 
-    + `By` : 映射属性时使用的转换方法
+    + `By` : Method being called when mapping this property
 
   + #### `[MapIgnore]` :  
 
-    在生成映射代码时忽略
+    To be ignored when generate mapping code
 
   + #### `[MapInclude(property)]` :  
 
-    显式添加参与映射的被 `[MapIgnore]` 的属性
+    Explicit include properties when `[MapIgnore]`
 
   + #### `[MapExclude(string)]` :  
 
-    将属性在映射中移除
+    To be excluded when mapping
 
   + #### `[MapConstructor(params string[])]` :  
 
-    指定构造目标函数所提供的属性，如果为空则尝试自动匹配
+    Specified property to be added in constructor, will auto detect if `null`
