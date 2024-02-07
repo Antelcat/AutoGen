@@ -15,8 +15,7 @@ public partial class SampleEntity
     
     [AutoMap(Extra = [nameof(DoSomethingElse)])]
     [MapConstructor(nameof(Email))]
-    [MapBetween(nameof(Time),nameof(SampleDto.DateTime),
-        By = nameof(ToDateTime))]
+    [MapBetween(nameof(Time),nameof(SampleDto.DateTime), By = nameof(ToDateTime))]
     [MapExclude(nameof(Email))]
     public partial SampleDto ToDto();
 
@@ -30,4 +29,10 @@ public partial class SampleEntity
     
     [AutoReport]
     internal partial void Report(AutoReport.ReportHandler handler);
+
+    void Fun()
+    {
+        FilePath path = "";
+    }
+
 }

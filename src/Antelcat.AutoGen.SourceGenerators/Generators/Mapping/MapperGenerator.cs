@@ -272,8 +272,7 @@ public class MapperGenerator : IIncrementalGenerator
         string MapOne(string fromProperty, string toProperty, IMethodSymbol? by)
         {
             var arg = $"{fromName}.{fromProperty}";
-            return
-                $"{toProperty} = " + (by == null ? arg : Call(by, arg)) + ',';
+            return $"{toProperty} = " + (by == null ? arg : Call(by, arg)) + ',';
         }
 
         static string Call(IMethodSymbol function, string argument) =>

@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Antelcat.AutoGen.ComponentModel;
+using System.Runtime.CompilerServices;
 using Antelcat.AutoGen.ComponentModel.Mapping;
-using Antelcat.AutoGen.SourceGenerators.Generators;
 using Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -17,9 +16,10 @@ public class SampleIncrementalSourceGeneratorTests
     [SetUp]
     public void Setup()
     {
-        
     }
-    
+
+    public string Place([CallerFilePath] string path = "") => path;
+
     [Test]
     public void Test()
     {

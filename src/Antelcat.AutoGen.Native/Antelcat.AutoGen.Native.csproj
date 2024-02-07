@@ -8,4 +8,8 @@
         <PublishAot>true</PublishAot>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj" />
+    </ItemGroup>
+
 </Project>

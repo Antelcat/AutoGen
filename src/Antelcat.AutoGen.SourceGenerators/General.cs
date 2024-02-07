@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Antelcat.AutoGen.ComponentModel.Abstractions;
-using Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,23 +14,25 @@ namespace Antelcat.AutoGen.SourceGenerators;
 
 internal static class General
 {
+    internal const string global = nameof(global) + "::";
+    
     internal const string Namespace = $"{nameof(Antelcat)}.{nameof(AutoGen)}";
 
     internal const string ComponentModel = $"{Namespace}.{nameof(ComponentModel)}";
-    internal static string Global(Type? type) => $"global::{type?.FullName}";
+    internal static string Global(Type? type) => $"{global}{type?.FullName}";
     internal static string Nullable(Type? type) => type?.IsValueType == true ? string.Empty : "?";
     internal static string Generic(string? name) => name             != null ? $"<{name}>" : string.Empty;
 
     internal static SourceText SourceText(string text) =>
         Microsoft.CodeAnalysis.Text.SourceText.From(text, Encoding.UTF8);
 
-    internal static bool IsInvalidDeclaration(this string name) => Regex.IsMatch(name, "[a-zA-Z_][a-zA-Z0-9_]*");
+    internal static bool IsValidDeclaration(this string name) => Regex.IsMatch(name, "[a-zA-Z_][a-zA-Z0-9_]*");
 
-    internal static bool IsInvalidNamespace(this string name)
+    internal static bool IsValidNamespace(this string name)
     {
         if (string.IsNullOrWhiteSpace(name)) return false;
         var parts = name.Split('.');
-        return parts.All(part => part.IsInvalidDeclaration());
+        return parts.All(part => part.IsValidDeclaration());
     }
 
     internal static SyntaxTriviaList Header =
@@ -42,25 +43,21 @@ internal static class General
 
     private static readonly string GeneratedCode = typeof(GeneratedCodeAttribute).FullName!;
 
-    internal static AttributeListSyntax GeneratedCodeAttribute(Type category)
-    {
-        return AttributeList(SingletonSeparatedList(
-            Attribute(ParseName("global::" + GeneratedCode))
+    internal static AttributeListSyntax GeneratedCodeAttribute(Type category) =>
+        AttributeList(SingletonSeparatedList(
+            Attribute(ParseName(global + GeneratedCode))
                 .AddArgumentListArguments(
                     AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression,
                         Literal(category.FullName!))),
                     AttributeArgument(LiteralExpression(SyntaxKind.StringLiteralExpression,
                         Literal(typeof(AutoGenAttribute).Assembly.GetName().Version.ToString())))
                 )));
-    }
 
     private static readonly string ExcludeFromCodeCoverage = typeof(ExcludeFromCodeCoverageAttribute).FullName!;
 
-    internal static AttributeListSyntax ExcludeFromCodeCoverageAttribute()
-    {
-        return AttributeList(SingletonSeparatedList(
-            Attribute(ParseName("global::" + ExcludeFromCodeCoverage))));
-    }
+    internal static AttributeListSyntax ExcludeFromCodeCoverageAttribute() =>
+        AttributeList(SingletonSeparatedList(
+            Attribute(ParseName(global + ExcludeFromCodeCoverage))));
 
     internal static MethodDeclarationSyntax AddGenerateAttribute(this MethodDeclarationSyntax syntax, Type category) =>
         syntax.AddAttributeLists(GeneratedCodeAttribute(category), ExcludeFromCodeCoverageAttribute());
@@ -131,13 +128,11 @@ internal static class General
             .WithParameterList(ParameterList(
                 method.ParameterList.Parameters.Aggregate(new SeparatedSyntaxList<ParameterSyntax>(),
                     (l, x) =>
-                        l.Add(
-                            x.WithType(
-                                    ParseName(symbol
-                                        .Parameters[l.Count]
-                                        .Type
-                                        .GetFullyQualifiedName()))
-                                .WithAttributeLists([])))
+                        l.Add(x.WithType(ParseName(symbol
+                                .Parameters[l.Count]
+                                .Type
+                                .GetFullyQualifiedName()))
+                            .WithAttributeLists([])))
             ))
             .WithAttributeLists([])
             .WithSemicolonToken(default);
@@ -152,8 +147,7 @@ internal static class General
         INamedTypeSymbol @class,
         Func<ClassDeclarationSyntax, ClassDeclarationSyntax> map) =>
         compilationUnit
-            .AddMembers(
-                NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
+            .AddMembers(NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
                     .WithLeadingTrivia(Header)
                     .AddMembers(map(@class.PartialClass())));
 }

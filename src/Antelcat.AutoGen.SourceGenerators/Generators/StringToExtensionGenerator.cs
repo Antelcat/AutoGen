@@ -81,7 +81,7 @@ public class StringToExtensionGenerator : IIncrementalGenerator
                         var attr = x.ToAttribute<AutoStringToAttribute>();
                         return (name: attr.Namespace, access: attr.Accessibility);
                     })
-                    .Where(static x => x.name.IsInvalidNamespace())
+                    .Where(static x => x.name.IsValidNamespace())
                     .GroupBy(static x => x.name);
                 foreach (var group in assemblies)
                 {

@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Abstractions\AutoGenAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Accessibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoFilePathAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoStringToAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoReport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\AutoMapAttribute.cs" />
