@@ -1,5 +1,8 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.IO;
+using System.Runtime.CompilerServices;
+using Version = System.Version;
 
 namespace Antelcat.AutoGen.SourceGenerators;
 
@@ -61,6 +64,17 @@ public readonly ref struct FilePath
         while (times-- > 0)
         {
             result += path.ToString();
+        }
+
+        return result;
+    }
+
+    public static FilePath operator <<(FilePath path, int times)
+    {
+        var result = path.ToString();
+        while (times-- > 0)
+        {
+            result = Path.GetDirectoryName(result);
         }
 
         return result;
