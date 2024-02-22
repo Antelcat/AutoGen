@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.ComponentModel.Mapping;
 using Antelcat.AutoGen.Sample.Models;
@@ -30,9 +31,11 @@ public partial class SampleEntity
     [AutoReport]
     internal partial void Report(AutoReport.ReportHandler handler);
 
-    void Fun()
+    void Fun([CallerFilePath] string path = "")
     {
-        FilePath path = "";
+        var directory       = (FilePath)path << 1;
+        var full            = directory / "Antelcat.AutoGen.Sample" / "Example.cs";
+        var changeExtension = full - 2 + ".g.cs";
     }
 
 }

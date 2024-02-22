@@ -50,3 +50,34 @@ Auto generate anything you may want
   + #### `[MapConstructor(params string[])]` :  
 
     Specified property to be added in constructor, will auto detect if `null`
+
+
++ #### `[AutoFilePath]`:
+  
+  Auto generate `FilePath` which is `ref readonly struct`
+
+    ```csharp
+    void Fun([CallerFilePath] string path = "")
+    {
+        var directory       = (FilePath)path << 1;
+        var full            = directory / "Antelcat.AutoGen.Sample" / "Example.cs";
+        var changeExtension = full - 2 + ".g.cs";
+    }
+    ``` 
+
++ #### `[AutoDeconstructIndexable]`:
+
+  Auto generate `Deconstruct` method for `IList<>` and custom types
+
+    ```csharp
+    [assembly: AutoDeconstructIndexable(16/*default size is 16*/, typeof(Foo))]
+  
+    int[] list = [1,2,3];
+    var (a, b, c) = list;
+  
+    class Foo{
+        public object this[int index] => index;
+    }
+  
+    var (a, b, c, d) = new Foo();
+    ```
