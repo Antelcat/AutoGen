@@ -1,15 +1,14 @@
 ﻿global using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Antelcat.AutoGen;
 using Antelcat.AutoGen.ComponentModel;
-using Antelcat.AutoGen.ComponentModel.Diagnostic;
+using Microsoft.CodeAnalysis;
 
 [assembly: AutoStringTo]
 [assembly: AutoFilePath]
-[assembly: Antelcat.AutoGen.ComponentModel.
-    AutoDeconstructIndexable(16, typeof(Foo<>))]
-
+[assembly: AutoDeconstructIndexable(16, typeof(Foo), typeof(Foo<object>), typeof(Foo<>))]
 
 public static class General
 {
@@ -20,20 +19,24 @@ namespace Antelcat.AutoGen
 {
     public class Foo
     {
-        public object this[int index]
+        public object? this[int index]
         {
             get => null!;
             set { }
         }
     }
 
-    [AutoWatch]
-    public class Foo<T> where T : class
+    public interface Foo<TA> where TA : class, new()
     {
-        public Foo<T> Type = null!;
-        public T this[int index]
+        public TA this[int index] { get; set; }
+    }
+
+    public class Demo
+    {
+        public Demo()
         {
-            get => null!;
+            Foo<Demo> list = null!;
+            var (a, b, c, d, e, f, g, h) = list;
         }
     }
 }

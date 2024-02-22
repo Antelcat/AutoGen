@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Antelcat.AutoGen.ComponentModel.Abstractions;
@@ -152,4 +153,26 @@ internal static class General
             .AddMembers(NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
                     .WithLeadingTrivia(Header)
                     .AddMembers(map(@class.PartialClass())));
+    
+    public static TypeParameterConstraintClauseSyntax? GetConstraintClause(this Type type)
+    {
+        if (!type.IsGenericParameter) return null;
+        var clause = TypeParameterConstraintClause(type.Name);
+        if (type.GenericParameterAttributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint))
+        {
+            clause = clause.AddConstraints([ClassOrStructConstraint(SyntaxKind.ClassConstraint)]);
+        }
+
+        if (type.GenericParameterAttributes.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint))
+        {
+            clause = clause.AddConstraints([ClassOrStructConstraint(SyntaxKind.StructConstraint)]);
+
+        }
+        else if (type.GenericParameterAttributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
+        {
+            clause = clause.AddConstraints([ConstructorConstraint()]);
+        }
+
+        return clause;
+    }
 }
