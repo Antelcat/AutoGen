@@ -69,6 +69,21 @@ internal static class General
         syntax.AddAttributeLists(GeneratedCodeAttribute(category), ExcludeFromCodeCoverageAttribute());
 
     /// <summary>
+    /// 判断某个方法是否允许访问某个成员
+    /// </summary>
+    /// <param name="method"></param>
+    /// <param name="symbol"></param>
+    /// <returns></returns>
+    internal static bool CanAccess(this IMethodSymbol method, ISymbol symbol)
+    {
+        if (method.ContainingAssembly.Is(symbol.ContainingAssembly)) return true;
+        if (symbol.ContainingType == null) return false;
+        var access = GetAccess(method, symbol.ContainingType);
+        return symbol.DeclaredAccessibility.IsIncludedIn(access);
+    }
+    
+    
+    /// <summary>
     /// 获取某方法对类型的访问权
     /// </summary>
     /// <param name="type"></param>

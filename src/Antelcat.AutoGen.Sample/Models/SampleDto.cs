@@ -1,6 +1,6 @@
 ﻿namespace Antelcat.AutoGen.Sample.Models;
 
-public class SampleDto(string other)
+public class SampleDto(string other) 
 {
     public int     Id    { get; set; }
     public string? Name  { get; set; }

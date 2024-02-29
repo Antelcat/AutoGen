@@ -23,7 +23,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapDefaultAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapExcludeAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapBetweenAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapIgnoreAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapIncludeAttribute.cs" />
   </ItemGroup>
 </Project>

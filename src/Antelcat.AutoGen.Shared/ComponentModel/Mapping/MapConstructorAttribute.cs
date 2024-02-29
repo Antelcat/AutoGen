@@ -10,4 +10,6 @@ namespace Antelcat.AutoGen.ComponentModel.Mapping;
 public class MapConstructorAttribute(params string[] propertyNames) : Attribute
 {
     internal readonly string[] PropertyNames = propertyNames;
+    
+    public string?[]? Bys { get; set; }
 }

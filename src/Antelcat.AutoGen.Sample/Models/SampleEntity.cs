@@ -6,28 +6,38 @@ using Antelcat.AutoGen.Sample.Models;
 
 namespace Antelcat;
 
+public class EntityBase
+{
+    public int Number { get; }
+
+    public string MemberType
+    {
+        set { }
+    }
+}
+
 public partial class SampleEntity
 {
-    public int     Id    { get; set; }
-    public string? Name  { get; set; }
-    public string? Email { get; set; }
-    public DateTime    Time  { get; set; }
+    public int      Id    { get; set; }
+    public string?  Name  { get; set; }
+    public string?  Email { get; set; }
+    public DateTime Time  { get; set; }
 
-    
-    [AutoMap(Extra = [nameof(DoSomethingElse)])]
+
+    [AutoMap(Extra = [nameof(DoSomethingElse),])]
     [MapConstructor(nameof(Email))]
-    [MapBetween(nameof(Time),nameof(SampleDto.DateTime), By = nameof(ToDateTime))]
+    [MapBetween(nameof(Time), nameof(SampleDto.DateTime), By = nameof(ToDateTime))]
     [MapExclude(nameof(Email))]
     public partial SampleDto ToDto();
 
-    private long ToDateTime(DateTime time)
+    private static long ToDateTime(DateTime time)
         => time.ToFileTime();
 
-    public void DoSomethingElse(SampleDto target)
+    public static void DoSomethingElse(SampleDto target)
     {
         //TODO
     }
-    
+
     [AutoReport]
     internal partial void Report(AutoReport.ReportHandler handler);
 
@@ -37,5 +47,4 @@ public partial class SampleEntity
         var full            = directory / "Antelcat.AutoGen.Sample" / "Example.cs";
         var changeExtension = full - 2 + ".g.cs";
     }
-
 }

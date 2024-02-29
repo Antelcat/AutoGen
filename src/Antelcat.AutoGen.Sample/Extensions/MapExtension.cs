@@ -6,7 +6,7 @@ namespace Antelcat.AutoGen.Sample.Extensions;
 
 public static partial class MapExtension
 {
-    [AutoMap]
+    [AutoMap(Extra = [nameof(Test)])]
     public static partial SampleEntity ToEntity(this SampleDto dto);
 
     
@@ -15,3 +15,4 @@ public static partial class MapExtension
         new SampleDto("").ToEntity();
     }
 }
+ 
