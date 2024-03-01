@@ -23,5 +23,4 @@ internal abstract record MapSide(IMethodSymbol Method, ITypeSymbol Type)
 
     
     public MapConfigInfo ConfigInfo => new(Attributes);
-
 }

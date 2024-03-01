@@ -126,7 +126,7 @@ internal record MapInfo
         {
             ParseStatement(
                 $$"""
-                  var {{Receiver.ArgName}} = {{GetCtor()}}
+                  var {{Receiver.ArgName}} = {{Ctor()}}
                   {
                   {{string.Join("\n", pairs)}}
                   };
@@ -144,10 +144,8 @@ internal record MapInfo
             another.Replace("_", ""),
             StringComparison.OrdinalIgnoreCase);
 
-    private string GetCtor()
+    private string Ctor()
     {
-        var className = Receiver.Type.GetFullyQualifiedName();
-
         var mapCtor = MethodAttributes.FirstOrDefault(static x =>
                 x.AttributeClass!.HasFullyQualifiedMetadataName(typeof(MapConstructorAttribute).FullName))?
             .ToAttribute<MapConstructorAttribute>();
@@ -191,6 +189,7 @@ internal record MapInfo
 
         return New();
 
-        string New(IEnumerable<string>? args = null) => $"new {className}({string.Join(", ", args ?? [])})";
+        string New(IEnumerable<string>? args = null) =>
+            $"new {Receiver.Type.GetFullyQualifiedName()}({string.Join(", ", args ?? [])})";
     }
 }
