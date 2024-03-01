@@ -1,67 +1,57 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Net.Mail;
 using Antelcat.AutoGen.ComponentModel.Mapping;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Accessibility = Antelcat.AutoGen.ComponentModel.Accessibility;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Models;
 
 internal record MapInfo
 {
-    public MapInfo(IMethodSymbol Method, ITypeSymbol From, ITypeSymbol To)
+    public MapInfo(IMethodSymbol method, ITypeSymbol from, ITypeSymbol to)
     {
-        this.Method      = Method;
-        this.From        = From;
-        this.To          = To;
-        IsSelf           = SymbolEqualityComparer.Default.Equals(From, Method.ContainingType);
-        FromAccess       = GetAccess(Method, From);
-        ToAccess         = GetAccess(Method, To);
-        MethodAttributes = Method.GetAttributes();
-        Methods          = Method.ContainingType.GetMembers().OfType<IMethodSymbol>().ToList();
+        IsSelf           = SymbolEqualityComparer.Default.Equals(from, method.ContainingType);
+        MethodAttributes = method.GetAttributes();
+        Methods          = method.ContainingType.GetMembers().OfType<IMethodSymbol>().ToList();
         var autoMap = MethodAttributes
             .First(static x => x.AttributeClass!.HasFullyQualifiedMetadataName(typeof(AutoMapAttribute).FullName))
             .ToAttribute<AutoMapAttribute>();
         if (autoMap.Extra != null)
         {
             Extra = Methods.Where(x => autoMap.Extra.Contains(x.Name)    &&
-                                       !(Method.IsStatic && !x.IsStatic) &&
+                                       !(method.IsStatic && !x.IsStatic) &&
                                        x.Parameters.Length switch
                                        {
                                            0 => true,
-                                           1 => x.Parameters[0].Type.Is(From) || x.Parameters[0].Type.Is(To),
-                                           2 => x.Parameters[0].Type.Is(From) && x.Parameters[1].Type.Is(To) ||
-                                                x.Parameters[0].Type.Is(To)   && x.Parameters[1].Type.Is(From),
+                                           1 => x.Parameters[0].Type.Is(from) || x.Parameters[0].Type.Is(to),
+                                           2 => x.Parameters[0].Type.Is(from) && x.Parameters[1].Type.Is(to) ||
+                                                x.Parameters[0].Type.Is(to)   && x.Parameters[1].Type.Is(from),
                                            _ => false
                                        });
         }
 
-        Provider = new MapProvider(Method, From)
+        Provider = new MapProvider(method, from)
         {
             RequiredAccess = autoMap.FromAccess,
             Attributes = IsSelf
                 ? MethodAttributes
-                : MethodAttributes.Concat(Method.Parameters[0].GetAttributes()).ToImmutableArray()
+                : MethodAttributes.Concat(method.Parameters[0].GetAttributes()).ToImmutableArray()
         };
-        Receiver = new MapReceiver(Method, To)
+        Receiver = new MapReceiver(method, to)
         {
             RequiredAccess = autoMap.ToAccess,
-            Attributes     = Method.GetReturnTypeAttributes()
+            Attributes     = method.GetReturnTypeAttributes()
         };
     }
 
     public bool IsSelf { get; }
 
-    public Accessibility                 FromAccess       { get; }
-    public Accessibility                 ToAccess         { get; }
-    public ImmutableArray<AttributeData> MethodAttributes { get; }
-    public IEnumerable<IMethodSymbol>    Extra            { get; } = [];
-    private List<IMethodSymbol> Methods { get; }
+    public  ImmutableArray<AttributeData> MethodAttributes { get; }
+    public  IEnumerable<IMethodSymbol>    Extra            { get; } = [];
+    private List<IMethodSymbol>           Methods          { get; }
 
     public IEnumerable<string> CallExtra
     {
@@ -76,13 +66,13 @@ internal record MapInfo
                         args = [];
                         break;
                     case 1:
-                        args = [symbol.Parameters[0].Type.Is(From) ? Provider.ArgName : Receiver.ArgName];
+                        args = [symbol.Parameters[0].Type.Is(Provider.Type) ? Provider.ArgName : Receiver.ArgName];
                         break;
                     case 2:
                         args =
                         [
-                            symbol.Parameters[0].Type.Is(From) ? Provider.ArgName : Receiver.ArgName,
-                            symbol.Parameters[1].Type.Is(To) ? Receiver.ArgName : Provider.ArgName
+                            symbol.Parameters[0].Type.Is(Provider.Type) ? Provider.ArgName : Receiver.ArgName,
+                            symbol.Parameters[1].Type.Is(Receiver.Type) ? Receiver.ArgName : Provider.ArgName
                         ];
                         break;
                     default:
@@ -98,15 +88,11 @@ internal record MapInfo
 
     public MapSide Receiver { get; }
 
-    public IMethodSymbol Method { get; init; }
-    public ITypeSymbol   From   { get; init; }
-    public ITypeSymbol   To     { get; init; }
-
-
     public BlockSyntax Map()
     {
-        var between = MethodAttributes.Select(static x =>
-                x.AttributeClass!.HasFullyQualifiedMetadataName(typeof(MapBetweenAttribute).FullName)
+        var between = MethodAttributes
+            .Select(static x =>
+                x.AttributeClass?.HasFullyQualifiedMetadataName(typeof(MapBetweenAttribute).FullName) is true
                     ? x.ToAttribute<MapBetweenAttribute>()
                     : null!)
             .Where(static x => x != null);
@@ -114,27 +100,26 @@ internal record MapInfo
         var provides = Provider.RequiredProperties.ToList();
         var receives = Receiver.RequiredProperties.ToList();
         var pairs = between.Select(x =>
-        {
-            var method = x.By == null
-                ? null
-                : Methods.FirstOrDefault(m => m.Name == x.By);
-            var receive = receives.FirstOrDefault(p => p.MetadataName == x.ToProperty);
-            var provide = provides.FirstOrDefault(p => p.MetadataName == x.FromProperty);
-            if (receive != null) receives.Remove(receive);
-
-            return new MapPair(
-                provide?.MetadataName ?? x.FromProperty,
-                receive?.MetadataName ?? x.ToProperty,
-                method);
-        }).Concat(receives.Select(x =>
             {
-                var provide = provides.FirstOrDefault(p =>
-                    Compatible(p.MetadataName, x.MetadataName));
-                return provide != null
-                    ? new MapPair(provide.MetadataName, x.MetadataName, null)
-                    : null;
-            }).Where(x => x != null)
-        ).Select(p => p!.Call(Provider.ArgName)).ToList();
+                var method = x.By == null
+                    ? null
+                    : Methods.FirstOrDefault(m => m.Name == x.By);
+                var receive = receives.FirstOrDefault(p => p.MetadataName == x.ToProperty);
+                var provide = provides.FirstOrDefault(p => p.MetadataName == x.FromProperty);
+                if (receive != null) receives.Remove(receive);
+
+                return new MapPair(
+                    receive?.MetadataName ?? x.ToProperty,
+                    provide?.MetadataName ?? x.FromProperty,
+                    method);
+            }).Concat(receives
+                .Select(x =>
+                {
+                    var provide = provides.FirstOrDefault(p => Compatible(p.MetadataName, x.MetadataName));
+                    return new MapPair(x.MetadataName, provide?.MetadataName);
+                }))
+            .Select(p => p!.Call(Provider.ArgName))
+            .ToList();
 
 
         var statements = new List<StatementSyntax>
@@ -148,7 +133,7 @@ internal record MapInfo
                   """)
         };
 
-        statements.AddRange(CallExtra.Select(x => ParseStatement(x)));
+        statements.AddRange(CallExtra.Select(static x => ParseStatement(x)));
 
         return Block(statements.Append(ParseStatement($"return {Receiver.ArgName};")));
     }
@@ -167,18 +152,19 @@ internal record MapInfo
                 x.AttributeClass!.HasFullyQualifiedMetadataName(typeof(MapConstructorAttribute).FullName))?
             .ToAttribute<MapConstructorAttribute>();
 
-        if (mapCtor != null) return New(mapCtor.PropertyNames.Select((x, i) =>
-        {
-            var ret = $"{Provider.ArgName}.{x}";
-            if (mapCtor.Bys == null || mapCtor.Bys.Length <= i) return ret;
-            var method = Methods.FirstOrDefault(m => m.Name == mapCtor.Bys[i]);
-            return method switch
+        if (mapCtor != null)
+            return New(mapCtor.PropertyNames.Select((x, i) =>
             {
-                { Parameters.Length: 0 } _ => method.Call(),
-                { Parameters.Length: 1 } _ => method.Call(ret),
-                _                          => ret
-            };
-        }));
+                var ret = $"{Provider.ArgName}.{x}";
+                if (mapCtor.Bys == null || mapCtor.Bys.Length <= i) return ret;
+                var method = Methods.FirstOrDefault(m => m.Name == mapCtor.Bys[i]);
+                return method switch
+                {
+                    { Parameters.Length: 0 } _ => method.Call(),
+                    { Parameters.Length: 1 } _ => method.Call(ret),
+                    _                          => ret
+                };
+            }));
 
         var ctors = Receiver.Type
             .GetMembers()
@@ -186,8 +172,8 @@ internal record MapInfo
             .Where(static x => x.MethodKind == MethodKind.Constructor)
             .ToList();
 
-        if (ctors.Any(x => x.Parameters.Length == 0)) return New();
-        foreach (var ctor in ctors.OrderBy(x => x.Parameters.Length))
+        if (ctors.Any(static x => x.Parameters.Length == 0)) return New();
+        foreach (var ctor in ctors.OrderBy(static x => x.Parameters.Length))
         {
             var parameters = ctor.Parameters;
             var matches    = new List<string>();

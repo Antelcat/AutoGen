@@ -3,11 +3,13 @@ using Microsoft.CodeAnalysis;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Models;
 
-public record MapPair(string Provider, string Receiver, IMethodSymbol? By)
+public record MapPair(string Receiver,string? Provider = null,  IMethodSymbol? By = null)
 {
     public string Call(string argName) => $"{Receiver} = {(
-        By is null
-            ? $"{argName}.{Receiver}"
-            : $"{By.Call($"{argName}.{Provider}")}"
+        Provider is null
+            ? "default"
+            : By is null
+                ? $"{argName}.{Receiver}"
+                : $"{By.Call($"{argName}.{Provider}")}"
     )},";
 }

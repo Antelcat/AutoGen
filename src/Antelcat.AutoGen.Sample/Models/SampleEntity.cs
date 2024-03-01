@@ -28,6 +28,7 @@ public partial class SampleEntity
     [MapConstructor(nameof(Email))]
     [MapBetween(nameof(Time), nameof(SampleDto.DateTime), By = nameof(ToDateTime))]
     [MapExclude(nameof(Email))]
+    [return: MapDefault(nameof(SampleDto.Id), "")]
     public partial SampleDto ToDto();
 
     private static long ToDateTime(DateTime time)
