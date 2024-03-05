@@ -81,3 +81,24 @@ Auto generate anything you may want
   
     var (a, b, c, d) = new Foo();
     ```
+
++ #### `[AutoExtendFor]`:
+
+  Auto generate `this` extensions for `static` method in `static class`
+
+  ```csharp
+  class StaticClass
+  {
+      public static void Fun(int i) => Console.WriteLine(i);
+  }
+  
+  [AutoExtendFor(typeof(StaticClass))]
+  static partial class Extension;
+  
+  /// <generated>
+  static partial class Extension
+  {
+      public static void Fun(this int i) => StaticClass.Fun(i); // call original method
+  }
+  ///
+  ```
