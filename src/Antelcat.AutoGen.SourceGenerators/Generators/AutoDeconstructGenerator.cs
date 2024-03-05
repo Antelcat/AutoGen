@@ -23,15 +23,14 @@ public class AutoDeconstructGenerator : AttributeDetectBaseGenerator<AutoDeconst
         ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray)
     {
         var syntax = syntaxArray.First();
-        var data = syntax.Attributes.FirstOrDefault(x =>
-            x.AttributeClass.GetFullyQualifiedName() == global + AttributeName);
-        if (data is null) return;
-        var attr = data.ToAttribute<AutoDeconstructIndexableAttribute>();
+        var attr   = syntax
+            .GetAttributes<AutoDeconstructIndexableAttribute>()
+            .FirstOrDefault();
+        if (attr == null) return;
         if (!attr.Namespace.IsValidNamespace()) return;
         var extra = attr.IndexableTypes
             .Select(x =>
             {
-                var type = typeof(List<object>);
                 if (x.IsGenericType)
                 {
                     if (x.GenericParameterCount() is not 1)

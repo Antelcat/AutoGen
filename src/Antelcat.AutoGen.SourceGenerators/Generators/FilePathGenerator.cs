@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Linq;
 using Antelcat.AutoGen.ComponentModel;
+using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Accessibility = Antelcat.AutoGen.ComponentModel.Accessibility;
@@ -14,15 +15,14 @@ public class FilePathGenerator : AttributeDetectBaseGenerator<AutoFilePathAttrib
 
     protected override bool FilterSyntax(SyntaxNode node) => node is CompilationUnitSyntax;
 
-    protected override void Initialize(SourceProductionContext context, 
+    protected override void Initialize(SourceProductionContext context,
         Compilation compilation,
         ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray)
     {
         foreach (var syntaxContext in syntaxArray)
         {
-            var attr = syntaxContext.Attributes
-                .Where(x => x.AttributeClass?.GetFullyQualifiedName() == global + AttributeName)
-                .Select(static x => x.ToAttribute<AutoFilePathAttribute>())
+            var attr = syntaxContext
+                .GetAttributes<AutoFilePathAttribute>()
                 .FirstOrDefault(static x => x.Namespace.IsValidNamespace());
             if (attr is null) continue;
             var text = Antelcat.AutoGen.FilePath.Text.Replace(
@@ -35,5 +35,4 @@ public class FilePathGenerator : AttributeDetectBaseGenerator<AutoFilePathAttrib
             context.AddSource($"{attr.Namespace}.{Class}.cs", SourceText(text));
         }
     }
-
 }

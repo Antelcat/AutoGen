@@ -16,9 +16,7 @@ internal record MapInfo
         IsSelf           = SymbolEqualityComparer.Default.Equals(from, method.ContainingType);
         MethodAttributes = method.GetAttributes();
         Methods          = method.ContainingType.GetMembers().OfType<IMethodSymbol>().ToList();
-        var autoMap = MethodAttributes
-            .First(static x => x.AttributeClass!.HasFullyQualifiedMetadataName(typeof(AutoMapAttribute).FullName))
-            .ToAttribute<AutoMapAttribute>();
+        var autoMap = MethodAttributes.GetAttributes<AutoMapAttribute>().First();
         if (autoMap.Extra != null)
         {
             Extra = Methods.Where(x => autoMap.Extra.Contains(x.Name)    &&
@@ -90,12 +88,7 @@ internal record MapInfo
 
     public BlockSyntax Map()
     {
-        var between = MethodAttributes
-            .Select(static x =>
-                x.AttributeClass?.HasFullyQualifiedMetadataName(typeof(MapBetweenAttribute).FullName) is true
-                    ? x.ToAttribute<MapBetweenAttribute>()
-                    : null!)
-            .Where(static x => x != null);
+        var between = MethodAttributes.GetAttributes<MapBetweenAttribute>();
 
         var provides = Provider.RequiredProperties.ToList();
         var receives = Receiver.RequiredProperties.ToList();

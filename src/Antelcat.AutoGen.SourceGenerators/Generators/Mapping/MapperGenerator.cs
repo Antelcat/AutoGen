@@ -1,15 +1,10 @@
 ﻿using static Microsoft.CodeAnalysis.Diagnostic;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Mapping;
-using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Accessibility = Antelcat.AutoGen.ComponentModel.Accessibility;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 

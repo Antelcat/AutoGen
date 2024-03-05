@@ -84,19 +84,17 @@ internal static class General
     
     
     /// <summary>
-    /// 获取某方法对类型的访问权
+    /// 获取某类型对类型的访问权
     /// </summary>
-    /// <param name="type"></param>
-    /// <param name="method"></param>
     /// <returns></returns>
-    internal static Antelcat.AutoGen.ComponentModel.Accessibility GetAccess(IMethodSymbol method, ITypeSymbol type)
+    internal static Antelcat.AutoGen.ComponentModel.Accessibility GetAccess(ITypeSymbol sourceType, ITypeSymbol targetType)
     {
         var ret = Antelcat.AutoGen.ComponentModel.Accessibility.Public;
-        if (method.ContainingAssembly.Is(type.ContainingAssembly))
+        if (sourceType.Is(targetType.ContainingAssembly))
             ret |= Antelcat.AutoGen.ComponentModel.Accessibility.Internal;
-        if (type.TypeKind == TypeKind.Interface) return ret;
-        var @class = method.ContainingType;
-        if (@class.Is(type))
+        if (targetType.TypeKind == TypeKind.Interface) return ret;
+        var @class = sourceType;
+        if (@class.Is(targetType))
         {
             ret |= Antelcat.AutoGen.ComponentModel.Accessibility.Protected |
                    Antelcat.AutoGen.ComponentModel.Accessibility.Private;
@@ -106,7 +104,7 @@ internal static class General
             while (@class.BaseType != null)
             {
                 @class = @class.BaseType;
-                if (!@class.Is(type)) continue;
+                if (!@class.Is(targetType)) continue;
                 ret |= Antelcat.AutoGen.ComponentModel.Accessibility.Protected;
                 break;
             }
@@ -114,6 +112,14 @@ internal static class General
 
         return ret;
     }
+    
+    /// <summary>
+    /// 获取某方法对类型的访问权
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="method"></param>
+    /// <returns></returns>
+    internal static Antelcat.AutoGen.ComponentModel.Accessibility GetAccess(IMethodSymbol method, ITypeSymbol type) => GetAccess(method.ContainingType, type);
 
     internal static bool IsIncludedIn(this Accessibility accessibility,
         ComponentModel.Accessibility targetAccessibility)
