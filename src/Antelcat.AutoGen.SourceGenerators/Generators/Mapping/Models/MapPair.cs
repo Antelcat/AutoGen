@@ -9,7 +9,7 @@ public record MapPair(string Receiver,string? Provider = null,  IMethodSymbol? B
         Provider is null
             ? "default"
             : By is null
-                ? $"{argName}.{Receiver}"
+                ? $"{argName}.{Provider}"
                 : $"{By.Call($"{argName}.{Provider}")}"
     )},";
 }

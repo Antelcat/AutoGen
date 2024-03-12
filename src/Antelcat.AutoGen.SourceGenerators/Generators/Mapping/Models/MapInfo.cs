@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Antelcat.AutoGen.ComponentModel.Mapping;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
@@ -89,7 +90,6 @@ internal record MapInfo
     public BlockSyntax Map()
     {
         var between = MethodAttributes.GetAttributes<MapBetweenAttribute>();
-
         var provides = Provider.RequiredProperties.ToList();
         var receives = Receiver.RequiredProperties.ToList();
         var pairs = between.Select(x =>
