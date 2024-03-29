@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.ComponentModel.Mapping;
@@ -47,5 +48,7 @@ public partial class SampleEntity
         var directory       = (FilePath)path << 1;
         var full            = directory / "Antelcat.AutoGen.Sample" / "Example.cs";
         var changeExtension = full - 2 + ".g.cs";
+        var list            = new List<string>();
+        var (a, b, c, d) = list;
     }
 }

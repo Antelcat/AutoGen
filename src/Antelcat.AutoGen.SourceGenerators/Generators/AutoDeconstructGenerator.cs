@@ -82,7 +82,6 @@ public class AutoDeconstructGenerator : AttributeDetectBaseGenerator<AutoDeconst
                             .AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
                             .AddMembers(
                             [
-                                ..Deconstructs(global + typeof(IList).FullName, attr.Size),
                                 ..Deconstructs(global + typeof(IList<>).QualifiedFullName(),
                                     attr.Size,
                                     false,
