@@ -81,6 +81,11 @@ internal static class General
         var access = GetAccess(method, symbol.ContainingType);
         return symbol.DeclaredAccessibility.IsIncludedIn(access);
     }
+
+    internal static string ToQualifiedFileName(this string className) => className
+        .Replace("global::", "")
+        .Replace('<', '{')
+        .Replace('>', '}');
     
     
     /// <summary>
@@ -163,9 +168,12 @@ internal static class General
 
     internal static ClassDeclarationSyntax PartialClass(this ClassDeclarationSyntax syntax) =>
         ClassDeclaration(syntax.Identifier).WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
-    
-    internal static ClassDeclarationSyntax PartialClass(this INamedTypeSymbol @class) =>
-        ClassDeclaration(@class.Name).WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
+
+    internal static ClassDeclarationSyntax PartialClassDeclaration(this INamedTypeSymbol @class) =>
+        ClassDeclaration(@class.Name + (!@class.IsGenericType
+                ? string.Empty
+                : $"<{string.Join(",", @class.TypeParameters.Select(x => x.Name))}>"))
+            .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
 
     internal static CompilationUnitSyntax AddPartialClass(this CompilationUnitSyntax compilationUnit,
         INamedTypeSymbol @class,
@@ -173,7 +181,7 @@ internal static class General
         compilationUnit
             .AddMembers(NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
                     .WithLeadingTrivia(Header)
-                    .AddMembers(map(@class.PartialClass())));
+                    .AddMembers(map(@class.PartialClassDeclaration())));
     
     public static TypeParameterConstraintClauseSyntax? GetConstraintClause(this Type type)
     {

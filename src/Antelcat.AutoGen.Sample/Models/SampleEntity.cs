@@ -52,3 +52,14 @@ public partial class SampleEntity
         var (a, b, c, d) = list;
     }
 }
+public partial class SampleGeneric<T>
+{
+    public int      Id    { get; set; }
+    public string?  Name  { get; set; }
+    public string?  Email { get; set; }
+    public DateTime Time  { get; set; }
+
+
+    [AutoMap]
+    public partial SampleGeneric<T> ToDto();
+}

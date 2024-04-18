@@ -48,7 +48,7 @@ public class SampleIncrementalSourceGeneratorTests
     [Test]
     public void Test()
     {
-        string file = (General.Dir().FullPath << 1) / "Antelcat.AutoGen.Sample" / "Example.cs";
+        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample" / "Models" / "SampleEntity.cs";
         RunTest<MapperGenerator>(File.ReadAllText(file));
     }
 

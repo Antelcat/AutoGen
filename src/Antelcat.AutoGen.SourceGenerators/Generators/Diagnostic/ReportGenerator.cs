@@ -29,7 +29,7 @@ public class ReportGenerator : IIncrementalGenerator
                                  (x.TargetSymbol as IMethodSymbol)!.ContainingType, SymbolEqualityComparer.Default))
                 {
                     var @class = (group.Key as INamedTypeSymbol)!;
-                    var partial = @class.PartialClass();
+                    var partial = @class.PartialClassDeclaration();
                     foreach (var syntax in group)
                     {
                         var method = (syntax.TargetSymbol as IMethodSymbol)!;

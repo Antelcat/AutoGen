@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
-using Antelcat.AutoGen.ComponentModel.Mapping;
+﻿using Antelcat.AutoGen.ComponentModel.Mapping;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Models;
 

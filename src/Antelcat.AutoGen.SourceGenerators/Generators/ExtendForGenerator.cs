@@ -110,7 +110,7 @@ public class ExtendForGenerator : AttributeDetectBaseGenerator<AutoExtendForAttr
                     unit = unit.AddMembers(classDeclare.WithLeadingTrivia(Header));
                 }
 
-                context.AddSource($"AutoExtendFor__.{nameSpace}.{className}.g.cs",
+                context.AddSource($"AutoExtendFor__.{nameSpace}.{className.ToQualifiedFileName()}.g.cs",
                     SourceText(unit.NormalizeWhitespace().ToFullString()));
             }
         }

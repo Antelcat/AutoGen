@@ -11,11 +11,9 @@ namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 [Generator(LanguageNames.CSharp)]
 public class MapperGenerator : IIncrementalGenerator
 {
-    internal static readonly  string AutoMap        = typeof(AutoMapAttribute).FullName!;
-    internal static readonly string MapBetween     = typeof(MapBetweenAttribute).FullName!;
-    internal static readonly string MapExclude     = typeof(MapExcludeAttribute).FullName!;
-    internal static readonly string MapInclude     = typeof(MapIncludeAttribute).FullName!;
-    internal static readonly string MapConstructor = typeof(MapConstructorAttribute).FullName!;
+    internal static readonly string AutoMap    = typeof(AutoMapAttribute).FullName!;
+    internal static readonly string MapExclude = typeof(MapExcludeAttribute).FullName!;
+    internal static readonly string MapInclude = typeof(MapIncludeAttribute).FullName!;
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -23,7 +21,6 @@ public class MapperGenerator : IIncrementalGenerator
             AutoMap,
             static (ctx, t) => ctx is MethodDeclarationSyntax,
             static (ctx, _) => ctx);
-
         context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()),
             static (ctx, tuple) =>
             {
@@ -32,8 +29,8 @@ public class MapperGenerator : IIncrementalGenerator
                                  (x.TargetSymbol as IMethodSymbol)!.ContainingType, SymbolEqualityComparer.Default))
                 {
                     var @class  = (group.Key as INamedTypeSymbol)!;
-                    var partial = @class.PartialClass();
-                    foreach (var syntax in group)
+                    var partial = @class.PartialClassDeclaration();
+                     foreach (var syntax in group)
                     {
                         var method   = (syntax.TargetSymbol as IMethodSymbol)!;
                         var location = syntax.TargetNode.GetLocation();
@@ -91,8 +88,9 @@ public class MapperGenerator : IIncrementalGenerator
                                 .WithBody(new MapInfo(method, fromType, toType).Map()));
                     }
 
-                    ctx.AddSource($"{nameof(AutoMap)}__.{@class.GetFullyQualifiedName()
-                        .Replace("global::", string.Empty)}.g.cs",
+                    ctx.AddSource($"{nameof(AutoMap)}__.{@class
+                        .GetFullyQualifiedName()
+                        .ToQualifiedFileName()}.g.cs",
                         CompilationUnit()
                             .AddPartialClass(@class, x => partial)
                             .NormalizeWhitespace()
