@@ -79,7 +79,7 @@ public class AutoDeconstructGenerator : AttributeDetectBaseGenerator<AutoDeconst
                 NamespaceDeclaration(ParseName(attr.Namespace))
                     .AddMembers(
                         ClassDeclaration("DeconstructIndexableExtension")
-                            .AddModifiers(SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
+                            .AddModifiers(SyntaxKind.PublicKeyword, SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
                             .AddMembers(
                             [
                                 ..Deconstructs(global + typeof(IList<>).QualifiedFullName(),
