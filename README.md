@@ -100,5 +100,38 @@ Auto generate anything you may want
   {
       public static void Fun(this int i) => StaticClass.Fun(i); // call original method
   }
-  ///
+
++ #### `[AutoKeyAccessor]`:
+
+  Auto generate `object this[string key]` accessor
+
+  ```csharp
+  [AutoKeyAccessor]
+  class Foo
+  {
+      public bool Property { get; set; }
+  }
+  
+  /// <generated>
+  partial class Foo
+  {
+      public object? this[string key]
+      {
+          get
+          {
+              switch (key)
+              {
+                  case nameof(this.Property): return this.Property;
+              }
+              return null;
+          };
+          set
+          {
+              switch (key)
+              {
+                  case nameof(this.Property): this.Property = (bool)value; break;
+              }
+          };
+      }
+  }
   ```

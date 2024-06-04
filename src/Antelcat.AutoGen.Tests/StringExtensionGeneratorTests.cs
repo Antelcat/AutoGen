@@ -32,7 +32,7 @@ public class SampleIncrementalSourceGeneratorTests
             {
                 // To support 'System.Attribute' inheritance, add reference to 'System.Private.CoreLib'.
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(AutoDeconstructIndexableAttribute).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(AutoKeyAccessor).Assembly.Location),
             });
         driver.RunGenerators(compilation).GetRunResult();
         compilation.GetDiagnostics()
@@ -48,8 +48,8 @@ public class SampleIncrementalSourceGeneratorTests
     [Test]
     public void Test()
     {
-        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample" / "Models" / "SampleEntity.cs";
-        RunTest<MapperGenerator>(File.ReadAllText(file));
+        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample"/ "Models" / "Accessor" / "INeedAccessor.cs";
+        RunTest<KeyAccessorGenerator>(File.ReadAllText(file));
     }
 
     [Test]

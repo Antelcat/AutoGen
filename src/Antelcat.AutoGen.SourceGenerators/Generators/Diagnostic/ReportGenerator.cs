@@ -29,7 +29,7 @@ public class ReportGenerator : IIncrementalGenerator
                                  (x.TargetSymbol as IMethodSymbol)!.ContainingType, SymbolEqualityComparer.Default))
                 {
                     var @class = (group.Key as INamedTypeSymbol)!;
-                    var partial = @class.PartialClassDeclaration();
+                    var partial = @class.PartialTypeDeclaration();
                     foreach (var syntax in group)
                     {
                         var method = (syntax.TargetSymbol as IMethodSymbol)!;
@@ -95,7 +95,7 @@ public class ReportGenerator : IIncrementalGenerator
                     ctx.AddSource($"{nameof(AutoReport)}__.{@class.GetFullyQualifiedName()
                         .Replace("global::", string.Empty)}.g.cs",
                         CompilationUnit()
-                            .AddPartialClass(@class, x => partial)
+                            .AddPartialType(@class, x => partial)
                             .NormalizeWhitespace()
                             .GetText(Encoding.UTF8));
                     return;

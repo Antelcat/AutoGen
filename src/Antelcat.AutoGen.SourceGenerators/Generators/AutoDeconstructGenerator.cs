@@ -33,15 +33,8 @@ public class AutoDeconstructGenerator : AttributeDetectBaseGenerator<AutoDeconst
             {
                 if (x.IsGenericType)
                 {
-                    if (x.GenericParameterCount() is not 1)
-                    {
-                        return null;
-                    }
-
-                    if (!x.IsConstructedGenericType)
-                    {
-                        x = x.GetGenericTypeDefinition();
-                    }
+                    if (x.GenericParameterCount() is not 1) return null;
+                    if (!x.IsConstructedGenericType) x = x.GetGenericTypeDefinition();
                 }
 
                 var prop = x
@@ -57,10 +50,7 @@ public class AutoDeconstructGenerator : AttributeDetectBaseGenerator<AutoDeconst
 
                 if (prop == null) return null;
                 var nullable = ((Feast.CodeAnalysis.CompileTime.PropertyInfo)prop).HasNullableAnnotation;
-                if (!x.IsGenericType)
-                {
-                    return Deconstructs(x.QualifiedFullName(), attr.Size, nullable);
-                }
+                if (!x.IsGenericType) return Deconstructs(x.QualifiedFullName(), attr.Size, nullable);
 
                 var element = prop.PropertyType;
                 return Deconstructs(x.GlobalQualifiedFullName(),

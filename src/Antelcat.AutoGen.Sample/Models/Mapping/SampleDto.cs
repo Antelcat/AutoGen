@@ -1,4 +1,4 @@
-﻿namespace Antelcat.AutoGen.Sample.Models;
+﻿namespace Antelcat.AutoGen.Sample.Models.Mapping;
 
 public class SampleDto(string other) 
 {

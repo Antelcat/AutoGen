@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.ComponentModel.Mapping;
-using Antelcat.AutoGen.Sample.Models;
 
-namespace Antelcat;
+namespace Antelcat.AutoGen.Sample.Models.Mapping;
 
 public class EntityBase
 {

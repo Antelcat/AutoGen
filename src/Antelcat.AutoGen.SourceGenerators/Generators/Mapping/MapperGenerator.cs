@@ -29,7 +29,7 @@ public class MapperGenerator : IIncrementalGenerator
                                  (x.TargetSymbol as IMethodSymbol)!.ContainingType, SymbolEqualityComparer.Default))
                 {
                     var @class  = (group.Key as INamedTypeSymbol)!;
-                    var partial = @class.PartialClassDeclaration();
+                    var partial = @class.PartialTypeDeclaration();
                      foreach (var syntax in group)
                     {
                         var method   = (syntax.TargetSymbol as IMethodSymbol)!;
@@ -92,7 +92,7 @@ public class MapperGenerator : IIncrementalGenerator
                         .GetFullyQualifiedName()
                         .ToQualifiedFileName()}.g.cs",
                         CompilationUnit()
-                            .AddPartialClass(@class, x => partial)
+                            .AddPartialType(@class, x => partial)
                             .NormalizeWhitespace()
                             .GetText(Encoding.UTF8));
                 }

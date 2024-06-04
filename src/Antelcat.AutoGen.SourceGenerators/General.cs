@@ -20,6 +20,9 @@ internal static class General
     internal const string Namespace = $"{nameof(Antelcat)}.{nameof(AutoGen)}";
 
     internal const string ComponentModel = $"{Namespace}.{nameof(ComponentModel)}";
+
+    internal const string GlobalNamespace = "<global namespace>";
+    
     internal static string Global(Type? type) => $"{global}{type?.FullName}";
     internal static string Nullable(Type? type) => type?.IsValueType == true ? string.Empty : "?";
     internal static string Generic(string? name) => name             != null ? $"<{name}>" : string.Empty;
@@ -169,20 +172,48 @@ internal static class General
     internal static ClassDeclarationSyntax PartialClass(this ClassDeclarationSyntax syntax) =>
         ClassDeclaration(syntax.Identifier).WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
 
-    internal static ClassDeclarationSyntax PartialClassDeclaration(this INamedTypeSymbol @class) =>
-        ClassDeclaration(@class.Name + (!@class.IsGenericType
-                ? string.Empty
-                : $"<{string.Join(",", @class.TypeParameters.Select(x => x.Name))}>"))
+    internal static TypeDeclarationSyntax PartialTypeDeclaration(this INamedTypeSymbol @class)
+    {
+        var identifier = @class.Name + (!@class.IsGenericType
+            ? string.Empty
+            : $"<{string.Join(",", @class.TypeParameters.Select(x => x.Name))}>");
+        return (@class.TypeKind switch
+            {
+                TypeKind.Class => (TypeDeclarationSyntax)ClassDeclaration(identifier)
+                    .AddModifiers(Token(SyntaxKind.PartialKeyword)),
+                TypeKind.Interface => InterfaceDeclaration(identifier)
+                    .AddModifiers(Token(SyntaxKind.PartialKeyword)),
+                TypeKind.Structure or TypeKind.Struct => StructDeclaration(identifier)
+                    .AddModifiers(Token(SyntaxKind.PartialKeyword)),
+                _ => throw new ArgumentException()
+            })
             .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PartialKeyword)));
+    }
 
-    internal static CompilationUnitSyntax AddPartialClass(this CompilationUnitSyntax compilationUnit,
+    internal static CompilationUnitSyntax AddPartialType(this CompilationUnitSyntax compilationUnit,
         INamedTypeSymbol @class,
-        Func<ClassDeclarationSyntax, ClassDeclarationSyntax> map) =>
-        compilationUnit
-            .AddMembers(NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
-                    .WithLeadingTrivia(Header)
-                    .AddMembers(map(@class.PartialClassDeclaration())));
-    
+        Func<TypeDeclarationSyntax, TypeDeclarationSyntax> map)
+    {
+        var ret       = map(@class.PartialTypeDeclaration());
+        var aggregate = ret as MemberDeclarationSyntax;
+        var parent    = @class.ContainingType;
+        while (parent != null)
+        {
+            aggregate = parent.PartialTypeDeclaration().AddMembers(aggregate);
+            if (parent.ContainingType != null) parent = parent.ContainingType;
+            else break;
+        }
+
+        var namespaceStr = @class.ContainingNamespace.ToDisplayString();
+        if (namespaceStr is not GlobalNamespace)
+        {
+            aggregate = NamespaceDeclaration(IdentifierName(@class.ContainingNamespace.ToDisplayString()))
+                .WithLeadingTrivia(Header)
+                .AddMembers(aggregate);
+        }
+        return compilationUnit.AddMembers(aggregate);
+    }
+
     public static TypeParameterConstraintClauseSyntax? GetConstraintClause(this Type type)
     {
         if (!type.IsGenericParameter) return null;

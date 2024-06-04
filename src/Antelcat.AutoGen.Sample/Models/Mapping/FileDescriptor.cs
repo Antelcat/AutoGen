@@ -1,7 +1,4 @@
-﻿using System.IO;
-using Antelcat.AutoGen.ComponentModel.Mapping;
-
-namespace Antelcat.AutoGen.Sample.Models;
+﻿namespace Antelcat.AutoGen.Sample.Models.Mapping;
 
 public class FileDescriptor
 {
