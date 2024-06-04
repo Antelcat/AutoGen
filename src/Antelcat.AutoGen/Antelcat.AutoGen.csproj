@@ -7,9 +7,9 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>1.1.0</Version>
-        <FileVersion>1.1.0</FileVersion>
-        <AssemblyVersion>1.1.0</AssemblyVersion>
+        <Version>1.1.0.1</Version>
+        <FileVersion>1.1.0.1</FileVersion>
+        <AssemblyVersion>1.1.0.1</AssemblyVersion>
         
         <Authors>Antelcat</Authors>
         <Title>Antelcat.AutoGen</Title>
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Add AutoKeyAccessor and fix global namespace err</PackageReleaseNotes>
+        <PackageReleaseNotes>Fix none static and init member err</PackageReleaseNotes>
         
     </PropertyGroup>
 

@@ -13,10 +13,10 @@ public class NeedBase
     public virtual int D { get; set; }
 }
 
-[AutoKeyAccessor(includeField: true, Get = false)]
+[AutoKeyAccessor(includeField: true)]
 public partial class NeedAccessor : NeedBase, INeedAccessor
 {
-    public int B { get; set; }
+    public int B { get; init; }
 
     public override int D { get; set; }
 

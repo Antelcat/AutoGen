@@ -29,7 +29,7 @@ public class KeyAccessorGenerator : AttributeDetectBaseGenerator<AutoKeyAccessor
             {
                 if (!Filter(symbol, out var isSelf)) continue;
                 if (dict.TryGetValue(symbol.Name, out var tmp) && tmp.self) continue;
-                dict[symbol.Name] = (!symbol.IsWriteOnly, !symbol.IsReadOnly, isSelf, symbol.Type);
+                dict[symbol.Name] = (!symbol.IsWriteOnly, !symbol.IsReadOnly && !symbol.IsInitOnly(), isSelf, symbol.Type);
             }
 
             if (keyAccessor.IncludeField)
@@ -100,6 +100,7 @@ public class KeyAccessorGenerator : AttributeDetectBaseGenerator<AutoKeyAccessor
             bool Filter(ISymbol symbol, out bool isSelf)
             {
                 isSelf = SymbolEqualityComparer.Default.Equals(symbol.ContainingType, typeSymbol);
+                if (symbol.IsStatic) return false;
                 return (isSelf || symbol.DeclaredAccessibility != Microsoft.CodeAnalysis.Accessibility.Private) &&
                        (isSelf || SymbolEqualityComparer.Default.Equals(symbol.ContainingAssembly,
                             typeSymbol.ContainingAssembly) ||
