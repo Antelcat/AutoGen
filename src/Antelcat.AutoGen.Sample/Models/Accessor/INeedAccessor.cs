@@ -8,13 +8,13 @@ public partial interface INeedAccessor
     public string A => nameof(A);
 }
 
-public class NeedBase
+public record NeedBase
 {
     public virtual int D { get; set; }
 }
 
 [AutoKeyAccessor(includeField: true)]
-public partial class NeedAccessor : NeedBase, INeedAccessor
+public partial record NeedAccessor : NeedBase, INeedAccessor
 {
     public int B { get; init; }
 

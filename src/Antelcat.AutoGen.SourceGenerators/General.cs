@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Antelcat.AutoGen.ComponentModel.Abstractions;
+using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -179,7 +180,9 @@ internal static class General
             : $"<{string.Join(",", @class.TypeParameters.Select(x => x.Name))}>");
         return (@class.TypeKind switch
             {
-                TypeKind.Class => (TypeDeclarationSyntax)ClassDeclaration(identifier)
+                TypeKind.Class => (@class.IsRecord
+                        ? (TypeDeclarationSyntax)SyntaxContextExtension.RecordDeclaration(identifier)
+                        : ClassDeclaration(identifier))
                     .AddModifiers(Token(SyntaxKind.PartialKeyword)),
                 TypeKind.Interface => InterfaceDeclaration(identifier)
                     .AddModifiers(Token(SyntaxKind.PartialKeyword)),

@@ -1,21 +1,24 @@
 ﻿//Let's see what native aot can do
 
+using Antelcat.AutoGen.ComponentModel;
 
-using Antelcat.AutoGen.Native;
-
-Console.WriteLine(new DemoClass().GetType());
-
-Console.WriteLine(typeof(DemoClass));
+[assembly: AutoDeconstructIndexable(16, typeof(Foo))]
 
 
-public struct A
+var foo = new Foo();
+
+// 传统方式
+var first  = foo[0];
+var second = foo[1];
+var third  = foo[2];
+var forth  = foo[3];
+Console.WriteLine($"{first} {second} {third} {forth}");
+
+var (a, b, c, d) = foo; //新的方式
+Console.WriteLine($"{a} {b} {c} {d}");
+
+
+public class Foo
 {
-    public object? this[string key]
-    {
-        get => "";
-        set
-        {
-            
-        }
-    }
+    public object? this[int index] => null;
 }

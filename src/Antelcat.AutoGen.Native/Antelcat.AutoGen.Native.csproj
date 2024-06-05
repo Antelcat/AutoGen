@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj" />
+      <ProjectReference ReferenceOutputAssembly="false" OutputItemType="Analyzer" Include="..\Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj" />
     </ItemGroup>
 
 </Project>

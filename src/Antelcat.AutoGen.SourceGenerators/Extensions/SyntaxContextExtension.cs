@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Antelcat.AutoGen.SourceGenerators.Extensions;
 
@@ -15,5 +17,6 @@ public static class SyntaxContextExtension
                 attributeData.AttributeClass?.HasFullyQualifiedMetadataName(typeof(T).FullName) is true)
             .Select(static attributeData => attributeData.ToAttribute<T>());
     
-    
+    public static RecordDeclarationSyntax RecordDeclaration(string identifier) =>
+        SyntaxFactory.RecordDeclaration(default, default, Token(SyntaxKind.RecordKeyword), identifier: Identifier(identifier), null, null, null, default, SyntaxFactory.Token(SyntaxKind.OpenBraceToken), default, Token(SyntaxKind.CloseBraceToken), default);
 }
