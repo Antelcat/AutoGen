@@ -32,7 +32,7 @@ public class UnmanagedArrayGenerator : AttributeDetectBaseGenerator<AutoUnmanage
                 .ToArray();
             var enumerator = ParseMemberDeclaration(
                 $$"""
-                  public global::System.Collections.Generic.IEnumerator<{{type}}> Enumerate() {
+                  public global::System.Collections.Generic.IEnumerable<{{type}}> Enumerate() {
                       {{string.Join("\n", names.Select(x => $"yield return {x};").ToArray())}}
                   }
                   """
