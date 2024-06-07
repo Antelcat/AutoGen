@@ -1,6 +1,5 @@
 ﻿using Antelcat.AutoGen.ComponentModel;
 
-namespace Antelcat.AutoGen.Sample.Models.Accessor;
 
 [AutoKeyAccessor]
 public partial interface INeedAccessor

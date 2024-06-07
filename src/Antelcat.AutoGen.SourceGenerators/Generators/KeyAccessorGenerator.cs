@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Antelcat.AutoGen.ComponentModel;
@@ -48,14 +49,7 @@ public class KeyAccessorGenerator : AttributeDetectBaseGenerator<AutoKeyAccessor
             var canSets = dict.Where(x => x.Value.set).ToList();
             var method =
                 $$"""
-                  {{keyAccessor.Accessibility switch {
-                      Accessibility.Public              => "public",
-                      Accessibility.Private             => "private",
-                      Accessibility.Internal            => "internal",
-                      Accessibility.Protected           => "protected",
-                      Accessibility.ProtectedOrInternal => "protected internal",
-                      _                                 => ""
-                  }}} object? this[string key] {
+                  {{keyAccessor.Accessibility.ToCodeString()}} object? this[string key] {
                      {{
                          (keyAccessor.Get ?
                              $$"""
@@ -89,11 +83,10 @@ public class KeyAccessorGenerator : AttributeDetectBaseGenerator<AutoKeyAccessor
                   """;
             var className = typeSymbol.Name;
 
-            var nameSpace = syntaxContext.TargetSymbol.ContainingNamespace?.ToDisplayString();
-
+            var nameSpace = typeSymbol.ToType().Namespace;
+            nameSpace = nameSpace is null ? "" : $"{nameSpace}.";
             var unit = CompilationUnit().AddPartialType(typeSymbol, x => x.AddMembers(ParseMemberDeclaration(method)!));
-            nameSpace = nameSpace != GlobalNamespace ? "." + nameSpace : string.Empty;
-            context.AddSource($"AutoKeyAccessor__{nameSpace}.{className.ToQualifiedFileName()}.g.cs",
+            context.AddSource($"AutoKeyAccessor__{nameSpace}{className.ToQualifiedFileName()}.g.cs",
                 SourceText(unit.NormalizeWhitespace().ToFullString()));
             continue;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators;
@@ -28,7 +27,7 @@ public abstract class AttributeDetectBaseGenerator<TAttribute> : IIncrementalGen
             }
             catch (Exception e)
             {
-           
+                //
             }
         });
     }
