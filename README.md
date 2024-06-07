@@ -135,3 +135,28 @@ Auto generate anything you may want
       }
   }
   ```
+
++ #### `[AutoUnmamagedArray]`
+
+  Auto generate user defined length of array items, usually for `Marshal`
+
+  ```csharp
+  [AutoUnmamagedArray(nameof(T), 4)]
+  struct CharArray<T> where T : unmanaged{}
+  
+  /// <generated>
+  struct CharArray<T> where T : unmanaged
+  {
+      public T item0;
+      public T item1; 
+      public T item2;
+      public T item3;
+  
+      public IEnumerable<T> Enumerate(){
+          yield return item0;
+          yield return item1; 
+          yield return item2;
+          yield return item3;
+      }
+  }
+  ```
