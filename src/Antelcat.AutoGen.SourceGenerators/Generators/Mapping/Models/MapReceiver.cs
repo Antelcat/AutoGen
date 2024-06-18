@@ -7,7 +7,7 @@ namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Models;
 
 internal record MapReceiver : MapSide
 {
-    public MapReceiver(IMethodSymbol method, ITypeSymbol type) : base(method, type)
+    public MapReceiver(IMethodSymbol method, ITypeSymbol type, bool allowInit = true) : base(method, type)
     {
         ArgName = method.Parameters.Length == 0
             ? "ret"
@@ -16,8 +16,11 @@ internal record MapReceiver : MapSide
                 : "ret";
         AvailableProperties = type.GetAllProperties()
             .Where(x =>
-                !x.IsStatic && !x.IsReadOnly &&
-                x.DeclaredAccessibility.IsIncludedIn(ActualAccess)).ToList();
+            {
+                if (x.IsStatic || x.IsReadOnly) return false;
+                if (!allowInit && x.IsInitOnly()) return false;
+                return x.DeclaredAccessibility.IsIncludedIn(ActualAccess);
+            }).ToList();
     }
 
     public override string                       ArgName    { get; }

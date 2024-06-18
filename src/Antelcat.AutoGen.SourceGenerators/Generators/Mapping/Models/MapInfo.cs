@@ -13,6 +13,7 @@ internal record MapInfo
 {
     public MapInfo(IMethodSymbol method, ITypeSymbol from, ITypeSymbol to)
     {
+        IsApply          = method.ReturnsVoid;
         IsSelf           = SymbolEqualityComparer.Default.Equals(from, method.ContainingType);
         MethodAttributes = method.GetAttributes();
         Methods          = method.ContainingType.GetMembers().OfType<IMethodSymbol>().ToList();
@@ -38,13 +39,15 @@ internal record MapInfo
                 ? MethodAttributes
                 : MethodAttributes.Concat(method.Parameters[0].GetAttributes()).ToImmutableArray()
         };
-        Receiver = new MapReceiver(method, to)
+        Receiver = new MapReceiver(method, to, !IsApply)
         {
             RequiredAccess = autoMap.ToAccess,
             Attributes     = method.GetReturnTypeAttributes()
         };
     }
 
+    public bool IsApply { get; }
+    
     public bool IsSelf { get; }
 
     public  ImmutableArray<AttributeData> MethodAttributes { get; }
@@ -86,12 +89,12 @@ internal record MapInfo
 
     public MapSide Receiver { get; }
 
-    public BlockSyntax Map()
+    private List<string> GetPairs()
     {
-        var between = MethodAttributes.GetAttributes<MapBetweenAttribute>();
+        var between  = MethodAttributes.GetAttributes<MapBetweenAttribute>();
         var provides = Provider.RequiredProperties.ToList();
         var receives = Receiver.RequiredProperties.ToList();
-        var pairs = between.Select(x =>
+        return between.Select(x =>
             {
                 var method = x.By == null
                     ? null
@@ -112,22 +115,28 @@ internal record MapInfo
                 }))
             .Select(p => p!.Call(Provider.ArgName))
             .ToList();
+    }
 
-
-        var statements = new List<StatementSyntax>
-        {
-            ParseStatement(
-                $$"""
-                  var {{Receiver.ArgName}} = {{Ctor()}}
-                  {
-                  {{string.Join("\n", pairs)}}
-                  };
-                  """)
-        };
+    public BlockSyntax Map()
+    {
+        var pairs    = GetPairs();
+        var statements =
+            IsApply
+                ? pairs.Select(static x => ParseStatement(x + ";")).ToList()
+                :
+                [
+                    ParseStatement(
+                        $$"""
+                          var {{Receiver.ArgName}} = {{Ctor()}}
+                          {
+                          {{string.Join(",\n", pairs)}}
+                          };
+                          """)
+                ];
 
         statements.AddRange(CallExtra.Select(static x => ParseStatement(x)));
 
-        return Block(statements.Append(ParseStatement($"return {Receiver.ArgName};")));
+        return IsApply ? Block(statements) : Block(statements.Append(ParseStatement($"return {Receiver.ArgName};")));
     }
 
     private static bool Compatible(string one, string another) =>

@@ -7,9 +7,9 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>1.2.1</Version>
-        <FileVersion>1.2.1</FileVersion>
-        <AssemblyVersion>1.2.1</AssemblyVersion>
+        <Version>1.2.2</Version>
+        <FileVersion>1.2.2</FileVersion>
+        <AssemblyVersion>1.2.2</AssemblyVersion>
         
         <Authors>Antelcat</Authors>
         <Title>Antelcat.AutoGen</Title>
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Fix partial record err</PackageReleaseNotes>
+        <PackageReleaseNotes>Add Map apply</PackageReleaseNotes>
         
     </PropertyGroup>
 

@@ -9,9 +9,9 @@ internal record MapProvider : MapSide
 {
     public MapProvider(IMethodSymbol method, ITypeSymbol type) : base(method, type)
     {
-        ArgName = SymbolEqualityComparer.Default.Equals(type, method.ContainingType)
-            ? "this"
-            : method.Parameters[0].Name;
+        ArgName = !method.ReturnsVoid
+            && SymbolEqualityComparer.Default.Equals(type, method.ContainingType)
+                ? "this" : method.Parameters[0].Name;
         AvailableProperties = type.GetAllProperties()
             .Where(x =>
                 !x.IsStatic && !x.IsWriteOnly &&

@@ -70,8 +70,8 @@ public class MapperGenerator : IIncrementalGenerator
                                     continue;
                                 }
 
-                                fromType = @class;
-                                toType   = method.ReturnType;
+                                fromType = method.ReturnsVoid ? method.Parameters[0].Type : @class;
+                                toType   = method.ReturnsVoid ? @class : method.ReturnType;
                                 break;
                             case MethodMode.MapBetween:
                                 fromType = method.Parameters[0].Type;
@@ -114,15 +114,7 @@ public class MapperGenerator : IIncrementalGenerator
         }
         
         if (method.ReturnsVoid)
-        {
-            context.ReportDiagnostic(
-                Create(Diagnostics.Error.AM0002(nameof(MapperGenerator)),
-                    location,
-                    nameof(AutoMapAttribute),
-                    "not return void"
-                ));
-            return MethodMode.Invalid;
-        }
+            return method.Parameters.Length == 1 ? MethodMode.MapSelf : MethodMode.ArgumentError;
 
         switch (method.ReturnType.TypeKind)
         {
