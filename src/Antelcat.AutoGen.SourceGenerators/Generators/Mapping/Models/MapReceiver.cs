@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
+using Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Utils;
 using Microsoft.CodeAnalysis;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Models;
@@ -20,9 +21,12 @@ internal record MapReceiver : MapSide
                 if (x.IsStatic || x.IsReadOnly) return false;
                 if (!allowInit && x.IsInitOnly()) return false;
                 return x.DeclaredAccessibility.IsIncludedIn(ActualAccess);
-            }).ToList();
+            }).Distinct(PropertyNameComparer.Default)
+            .ToList();
     }
-
+    
     public override string                       ArgName    { get; }
     public override IEnumerable<IPropertySymbol> AvailableProperties { get; }
+    
+    
 }

@@ -7,9 +7,9 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>1.2.2</Version>
-        <FileVersion>1.2.2</FileVersion>
-        <AssemblyVersion>1.2.2</AssemblyVersion>
+        <Version>1.2.4</Version>
+        <FileVersion>1.2.4</FileVersion>
+        <AssemblyVersion>1.2.4</AssemblyVersion>
         
         <Authors>Antelcat</Authors>
         <Title>Antelcat.AutoGen</Title>
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Add Map apply</PackageReleaseNotes>
+        <PackageReleaseNotes>Fix empty ","</PackageReleaseNotes>
         
     </PropertyGroup>
 

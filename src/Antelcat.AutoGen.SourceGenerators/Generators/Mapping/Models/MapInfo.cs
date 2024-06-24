@@ -104,16 +104,17 @@ internal record MapInfo
                 if (receive != null) receives.Remove(receive);
 
                 return new MapPair(
-                    receive?.MetadataName ?? x.ToProperty,
-                    provide?.MetadataName ?? x.FromProperty,
-                    method);
+                    receive?.MetadataName       ?? x.ToProperty,
+                    provide?.MetadataName       ?? x.FromProperty,
+                    method, receive?.IsRequired ?? false);
             }).Concat(receives
                 .Select(x =>
                 {
                     var provide = provides.FirstOrDefault(p => Compatible(p.MetadataName, x.MetadataName));
-                    return new MapPair(x.MetadataName, provide?.MetadataName);
+                    return new MapPair(x.MetadataName, provide?.MetadataName, null, x.IsRequired);
                 }))
             .Select(p => p!.Call(Provider.ArgName))
+            .Where(x => !string.IsNullOrWhiteSpace(x))
             .ToList();
     }
 

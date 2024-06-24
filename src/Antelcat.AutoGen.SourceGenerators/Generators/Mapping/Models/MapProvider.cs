@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
+using Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Utils;
 using Microsoft.CodeAnalysis;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Mapping.Models;
@@ -15,7 +16,9 @@ internal record MapProvider : MapSide
         AvailableProperties = type.GetAllProperties()
             .Where(x =>
                 !x.IsStatic && !x.IsWriteOnly &&
-                x.DeclaredAccessibility.IsIncludedIn(ActualAccess)).ToList();
+                x.DeclaredAccessibility.IsIncludedIn(ActualAccess))
+            .Distinct(PropertyNameComparer.Default)
+            .ToList();
     }
 
     public override string                       ArgName             { get; }
