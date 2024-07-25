@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.ComponentModel.Mapping;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Antelcat.AutoGen.Sample.Models.Mapping;
 
@@ -17,18 +18,22 @@ public class EntityBase
     }
 }
 
-public partial class SampleEntity
+public partial class SampleEntity : ObservableObject
 {
     public int      Id    { get; set; }
     public string?  Name  { get; set; }
     public string?  Email { get; set; }
     public DateTime Time  { get; set; }
 
+    [ObservableProperty]
+    private string property;
+
 
     [AutoMap(Extra = [nameof(DoSomethingElse),])]
     [MapConstructor(nameof(Email))]
-    [MapBetween(nameof(Time), nameof(SampleDto.DateTime), By = nameof(ToDateTime))]
+    [MapInclude(nameof(Property))]
     [MapExclude(nameof(Email))]
+    [MapBetween(nameof(Time), nameof(SampleDto.DateTime), By = nameof(ToDateTime))]
     [return: MapDefault(nameof(SampleDto.Id), "")]
     public partial SampleDto ToDto();
 

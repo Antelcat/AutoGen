@@ -11,21 +11,13 @@ internal record MapConfigInfo
         foreach (var attribute in attributes)
         {
             if (attribute.AttributeClass!.ToDisplayString() == MapperGenerator.MapExclude)
-            {
-                var attr = attribute.ToAttribute<MapExcludeAttribute>();
-                var name = attr.Property;
-                Excludes.Add(name);
-            }
+                Excludes.Add(attribute.ToAttribute<MapExcludeAttribute>().Property);
 
             if (attribute.AttributeClass!.ToDisplayString() == MapperGenerator.MapInclude)
-            {
-                var attr = attribute.ToAttribute<MapIncludeAttribute>();
-                var name = attr.Property;
-                Includes.Add(name);
-            }
+                Includes.Add(attribute.ToAttribute<MapIncludeAttribute>().Property);
         }
     }
 
-    public HashSet<string> Excludes { get; } = new();
-    public HashSet<string> Includes { get; } = new();
+    public HashSet<string> Excludes { get; } = [];
+    public HashSet<string> Includes { get; } = [];
 }

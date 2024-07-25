@@ -6,4 +6,6 @@ public class SampleDto(string other)
     public string? Name  { get; set; }
     public string? Email { get; set; }
     public long    DateTime  { get; set; }
+    
+    public string Property { get; init; }
 }

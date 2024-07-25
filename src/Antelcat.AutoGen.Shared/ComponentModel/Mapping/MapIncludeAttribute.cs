@@ -1,8 +1,7 @@
-﻿using System;
-namespace Antelcat.AutoGen.ComponentModel.Mapping;
+﻿namespace Antelcat.AutoGen.ComponentModel.Mapping;
 
 /// <summary>
-/// Make property marked <see cref="MapIgnoreAttribute"/> included in mapping
+/// Make property marked <see cref="MapIncludeAttribute"/> included in mapping
 /// When map self , this should be marked on method
 /// </summary>
 /// <param name="property">Property name to be included</param>

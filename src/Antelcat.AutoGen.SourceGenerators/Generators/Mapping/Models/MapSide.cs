@@ -17,10 +17,12 @@ internal abstract record MapSide(IMethodSymbol Method, ITypeSymbol Type)
 
     public IEnumerable<IPropertySymbol> RequiredProperties =>
         AvailableProperties.Where(x =>
-            ConfigInfo.Includes.Contains(x.Name) ||
             x.DeclaredAccessibility.IsIncludedIn(RequiredAccess) &&
             !ConfigInfo.Excludes.Contains(x.Name));
 
+    public IEnumerable<(string Name, bool IsRequired)> AvailablePropertyNames => AvailableProperties
+        .Select(x => (x.Name, x.IsRequired))
+        .Concat(ConfigInfo.Includes.Select(x => (x, true)));
     
     public MapConfigInfo ConfigInfo => new(Attributes);
 }

@@ -47,7 +47,7 @@ internal record MapInfo
     }
 
     public bool IsApply { get; }
-    
+
     public bool IsSelf { get; }
 
     public  ImmutableArray<AttributeData> MethodAttributes { get; }
@@ -92,26 +92,30 @@ internal record MapInfo
     private List<string> GetPairs()
     {
         var between  = MethodAttributes.GetAttributes<MapBetweenAttribute>();
-        var provides = Provider.RequiredProperties.ToList();
-        var receives = Receiver.RequiredProperties.ToList();
+        var provides = Provider.AvailablePropertyNames.ToList();
+        if (IsToAnonymous)
+            return provides
+                .Select(x => $"{Provider.ArgName}.{x.Name}")
+                .ToList();
+        var receives = Receiver.AvailablePropertyNames.ToList();
         return between.Select(x =>
             {
                 var method = x.By == null
                     ? null
                     : Methods.FirstOrDefault(m => m.Name == x.By);
-                var receive = receives.FirstOrDefault(p => p.MetadataName == x.ToProperty);
-                var provide = provides.FirstOrDefault(p => p.MetadataName == x.FromProperty);
-                if (receive != null) receives.Remove(receive);
+                var receive = receives.FirstOrDefault(p => p.Name == x.ToProperty);
+                var provide = provides.FirstOrDefault(p => p.Name == x.FromProperty);
+                if (receive.Name != null) receives.Remove(receive);
 
                 return new MapPair(
-                    receive?.MetadataName       ?? x.ToProperty,
-                    provide?.MetadataName       ?? x.FromProperty,
-                    method, receive?.IsRequired ?? false);
+                    receive.Name ?? x.ToProperty,
+                    provide.Name ?? x.FromProperty,
+                    method, receive.IsRequired);
             }).Concat(receives
                 .Select(x =>
                 {
-                    var provide = provides.FirstOrDefault(p => Compatible(p.MetadataName, x.MetadataName));
-                    return new MapPair(x.MetadataName, provide?.MetadataName, null, x.IsRequired);
+                    var provide = provides.FirstOrDefault(p => Compatible(p.Name, x.Name));
+                    return new MapPair(x.Name, provide.Name, null, x.IsRequired);
                 }))
             .Select(p => p!.Call(Provider.ArgName))
             .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -120,7 +124,7 @@ internal record MapInfo
 
     public BlockSyntax Map()
     {
-        var pairs    = GetPairs();
+        var pairs = GetPairs();
         var statements =
             IsApply
                 ? pairs.Select(static x => ParseStatement(x + ";")).ToList()
@@ -148,6 +152,7 @@ internal record MapInfo
 
     private string Ctor()
     {
+        if (IsToAnonymous) return "new";
         var mapCtor = MethodAttributes.FirstOrDefault(static x =>
                 x.AttributeClass!.HasFullyQualifiedMetadataName(typeof(MapConstructorAttribute).FullName))?
             .ToAttribute<MapConstructorAttribute>();
@@ -194,4 +199,6 @@ internal record MapInfo
         string New(IEnumerable<string>? args = null) =>
             $"new {Receiver.Type.GetFullyQualifiedName()}({string.Join(", ", args ?? [])})";
     }
+
+    private bool IsToAnonymous => Receiver.Type.SpecialType == SpecialType.System_Object;
 }

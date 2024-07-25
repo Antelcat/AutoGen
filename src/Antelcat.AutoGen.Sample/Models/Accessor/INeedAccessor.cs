@@ -30,3 +30,16 @@ public partial struct StructAlsoNeedAccessor
         set { }
     }
 }
+
+public static class Test
+{
+    public static void Test1()
+    {
+        var accessor = new StructAlsoNeedAccessor
+        {
+            ["C"] = 1,
+        };
+    }
+
+  
+}
