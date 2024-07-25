@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>1.2.5</Version>
+        <Version>1.2.6</Version>
         <FileVersion>1.2.4</FileVersion>
         <AssemblyVersion>1.2.4</AssemblyVersion>
         
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>support anonymous mapping</PackageReleaseNotes>
+        <PackageReleaseNotes>fix not excluded </PackageReleaseNotes>
         
     </PropertyGroup>
 

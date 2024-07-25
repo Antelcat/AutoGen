@@ -20,7 +20,7 @@ internal abstract record MapSide(IMethodSymbol Method, ITypeSymbol Type)
             x.DeclaredAccessibility.IsIncludedIn(RequiredAccess) &&
             !ConfigInfo.Excludes.Contains(x.Name));
 
-    public IEnumerable<(string Name, bool IsRequired)> AvailablePropertyNames => AvailableProperties
+    public IEnumerable<(string Name, bool IsRequired)> AvailablePropertyNames => RequiredProperties
         .Select(x => (x.Name, x.IsRequired))
         .Concat(ConfigInfo.Includes.Select(x => (x, true)));
     

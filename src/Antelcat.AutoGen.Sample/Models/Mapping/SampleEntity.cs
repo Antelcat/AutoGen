@@ -45,6 +45,10 @@ public partial class SampleEntity : ObservableObject
         //TODO
     }
 
+    [AutoMap]
+    [MapExclude(nameof(Email))]
+    public partial object ToAnonymous();
+
     [AutoReport]
     internal partial void Report(AutoReport.ReportHandler handler);
 
