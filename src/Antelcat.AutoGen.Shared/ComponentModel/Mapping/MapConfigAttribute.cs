@@ -2,8 +2,9 @@
 
 namespace Antelcat.AutoGen.ComponentModel.Mapping;
 
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.ReturnValue | AttributeTargets.Parameter, AllowMultiple = true)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.ReturnValue | AttributeTargets.Parameter,
+                AllowMultiple = true)]
 public abstract class MapConfigAttribute(string property) : Attribute
 {
-    internal readonly string Property  = property;
+    internal string Property => property;
 }

@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Microsoft.CodeAnalysis;
-using Accessibility = Antelcat.AutoGen.ComponentModel.Accessibility;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators;
 
 [Generator(LanguageNames.CSharp)]
-public class KeyAccessorGenerator : AttributeDetectBaseGenerator<AutoKeyAccessor>
+public class KeyAccessorGenerator : AttributeDetectBaseGenerator<AutoKeyAccessorAttribute>
 {
     protected override bool FilterSyntax(SyntaxNode node) => true;
 
@@ -21,19 +21,23 @@ public class KeyAccessorGenerator : AttributeDetectBaseGenerator<AutoKeyAccessor
         foreach (var syntaxContext in syntaxArray)
         {
             if (syntaxContext.TargetSymbol is not INamedTypeSymbol typeSymbol) continue;
-            var keyAccessor = syntaxContext.GetAttributes<AutoKeyAccessor>().First();
+            var keyAccessor = syntaxContext.GetAttributes<AutoKeyAccessorAttribute>().First();
             var members = (keyAccessor.IncludeInherited ? typeSymbol.GetAllMembers() : typeSymbol.GetMembers())
                 .ToList();
             Dictionary<string, (bool get, bool set, bool self, ITypeSymbol type)> dict = [];
 
-            foreach (var symbol in members.OfType<IPropertySymbol>())
+            if (keyAccessor.MemberTypes.HasFlag(MemberTypes.Property))
             {
-                if (!Filter(symbol, out var isSelf)) continue;
-                if (dict.TryGetValue(symbol.Name, out var tmp) && tmp.self) continue;
-                dict[symbol.Name] = (!symbol.IsWriteOnly, !symbol.IsReadOnly && !symbol.IsInitOnly(), isSelf, symbol.Type);
+                foreach (var symbol in members.OfType<IPropertySymbol>())
+                {
+                    if (!Filter(symbol, out var isSelf)) continue;
+                    if (dict.TryGetValue(symbol.Name, out var tmp) && tmp.self) continue;
+                    dict[symbol.Name] = (!symbol.IsWriteOnly, !symbol.IsReadOnly && !symbol.IsInitOnly(), isSelf,
+                        symbol.Type);
+                }
             }
 
-            if (keyAccessor.IncludeField)
+            if (keyAccessor.MemberTypes.HasFlag(MemberTypes.Field))
             {
                 foreach (var symbol in members.OfType<IFieldSymbol>().Where(static x => !x.IsImplicitlyDeclared))
                 {

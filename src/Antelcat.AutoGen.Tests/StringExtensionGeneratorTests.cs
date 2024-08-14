@@ -32,7 +32,7 @@ public class SampleIncrementalSourceGeneratorTests
             {
                 // To support 'System.Attribute' inheritance, add reference to 'System.Private.CoreLib'.
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(AutoKeyAccessor).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(AutoKeyAccessorAttribute).Assembly.Location),
             });
         driver.RunGenerators(compilation).GetRunResult();
         compilation.GetDiagnostics()

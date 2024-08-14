@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Antelcat.AutoGen.ComponentModel.Mapping;
 
 namespace Antelcat.AutoGen.ComponentModel.Diagnostic;
@@ -12,14 +13,6 @@ internal class AutoReport(params string[] include) : AutoMapAttribute
 {
     public string[] Ignore { get; set; } = [];
 
-    public delegate void ReportHandler(string memberName, Type memberType, MemberKind memberKind,
+    public delegate void ReportHandler(string memberName, Type memberType, MemberTypes memberTypes,
         Func<object?>? valueGetter);
-
-    public enum MemberKind
-    {
-        Field,
-        Property,
-        Method,
-        NestedType,
-    }
 }

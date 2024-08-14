@@ -8,7 +8,7 @@ public class AutoFilePathAttribute(
     string? @namespace = nameof(System),
     Accessibility accessibility = Accessibility.Public) : AutoGenAttribute
 {
-    internal readonly string Namespace = @namespace ?? nameof(System);
-    
-    internal readonly Accessibility Accessibility = accessibility;
+    internal string Namespace => @namespace ?? nameof(System);
+
+    internal Accessibility Accessibility => accessibility;
 }

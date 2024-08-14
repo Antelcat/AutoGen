@@ -13,7 +13,7 @@ public class AutoMapAttribute(
         Accessibility.Public | Accessibility.Internal | Accessibility.Protected | Accessibility.Private)
     : AutoGenAttribute
 {
-    internal readonly Accessibility FromAccess = fromAccess;
+    internal Accessibility FromAccess => fromAccess;
 
     /// <summary>
     /// Specified the most strict target property's accessibility, only accept <see cref="Accessibility.Public"/> or <see cref="Accessibility.Internal"/>

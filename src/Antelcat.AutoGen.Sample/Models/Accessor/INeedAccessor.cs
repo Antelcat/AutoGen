@@ -1,4 +1,7 @@
-﻿using Antelcat.AutoGen.ComponentModel;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using Antelcat.AutoGen.ComponentModel;
 
 
 [AutoKeyAccessor]
@@ -12,7 +15,7 @@ public record NeedBase
     public virtual int D { get; set; }
 }
 
-[AutoKeyAccessor(includeField: true)]
+[AutoKeyAccessor(memberTypes: MemberTypes.Property)]
 public partial record NeedAccessor : NeedBase, INeedAccessor
 {
     public int B { get; init; }
@@ -35,11 +38,31 @@ public static class Test
 {
     public static void Test1()
     {
+        string a = (dynamic)new object();
+        
         var accessor = new StructAlsoNeedAccessor
         {
             ["C"] = 1,
         };
     }
+}
 
-  
+[AutoKeyEnumerable]
+public partial class A
+{
+    public virtual string Props { get; set; } = ";";
+    
+    public string Some { get; set; }
+}
+
+[AutoKeyEnumerable(nameof(KeyProperty))]
+[AutoKeyAccessor]
+public partial class B : A
+{
+    public new string Props { get; }
+}
+
+public class C : B
+{
+    public new string Props => ((A)this).Props;
 }

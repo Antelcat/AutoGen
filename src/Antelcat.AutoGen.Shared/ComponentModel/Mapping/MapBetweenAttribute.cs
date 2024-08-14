@@ -10,11 +10,11 @@ namespace Antelcat.AutoGen.ComponentModel.Mapping;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class MapBetweenAttribute(string fromProperty, string toProperty) : Attribute
 {
-    internal readonly string FromProperty = fromProperty;
-    internal readonly string ToProperty   = toProperty;
-    
+    internal string FromProperty => fromProperty;
+    internal string ToProperty   => toProperty;
+
     /// <summary>
     /// Map through a converter
     /// </summary>
-    public string? By { get; set ; }
+    public string? By { get; set; }
 }
