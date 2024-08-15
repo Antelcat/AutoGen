@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using Antelcat.AutoGen.ComponentModel;
@@ -55,11 +57,16 @@ public partial class A
     public string Some { get; set; }
 }
 
-[AutoKeyEnumerable(nameof(KeyProperty))]
+[AutoKeyEnumerable(nameof(KeyProperty), GenerateType = MemberTypes.Property)]
 [AutoKeyAccessor]
 public partial class B : A
 {
     public new string Props { get; }
+
+    public void Export()
+    {
+        Console.WriteLine(string.Join("", Keys().Concat(KeyProperty).Distinct().ToList()));
+    }
 }
 
 public class C : B

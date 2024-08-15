@@ -47,14 +47,20 @@ public class KeyEnumerableGenerator: AttributeDetectBaseGenerator<AutoKeyEnumera
 
             var ignores = keyEnumerable.Ignores ?? [];
             foreach (var ignore in ignores) keys.Remove(ignore);
+            var body           = string.Join("\n", keys.Select(x => $"yield return nameof({x});").ToArray());
+            var generateMethod = keyEnumerable.GenerateType is not MemberTypes.Property;
             var method =
                 $$"""
-                  {{keyEnumerable.Accessibility.ToCodeString()}} {{IEnumerableString}} {{keyEnumerable.Name}} {
-                     get {
-                     {{
-                         string.Join("\n", keys.Select(x=>$"yield return nameof({x});").ToArray())
-                     }}
-                     }
+                  {{keyEnumerable.Accessibility.ToCodeString()}} {{IEnumerableString}} {{keyEnumerable.Name}}{{
+                      (generateMethod ? "()" : "")
+                  }} {
+                     {{(generateMethod
+                         ? body
+                         : $$"""
+                             get {
+                             {{body}}
+                             }
+                             """)}}
                   }
                   """;
             var className = typeSymbol.Name;

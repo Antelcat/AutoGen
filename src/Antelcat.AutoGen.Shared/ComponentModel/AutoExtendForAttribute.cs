@@ -4,7 +4,7 @@ using Antelcat.AutoGen.ComponentModel.Abstractions;
 namespace Antelcat.AutoGen.ComponentModel;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
-public class AutoExtendForAttribute(Type type,params string[]? methods) : AutoGenAttribute
+public class AutoExtendForAttribute(Type type, params string[]? methods) : AutoGenAttribute
 {
     internal Type Type => type;
 
