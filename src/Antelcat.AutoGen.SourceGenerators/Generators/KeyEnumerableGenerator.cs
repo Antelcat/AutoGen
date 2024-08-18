@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
+using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Microsoft.CodeAnalysis;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators;

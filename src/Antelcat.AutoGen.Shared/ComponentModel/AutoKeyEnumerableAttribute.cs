@@ -12,7 +12,7 @@ namespace Antelcat.AutoGen.ComponentModel;
 /// <param name="includeInherited">whether include inherited members</param>
 /// <param name="accessibility"></param>
 [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
-public class AutoKeyEnumerableAttribute(
+public sealed class AutoKeyEnumerableAttribute(
     string name = "Keys",
     MemberTypes memberTypes = MemberTypes.Property,
     bool includeInherited = true,

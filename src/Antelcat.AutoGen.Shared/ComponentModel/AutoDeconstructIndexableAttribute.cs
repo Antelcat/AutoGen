@@ -5,7 +5,7 @@ using Antelcat.AutoGen.ComponentModel.Abstractions;
 namespace Antelcat.AutoGen.ComponentModel;
 
 [AttributeUsage(AttributeTargets.Assembly)]
-public class AutoDeconstructIndexableAttribute(int size = 16, params Type[] indexableTypes) : AutoGenAttribute
+public sealed class AutoDeconstructIndexableAttribute(int size = 16, params Type[] indexableTypes) : AutoGenAttribute
 {
     internal int    Size           => size;
     internal Type[] IndexableTypes => indexableTypes;

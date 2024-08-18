@@ -1,11 +1,14 @@
 ﻿using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SourceText = Microsoft.CodeAnalysis.Text.SourceText;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
 
@@ -13,7 +16,7 @@ namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
 public class ReportGenerator : IIncrementalGenerator
 {
     public static readonly string MemberKind =
-        $"global::Antelcat.AutoGen.ComponentModel.Diagnostic.AutoReport.{nameof(MemberKind)}";
+        $"global::{typeof(MemberTypes).FullName}";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -110,8 +113,8 @@ public class ReportGenerator : IIncrementalGenerator
                                                  partial = partial.AddMembers(block);
                                              }
 
-                                             ctx.AddSource($"{nameof(AutoReport)}__.{@class.GetFullyQualifiedName()
-                                                 .Replace("global::", string.Empty)}.g.cs",
+                                             ctx.AddSource($"{nameof(AutoReport)}__{@class.GetFullyQualifiedName()
+                                                 .ToQualifiedFileName()}.g.cs",
                                                            CompilationUnit()
                                                                .AddPartialType(@class, x => partial)
                                                                .NormalizeWhitespace()
@@ -147,5 +150,61 @@ public class ReportGenerator : IIncrementalGenerator
         argName    = null;
         reportName = null;
         return false;
+    }
+}
+
+/*[Generator(LanguageNames.CSharp)]*/
+public class FinReportGenerator : ISourceGenerator
+{
+    public void Initialize(GeneratorInitializationContext context)
+    {
+        context.RegisterForSyntaxNotifications(() => new Receiver());
+    }
+
+    public void Execute(GeneratorExecutionContext context)
+    {
+        foreach (var symbol in (context.SyntaxReceiver as Receiver)?.Types(context.Compilation) ?? [])
+        {
+            if (symbol is not IMethodSymbol methodSymbol) continue;
+            if (!methodSymbol.TryGetAttributeWithFullyQualifiedMetadataName(typeof(AutoReport).FullName, out _))
+                continue;
+            var type = methodSymbol.ContainingType;
+            var c = CompilationUnit().AddPartialType(type, x =>
+            {
+                return x.AddMembers(ParseMemberDeclaration(
+                                        $$"""
+                                        public void Fun(){
+                                            {{
+                                                string.Join("\n", type.GetAllMembers()
+                                                                .OfType<IPropertySymbol>()
+                                                                .Select(p=> $"_ = {p.MetadataName};").ToArray())
+                                            }}
+                                        }         
+                                        """
+                                    )!);
+            });
+            try
+            {
+                context.AddSource("AutoFinReport__" + type.GetFullyQualifiedName().ToQualifiedFileName(),
+                                  SourceText(c.NormalizeWhitespace().ToString()));
+            }
+            catch
+            {
+                Debugger.Launch();
+            }
+        }
+    }
+
+    private class Receiver : ISyntaxReceiver
+    {
+        private readonly IList<MethodDeclarationSyntax> types = [];
+        public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
+        {
+            if (syntaxNode is not MethodDeclarationSyntax methodDeclaration) return;
+            types.Add(methodDeclaration);
+        }
+
+        public IEnumerable<ISymbol?> Types(Compilation compilation) =>
+            types.Select(x => compilation.GetSemanticModel(x.SyntaxTree).GetDeclaredSymbol(x));
     }
 }

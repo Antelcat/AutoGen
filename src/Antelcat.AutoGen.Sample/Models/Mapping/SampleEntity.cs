@@ -18,6 +18,10 @@ public class EntityBase
     }
 }
 
+public partial class InheritEntity : SampleEntity
+{
+
+}
 public partial class SampleEntity : ObservableObject
 {
     public int      Id    { get; set; }

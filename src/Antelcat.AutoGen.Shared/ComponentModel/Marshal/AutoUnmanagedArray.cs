@@ -4,7 +4,7 @@ using Antelcat.AutoGen.ComponentModel.Abstractions;
 namespace Antelcat.AutoGen.ComponentModel.Marshal;
 
 [AttributeUsage(AttributeTargets.Struct)]
-public class AutoUnmanagedArray : AutoGenAttribute
+public sealed class AutoUnmanagedArray : AutoGenAttribute
 {
     public AutoUnmanagedArray(
         Type unmanagedType,

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
+using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

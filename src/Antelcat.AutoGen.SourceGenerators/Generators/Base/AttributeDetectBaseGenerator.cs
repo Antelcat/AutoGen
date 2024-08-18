@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 
-namespace Antelcat.AutoGen.SourceGenerators.Generators;
+namespace Antelcat.AutoGen.SourceGenerators.Generators.Base;
 
 [Generator(LanguageNames.CSharp)]
 public abstract class AttributeDetectBaseGenerator<TAttribute> : IIncrementalGenerator where TAttribute : Attribute

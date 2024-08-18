@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using Antelcat.AutoGen.ComponentModel;
 
 
@@ -63,9 +60,14 @@ public partial class B : A
 {
     public new string Props { get; }
 
+    private string some;
+
     public void Export()
     {
-        Console.WriteLine(string.Join("", Keys().Concat(KeyProperty).Distinct().ToList()));
+        foreach (var key in KeyProperty)
+        {
+            Console.WriteLine($"My {key} is {this[key]}");
+        }
     }
 }
 

@@ -11,7 +11,7 @@ namespace Antelcat.AutoGen.ComponentModel;
 /// <param name="memberTypes">include member types, default is <see cref="MemberTypes.Property"/></param>
 /// <param name="accessibility">this property accessibility</param>
 [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct)]
-public class AutoKeyAccessorAttribute(
+public sealed class AutoKeyAccessorAttribute(
     MemberTypes memberTypes = MemberTypes.Property,
     bool includeInherited = true,
     Accessibility accessibility = Accessibility.Public)

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Reflection;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
+using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Microsoft.CodeAnalysis;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;

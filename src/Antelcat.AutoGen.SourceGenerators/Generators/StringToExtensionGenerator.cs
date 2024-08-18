@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel;
+using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -62,8 +63,8 @@ public class StringToExtensionGenerator : AttributeDetectBaseGenerator<AutoStrin
                                 .AddModifiers(SyntaxKind.PartialKeyword)
                                 .AddMembers(Content))
                         .WithLeadingTrivia(Header));
-            context.AddSource($"{group.Key.Name}.g.cs", unit
-                .NormalizeWhitespace()
+            context.AddSource($"AutoStringTo__{group.Key.Name.ToQualifiedFileName()}.g.cs", unit
+                .NormalizeWhitespace() 
                 .GetText(Encoding.UTF8));
         }
 

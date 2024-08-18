@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
+using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Feast.CodeAnalysis.CompileTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -63,7 +64,7 @@ public class ExtendForGenerator : AttributeDetectBaseGenerator<AutoExtendForAttr
                     .AddMembers(NamespaceDeclaration(ParseName(attrs.Key))
                         .AddMembers(classDeclare)
                         .WithLeadingTrivia(Header));
-                context.AddSource($"AutoExtendFor__.{attrs.Key}.{className}.g.cs",
+                context.AddSource($"AutoExtendFor__{attrs.Key}.{className.ToQualifiedFileName()}.g.cs",
                     SourceText(unit.NormalizeWhitespace().ToFullString()));
             }
         }
@@ -110,7 +111,7 @@ public class ExtendForGenerator : AttributeDetectBaseGenerator<AutoExtendForAttr
                     unit = unit.AddMembers(classDeclare.WithLeadingTrivia(Header));
                 }
 
-                context.AddSource($"AutoExtendFor__.{nameSpace}.{className.ToQualifiedFileName()}.g.cs",
+                context.AddSource($"AutoExtendFor__{nameSpace}.{className.ToQualifiedFileName()}.g.cs",
                     SourceText(unit.NormalizeWhitespace().ToFullString()));
             }
         }
