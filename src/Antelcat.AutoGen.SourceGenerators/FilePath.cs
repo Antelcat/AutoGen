@@ -35,7 +35,7 @@ public readonly ref struct FilePath
     /// <summary>
     /// <see cref="System.IO.Path.GetPathRoot"/>
     /// </summary>
-    public string PathRoot => Path.GetPathRoot(path);
+    public string? PathRoot => Path.GetPathRoot(path);
 
     /// <summary>
     /// <see cref="System.IO.Path.GetExtension"/>
@@ -60,10 +60,10 @@ public readonly ref struct FilePath
 
     public static FilePath operator *(FilePath path, int times)
     {
-        var result = path.ToString();
+        var result = path.path;
         while (times-- > 0)
         {
-            result += path.ToString();
+            result += path.path;
         }
 
         return result;
@@ -71,7 +71,7 @@ public readonly ref struct FilePath
 
     public static FilePath operator <<(FilePath path, int times)
     {
-        var result = path.ToString();
+        var result = path.path;
         while (times-- > 0)
         {
             result = Path.GetDirectoryName(result);
@@ -79,8 +79,14 @@ public readonly ref struct FilePath
 
         return result;
     }
+    
+#if NET || NETSTANDARD2_1
+    public static FilePath operator >>(FilePath from, FilePath to) => global::System.IO.Path.GetRelativePath(from, to);
+    
+    public static FilePath operator <<(FilePath to, FilePath from) => global::System.IO.Path.GetRelativePath(from, to);
+#endif
 
-    public static implicit operator FilePath(string path) => new(path);
+    public static implicit operator FilePath(string path)    => new(path);
     public static implicit operator FilePath(string[] paths) => Path.Combine(paths);
-    public static implicit operator string(FilePath path) => path.ToString();
+    public static implicit operator string(FilePath path)    => path.path;
 }

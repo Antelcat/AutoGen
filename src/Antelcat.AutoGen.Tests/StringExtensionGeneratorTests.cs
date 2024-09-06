@@ -91,4 +91,11 @@ public class SampleIncrementalSourceGeneratorTests
             .First();
         var props = cs.GetProperties();
     }
+
+    [Test]
+    public void TestPath()
+    {
+        var relative1 = (FilePath)@"d:\A\B\C" >> @"d:\A\D";
+        var relative2 = (FilePath)@"d:\A\B\C" << @"d:\A\D";
+    }
 }

@@ -12,10 +12,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Feast.CodeAnalysis" Version="0.1.8">
+        <PackageReference Include="Feast.CodeAnalysis" Version="0.1.11">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Feast.CodeAnalysis.Literal" Version="0.1.4" />
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -7,9 +7,9 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>1.2.6</Version>
-        <FileVersion>1.2.4</FileVersion>
-        <AssemblyVersion>1.2.4</AssemblyVersion>
+        <Version>1.2.7</Version>
+        <FileVersion>1.2.7</FileVersion>
+        <AssemblyVersion>1.2.7</AssemblyVersion>
         
         <Authors>Antelcat</Authors>
         <Title>Antelcat.AutoGen</Title>
