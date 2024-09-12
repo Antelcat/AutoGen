@@ -9,13 +9,18 @@ Auto generate anything you may want
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
++ #### `[AutoMetadataFrom(Type, MemberTypes)]`
+  Auto generate code using `Template` from target type members  
+
+  ![AutoMetadata](./docs/AutoMetadata.png)
+
 + #### `[AutoStringTo(string, Accessibility)]` :  
 
     Auto generate string To extension
 
     only on `assembly` and `static partial class`
 
-    ![AutoStringTo](./docs/GenerateStringTo.png)
+    ![AutoStringTo](./docs/AutoStringTo.png)
 
 + #### `Mapping` :  
 
@@ -25,7 +30,7 @@ Auto generate anything you may want
 
     > Only on `partial method`
 
-    ![AutoMapTo](./docs/GenerateMap.png)
+    ![AutoMapTo](./docs/AutoMap.png)
 
     > You can use to generate `shallow copy`
 
@@ -49,7 +54,7 @@ Auto generate anything you may want
 
   + #### `[MapConstructor(params string[])]` :  
 
-    Specified property to be added in constructor, will auto detect if `null`
+    Specified property to be added in constructor, will auto-detect if `null`
 
 
 + #### `[AutoFilePath]`:

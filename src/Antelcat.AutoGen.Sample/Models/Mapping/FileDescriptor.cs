@@ -6,8 +6,8 @@ namespace Antelcat.AutoGen.Sample.Models.Mapping;
 
 public partial class FileDescriptor : ObservableObject
 {
-    public required string FullName { get; set; }
-    public virtual  long   Length   { get; set; }
+    public required string FullName {  get; set; }
+    public virtual  long   Length   { get;  set; }
 
     [ObservableProperty] private string property;
 }
