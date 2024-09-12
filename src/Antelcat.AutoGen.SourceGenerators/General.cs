@@ -195,10 +195,9 @@ internal static class General
 
     internal static CompilationUnitSyntax AddPartialType(this CompilationUnitSyntax compilationUnit,
         INamedTypeSymbol @class,
-        Func<TypeDeclarationSyntax, TypeDeclarationSyntax> map)
+        Func<TypeDeclarationSyntax, MemberDeclarationSyntax> map)
     {
-        var ret       = map(@class.PartialTypeDeclaration());
-        var aggregate = ret as MemberDeclarationSyntax;
+        var aggregate = map(@class.PartialTypeDeclaration());
         var parent    = @class.ContainingType;
         while (parent != null)
         {

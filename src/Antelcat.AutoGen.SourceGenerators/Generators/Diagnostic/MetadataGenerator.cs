@@ -80,7 +80,7 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
                 foreach (var (metadata, index) in syntaxContext.Attributes.GetAttributes<AutoMetadataFrom>()
                     .Select((x, i) => (x, i)))
                 {
-                    var          partial = @class.PartialTypeDeclaration();
+                    var          partial = @class.PartialTypeDeclaration() as MemberDeclarationSyntax;
                     List<string> members = [];
                     if (metadata.Leading != null) members.Add(metadata.Leading);
                     var target = metadata.ForType;
@@ -99,11 +99,14 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
                     Map(MemberTypes.Method, () => target.GetMethods(flags).Where(x => !x.IsSpecialName));
 
                     if (metadata.Final != null) members.Add(metadata.Final);
-                    var member                  = ParseMemberDeclaration(string.Join("", members));
-                    if (member != null) partial = partial.AddMembers(member);
+
+                    var text = partial.WithoutTrailingTrivia()
+                        .NormalizeWhitespace()
+                        .GetText(Encoding.UTF8).ToString().Trim();
+                    var declare = ParseMemberDeclaration($"{text[..^1]}{string.Join("", members)}}}");
 
                     var file = CompilationUnit()
-                        .AddPartialType(@class, x => partial)
+                        .AddPartialType(@class, x => declare ?? partial)
                         .NormalizeWhitespace();
                     context.AddSource(fileName, file.GetText(Encoding.UTF8));
                     continue;

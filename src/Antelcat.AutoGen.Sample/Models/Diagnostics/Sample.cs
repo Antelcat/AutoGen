@@ -14,6 +14,19 @@ namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
 
         """,
     Final = "}")]
+[AutoMetadataFrom(typeof(Simulator), MemberTypes.Property,
+    Template =
+        """
+        public {PropertyType} {Name}Sub { 
+            get => this.{Name};
+            set {
+            #if {CanWrite}
+                this.{Name} = value;
+            #endif
+            } 
+        }
+
+        """)]
 public partial class Simulator
 {
     public string A { get; set; }
