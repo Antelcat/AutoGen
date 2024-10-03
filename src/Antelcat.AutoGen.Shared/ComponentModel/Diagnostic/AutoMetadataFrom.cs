@@ -32,6 +32,6 @@ namespace Antelcat.AutoGen.ComponentModel.Diagnostic
         /// <summary>
         /// Plain text added to the final of generated code 
         /// </summary>
-        public string? Final   { get; set; }
+        public string? Trailing   { get; set; }
     }
 }

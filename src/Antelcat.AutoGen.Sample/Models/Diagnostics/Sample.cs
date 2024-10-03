@@ -13,7 +13,7 @@ namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
         #endif
 
         """,
-    Final = "}")]
+    Trailing = "}")]
 [AutoMetadataFrom(typeof(Simulator), MemberTypes.Property,
     Template =
         """

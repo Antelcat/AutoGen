@@ -98,7 +98,7 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
                     Map(MemberTypes.Event, () => target.GetEvents(flags));
                     Map(MemberTypes.Method, () => target.GetMethods(flags).Where(x => !x.IsSpecialName));
 
-                    if (metadata.Final != null) members.Add(metadata.Final);
+                    if (metadata.Trailing != null) members.Add(metadata.Trailing);
 
                     var text = partial.WithoutTrailingTrivia()
                         .NormalizeWhitespace()
