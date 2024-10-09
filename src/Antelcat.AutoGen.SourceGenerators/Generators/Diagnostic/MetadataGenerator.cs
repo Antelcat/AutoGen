@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -9,6 +10,7 @@ using System.Text.RegularExpressions;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
+using Feast.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -54,8 +56,9 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
         return PropsMap.GetOrAdd(info.GetType(),
                 _ =>
                 {
-                    ConcurrentDictionary<string, PropertyInfo?> ret  = [];
-                    var                                         prop = type.GetProperty(propertyName);
+                    ConcurrentDictionary<string, PropertyInfo?> ret = [];
+
+                    var prop = type.GetProperty(propertyName);
                     if (prop is null) return ret;
                     ret.TryAdd(propertyName, prop);
                     return ret;
@@ -67,58 +70,87 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
 
     protected override bool FilterSyntax(SyntaxNode node) => true;
 
+    private const BindingFlags Flags = BindingFlags.NonPublic |
+                                       BindingFlags.Public    |
+                                       BindingFlags.Instance  |
+                                       BindingFlags.Static;
+
+    private static List<string> Resolve(AutoMetadataFrom metadata)
+    {
+        List<string> members = [];
+        var          target  = metadata.ForType;
+        if (metadata.Leading != null) members.Add(metadata.Leading);
+
+        Map(MemberTypes.Field, () => target.GetFields(Flags).Where(x => !x.IsSpecialName));
+        Map(MemberTypes.Property, () => target.GetProperties(Flags));
+        Map(MemberTypes.Constructor, () => target.GetConstructors(Flags));
+        Map(MemberTypes.NestedType, () => target.GetNestedTypes(Flags));
+        Map(MemberTypes.Event, () => target.GetEvents(Flags));
+        Map(MemberTypes.Method, () => target.GetMethods(Flags).Where(x => !x.IsSpecialName));
+
+        if (metadata.Trailing != null) members.Add(metadata.Trailing);
+
+        return members;
+
+        void Map(MemberTypes memberTypes, Func<IEnumerable<MemberInfo>> memberGetter)
+        {
+            if (!metadata.MemberTypes.HasFlag(memberTypes)) return;
+            members.AddRange(memberGetter()
+                .Select(field => Resolve(field, new StringBuilder(metadata.Template))
+                    .ToString())
+            );
+        }
+    }
+
     protected override void Initialize(SourceProductionContext context,
                                        Compilation compilation,
                                        ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray)
     {
-        foreach (var groupedSyntaxContext in syntaxArray.GroupBy(x => (x.TargetSymbol as INamedTypeSymbol)!,
-            SymbolEqualityComparer.Default))
+        foreach (var assemblySyntaxContext in syntaxArray
+            .Where(x => x.TargetSymbol is IAssemblySymbol)
+            .SelectMany(static x => x.GetAttributes<AutoMetadataFrom>())
+            .Where(x => x.ForType is Feast.CodeAnalysis.CompileTime.Type { Symbol: INamedTypeSymbol })
+            .GroupBy(static x => (x.ForType as Feast.CodeAnalysis.CompileTime.Type)!.Symbol,
+                SymbolEqualityComparer.Default))
         {
-            var @class = (groupedSyntaxContext.Key as INamedTypeSymbol)!;
-            foreach (var syntaxContext in groupedSyntaxContext)
+            var target = (assemblySyntaxContext.Key as INamedTypeSymbol).ToType();
+            foreach (var (metadata, index) in assemblySyntaxContext.Select((x, i) => (x, i)))
+            {
+                var fileName = $"Assembly_From_{target.QualifiedFullFileName()}_{index}.cs";
+                var declare  = ParseMemberDeclaration(string.Join(string.Empty, Resolve(metadata)));
+                if (declare is null) continue;
+                var file = CompilationUnit()
+                    .AddMembers(declare)
+                    .WithLeadingTrivia(Header)
+                    .NormalizeWhitespace();
+                context.AddSource(fileName, file.GetText(Encoding.UTF8));
+            }
+        }
+
+
+        foreach (var typeSyntaxContext in syntaxArray
+            .Where(static x => x.TargetSymbol is INamedTypeSymbol)
+            .GroupBy(static x => (x.TargetSymbol as INamedTypeSymbol)!, SymbolEqualityComparer.Default))
+        {
+            var @class = (typeSyntaxContext.Key as INamedTypeSymbol)!;
+            foreach (var syntaxContext in typeSyntaxContext)
             {
                 foreach (var (metadata, index) in syntaxContext.Attributes.GetAttributes<AutoMetadataFrom>()
-                    .Select((x, i) => (x, i)))
+                    .Select(static (x, i) => (x, i)))
                 {
-                    var          partial = @class.PartialTypeDeclaration() as MemberDeclarationSyntax;
-                    List<string> members = [];
-                    if (metadata.Leading != null) members.Add(metadata.Leading);
-                    var target = metadata.ForType;
+                    var partial = @class.PartialTypeDeclaration() as MemberDeclarationSyntax;
+                    var target  = metadata.ForType;
                     var fileName =
                         $"{@class.ToType().QualifiedFullFileName()}_From_{target.QualifiedFullFileName()}_{index}.cs";
-
-                    const BindingFlags flags = BindingFlags.NonPublic |
-                                               BindingFlags.Public    |
-                                               BindingFlags.Instance  |
-                                               BindingFlags.Static;
-                    Map(MemberTypes.Field, () => target.GetFields(flags).Where(x => !x.IsSpecialName));
-                    Map(MemberTypes.Property, () => target.GetProperties(flags));
-                    Map(MemberTypes.Constructor, () => target.GetConstructors(flags));
-                    Map(MemberTypes.NestedType, () => target.GetNestedTypes(flags));
-                    Map(MemberTypes.Event, () => target.GetEvents(flags));
-                    Map(MemberTypes.Method, () => target.GetMethods(flags).Where(x => !x.IsSpecialName));
-
-                    if (metadata.Trailing != null) members.Add(metadata.Trailing);
-
                     var text = partial.WithoutTrailingTrivia()
                         .NormalizeWhitespace()
                         .GetText(Encoding.UTF8).ToString().Trim();
-                    var declare = ParseMemberDeclaration($"{text[..^1]}{string.Join("", members)}}}");
+                    var declare = ParseMemberDeclaration($"{text[..^1]}{string.Join("", Resolve(metadata))}}}");
 
                     var file = CompilationUnit()
                         .AddPartialType(@class, x => declare ?? partial)
                         .NormalizeWhitespace();
                     context.AddSource(fileName, file.GetText(Encoding.UTF8));
-                    continue;
-
-                    void Map(MemberTypes memberTypes, Func<IEnumerable<MemberInfo>> memberGetter)
-                    {
-                        if (!metadata.MemberTypes.HasFlag(memberTypes)) return;
-                        members.AddRange(memberGetter()
-                            .Select(field => Resolve(field, new StringBuilder(metadata.Template))
-                                .ToString())
-                        );
-                    }
                 }
             }
         }

@@ -15,7 +15,7 @@ public abstract class AttributeDetectBaseGenerator<TAttribute> : IIncrementalGen
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(
             AttributeName,
             (node, _) => FilterSyntax(node),
-            (ctx, t) => ctx
+            (ctx, _) => ctx
         );
 
         context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), 
