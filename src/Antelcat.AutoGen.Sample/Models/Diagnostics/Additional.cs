@@ -1,10 +1,12 @@
 ﻿using System.Reflection;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.Sample.Models.Diagnostics;
+using Extra;
 
 
 [assembly: AutoMetadataFrom(typeof(Simulator), MemberTypes.Property,
     Leading = """
+              namespace Extra;
               public class AnotherSimulator{
               """,
     Template = """
@@ -14,3 +16,12 @@ using Antelcat.AutoGen.Sample.Models.Diagnostics;
                }
                """
 )]
+
+
+file class Test
+{
+    Test()
+    {
+        new AnotherSimulator().A = "";
+    }
+}

@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>2.0.0-preview4</Version>
+        <Version>2.0.0-preview5</Version>
         <FileVersion>2.0.0</FileVersion>
         <AssemblyVersion>2.0.0</AssemblyVersion>
         
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Supports generating from assembly</PackageReleaseNotes>
+        <PackageReleaseNotes>Fix namespace compilation</PackageReleaseNotes>
         
     </PropertyGroup>
 

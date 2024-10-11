@@ -12,6 +12,7 @@ using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Feast.CodeAnalysis;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
@@ -118,9 +119,11 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
             {
                 var fileName = $"Assembly_From_{target.QualifiedFullFileName()}_{index}.cs";
                 var declare  = ParseMemberDeclaration(string.Join(string.Empty, Resolve(metadata)));
-                if (declare is null) continue;
-                var file = CompilationUnit()
-                    .AddMembers(declare)
+                var unit = declare is null
+                    ? ParseCompilationUnit(string.Join(string.Empty, Resolve(metadata)))
+                    : CompilationUnit().AddMembers(declare);
+
+                var file = unit
                     .WithLeadingTrivia(Header)
                     .NormalizeWhitespace();
                 context.AddSource(fileName, file.GetText(Encoding.UTF8));
@@ -156,3 +159,4 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
         }
     }
 }
+
