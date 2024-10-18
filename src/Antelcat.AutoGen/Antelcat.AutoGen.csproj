@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>2.0.0-preview5</Version>
+        <Version>2.0.0-preview6</Version>
         <FileVersion>2.0.0</FileVersion>
         <AssemblyVersion>2.0.0</AssemblyVersion>
         
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Fix namespace compilation</PackageReleaseNotes>
+        <PackageReleaseNotes>Add deconstruct</PackageReleaseNotes>
         
     </PropertyGroup>
 

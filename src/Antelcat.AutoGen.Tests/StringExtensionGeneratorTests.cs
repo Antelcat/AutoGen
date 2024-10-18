@@ -64,7 +64,7 @@ public class SampleIncrementalSourceGeneratorTests
     public void TestDeconstruct()
     {
         var file = (General.Dir() << 1).FullPath / "Usings.cs";
-        RunTest<AutoDeconstructGenerator>(File.ReadAllText(file));
+        RunTest<AutoDeconstructIndexableGenerator>(File.ReadAllText(file));
     }
     
     [Test]

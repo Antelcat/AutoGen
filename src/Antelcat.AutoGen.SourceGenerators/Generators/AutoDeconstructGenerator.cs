@@ -1,124 +1,55 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-
-// ReSharper disable StringLiteralTypo
+using Accessibility = Microsoft.CodeAnalysis.Accessibility;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators;
 
-[Generator(LanguageNames.CSharp)]
-public class AutoDeconstructGenerator : AttributeDetectBaseGenerator<AutoDeconstructIndexableAttribute>
+[Generator]
+public class AutoDeconstructGenerator : AttributeDetectBaseGenerator<AutoDeconstructAttribute>
 {
-    protected override bool FilterSyntax(SyntaxNode node) => node is CompilationUnitSyntax;
+    protected override bool FilterSyntax(SyntaxNode node) => true;
 
     protected override void Initialize(SourceProductionContext context, Compilation compilation,
-        ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray)
+                                       ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray)
     {
-        var syntax = syntaxArray.First();
-        var attr   = syntax
-            .GetAttributes<AutoDeconstructIndexableAttribute>()
-            .FirstOrDefault();
-        if (attr == null) return;
-        if (!attr.Namespace.IsValidNamespace()) return;
-        var extra = attr.IndexableTypes
-            .Select(x =>
-            {
-                if (x.IsGenericType)
-                {
-                    if (x.GenericParameterCount() is not 1) return null;
-                    if (!x.IsConstructedGenericType) x = x.GetGenericTypeDefinition();
-                }
-
-                var prop = x
-                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .FirstOrDefault(static p =>
-                        p is
-                        {
-                            Name: "Item", GetMethod: var get
-                        }
-                        && get.GetParameters() is { Length: 1 } param
-                        && (param[0].ParameterType.Equals(typeof(int)) ||
-                            param[0].ParameterType.Equals(typeof(long))));
-
-                if (prop == null) return null;
-                var nullable = ((Feast.CodeAnalysis.CompileTime.PropertyInfo)prop).HasNullableAnnotation;
-                if (!x.IsGenericType) return Deconstructs(x.QualifiedFullName(), attr.Size, nullable);
-
-                var element = prop.PropertyType;
-                return Deconstructs(x.GlobalQualifiedFullName(),
-                    attr.Size,
-                    nullable,
-                    element.GlobalQualifiedFullName(),
-                    element.IsGenericParameter,
-                    true,
-                    element.GetConstraintClause()?
-                        .NormalizeWhitespace()
-                        .ToFullString() ?? "");
-            });
-
-        var unit = CompilationUnit()
-            .AddMembers(
-                NamespaceDeclaration(ParseName(attr.Namespace))
-                    .AddMembers(
-                        ClassDeclaration("DeconstructIndexableExtension")
-                            .AddModifiers(SyntaxKind.PublicKeyword, SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
-                            .AddMembers(
-                            [
-                                ..Deconstructs(global + typeof(IList<>).QualifiedFullName(),
-                                    attr.Size,
-                                    false,
-                                    "T",
-                                    true,
-                                    true),
-                                ..extra.SelectMany(x => x).ToArray()
-                            ])));
-
-        context.AddSource($"{attr.Namespace}.DeconstructIndexableExtension.cs",
-            SourceText(unit.NormalizeWhitespace().ToFullString()));
+        foreach (var syntaxContext in syntaxArray)
+        {
+            var type    = (syntaxContext.TargetSymbol as INamedTypeSymbol)!;
+            var declare = Generate(type);
+            if (declare is null) continue;
+            var comp = CompilationUnit().AddPartialType(type, t => t.AddMembers(declare));
+            var name = $"{type.GlobalName().ToQualifiedFileName()}.Deconstruct.cs";
+            context.AddSource(name, comp.NormalizeWhitespace().GetText(Encoding.UTF8));
+        }
     }
 
-    private const string Prefix = "public static void Deconstruct";
-
-    private static MemberDeclarationSyntax[] Deconstructs(string className,
-        int count,
-        bool nullable = false,
-        string elementType = "object",
-        bool isGenericMethod = false,
-        bool isGeneric = false,
-        string constraint = "") =>
-        Enumerable.Range(2, count - 1)
-            .Select(x => Deconstruct(className, x, nullable, elementType, isGenericMethod, isGeneric, constraint))
-            .ToArray();
-
-    private static MemberDeclarationSyntax Deconstruct(string className,
-        int count,
-        bool nullable = false,
-        string elementType = "object",
-        bool isGenericMethod = false,
-        bool isGeneric = false,
-        string constraint = "")
+    private static MemberDeclarationSyntax? Generate(ITypeSymbol type)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine(
-            $"{Prefix}{(isGenericMethod ? $"<{elementType}>" : "")}(this {className}{(isGeneric ? $"<{elementType}>" : "")} list, {
-                string.Join(", ", Enumerable.Range(0, count).Select(x => $"out {elementType}{(nullable ? "?" : "")} item{x}"))
-            }){constraint}");
-        sb.AppendLine("{");
-        foreach (var i in Enumerable.Range(0, count))
+        var declare = "public void Deconstruct";
+        var args    = new List<string>();
+        var lines   = new List<string>();
+        foreach (var property in type.GetAllMembers()
+            .OfType<IPropertySymbol>()
+            .Where(x => !x.IsWriteOnly) // readable
+            .Where(x => !x.IsImplicitlyDeclared)
+            .Where(x => SymbolEqualityComparer.Default.Equals(x.ContainingType, type) // my property 
+                        || x.DeclaredAccessibility is not Accessibility.Private))     // not private
         {
-            sb.AppendLine($"    item{i} = list[{i}];");
+            var propType = property.Type.GlobalName();
+            var propName = property.MetadataName;
+            args.Add(
+                $"out {propType}{(property.Type is { IsValueType: false, NullableAnnotation: NullableAnnotation.Annotated } ? "?" : "")} {propName}");
+            lines.Add($"{propName} = this.{propName};");
         }
 
-        sb.AppendLine("}");
-        return ParseMemberDeclaration(sb.ToString())!;
+        return ParseMemberDeclaration($"{declare}({string.Join(",", args)}){{ {string.Join("\n",lines)} }}");
     }
 }
