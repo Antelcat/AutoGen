@@ -4,7 +4,6 @@ using Microsoft.CodeAnalysis;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Base;
 
-[Generator(LanguageNames.CSharp)]
 public abstract class AttributeDetectBaseGenerator<TAttribute> : IIncrementalGenerator where TAttribute : Attribute
 {
     protected string AttributeName { get; } = typeof(TAttribute).FullName!;

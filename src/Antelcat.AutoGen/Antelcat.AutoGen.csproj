@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>2.0.0-preview6</Version>
+        <Version>2.0.0-preview7</Version>
         <FileVersion>2.0.0</FileVersion>
         <AssemblyVersion>2.0.0</AssemblyVersion>
         
@@ -18,7 +18,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Description>Auto generate anything you want</Description>
         <Copyright>Copyright Antelcat. All rights reserved</Copyright>
-        <PackageTags>mapping;extension;auto;generate;roslyn;</PackageTags>
+        <PackageTags>mapping;extension;auto;generate;roslyn;metadata</PackageTags>
 
         <RepositoryType>git</RepositoryType>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Add deconstruct</PackageReleaseNotes>
+        <PackageReleaseNotes>allow specified bindingflags and implicit members when using meta-generate</PackageReleaseNotes>
         
     </PropertyGroup>
 

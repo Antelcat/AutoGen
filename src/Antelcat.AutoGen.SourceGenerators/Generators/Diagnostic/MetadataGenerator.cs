@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -10,10 +9,12 @@ using System.Text.RegularExpressions;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
-using Feast.CodeAnalysis;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using EventInfo = Feast.CodeAnalysis.CompileTime.EventInfo;
+using FieldInfo = Feast.CodeAnalysis.CompileTime.FieldInfo;
+using MethodInfo = Feast.CodeAnalysis.CompileTime.MethodInfo;
+using TypeInfo = Microsoft.CodeAnalysis.TypeInfo;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
 
@@ -71,10 +72,6 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
 
     protected override bool FilterSyntax(SyntaxNode node) => true;
 
-    private const BindingFlags Flags = BindingFlags.NonPublic |
-                                       BindingFlags.Public    |
-                                       BindingFlags.Instance  |
-                                       BindingFlags.Static;
 
     private static List<string> Resolve(AutoMetadataFrom metadata)
     {
@@ -82,12 +79,14 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
         var          target  = metadata.ForType;
         if (metadata.Leading != null) members.Add(metadata.Leading);
 
-        Map(MemberTypes.Field, () => target.GetFields(Flags).Where(x => !x.IsSpecialName));
-        Map(MemberTypes.Property, () => target.GetProperties(Flags));
-        Map(MemberTypes.Constructor, () => target.GetConstructors(Flags));
-        Map(MemberTypes.NestedType, () => target.GetNestedTypes(Flags));
-        Map(MemberTypes.Event, () => target.GetEvents(Flags));
-        Map(MemberTypes.Method, () => target.GetMethods(Flags).Where(x => !x.IsSpecialName));
+        var flags         = metadata.BindingFlags;
+        var allowImplicit = metadata.IncludeImplicit;
+        Map(MemberTypes.Field, () => target.GetFields(flags));
+        Map(MemberTypes.Property, () => target.GetProperties(flags));
+        Map(MemberTypes.Constructor, () => target.GetConstructors(flags));
+        Map(MemberTypes.Method, () => target.GetMethods(flags));
+        Map(MemberTypes.NestedType, () => target.GetNestedTypes(flags));
+        Map(MemberTypes.Event, () => target.GetEvents(flags));
 
         if (metadata.Trailing != null) members.Add(metadata.Trailing);
 
@@ -97,11 +96,25 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
         {
             if (!metadata.MemberTypes.HasFlag(memberTypes)) return;
             members.AddRange(memberGetter()
-                .Select(field => Resolve(field, new StringBuilder(metadata.Template))
+                .Where(x => Implicit(x, allowImplicit))
+                .Select(member => Resolve(member, new StringBuilder(metadata.Template))
                     .ToString())
             );
         }
     }
+
+    private static bool Implicit(MemberInfo member, bool allow) =>
+        member switch
+        {
+            Feast.CodeAnalysis.CompileTime.FieldInfo field       => !field.Symbol.IsImplicitlyDeclared    || allow,
+            Feast.CodeAnalysis.CompileTime.PropertyInfo property => !property.Symbol.IsImplicitlyDeclared || allow,
+            Feast.CodeAnalysis.CompileTime.ConstructorInfo constructor => !constructor.Symbol.IsImplicitlyDeclared ||
+                                                                          allow,
+            Feast.CodeAnalysis.CompileTime.MethodInfo method => !method.Symbol.IsImplicitlyDeclared || allow,
+            Feast.CodeAnalysis.CompileTime.Type type         => !type.Symbol.IsImplicitlyDeclared   || allow,
+            Feast.CodeAnalysis.CompileTime.EventInfo field   => !field.Symbol.IsImplicitlyDeclared  || allow,
+            _                                                => false
+        };
 
     protected override void Initialize(SourceProductionContext context,
                                        Compilation compilation,
@@ -141,13 +154,16 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
                 foreach (var (metadata, index) in syntaxContext.Attributes.GetAttributes<AutoMetadataFrom>()
                     .Select(static (x, i) => (x, i)))
                 {
-                    var partial = @class.PartialTypeDeclaration() as MemberDeclarationSyntax;
-                    var target  = metadata.ForType;
+                    MemberDeclarationSyntax partial = @class.PartialTypeDeclaration();
+
+                    var target = metadata.ForType;
                     var fileName =
                         $"{@class.ToType().QualifiedFullFileName()}_From_{target.QualifiedFullFileName()}_{index}.cs";
                     var text = partial.WithoutTrailingTrivia()
                         .NormalizeWhitespace()
-                        .GetText(Encoding.UTF8).ToString().Trim();
+                        .GetText(Encoding.UTF8)
+                        .ToString()
+                        .Trim();
                     var declare = ParseMemberDeclaration($"{text[..^1]}{string.Join("", Resolve(metadata))}}}");
 
                     var file = CompilationUnit()

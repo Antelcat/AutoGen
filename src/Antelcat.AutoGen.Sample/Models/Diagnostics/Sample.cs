@@ -4,7 +4,7 @@ using Antelcat.AutoGen.ComponentModel.Diagnostic;
 namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
 
 
-[AutoMetadataFrom(typeof(Simulator), MemberTypes.Property,
+[AutoMetadataFrom(typeof(Simulator), MemberTypes.Property, 
     Leading = "public global::System.Collections.Generic.IEnumerable<string> Writables(){",
     Template =
         """
@@ -27,7 +27,7 @@ namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
         }
 
         """)]
-public partial class Simulator
+public partial record Simulator
 {
     public string A { get; set; }
     public string B { get; }

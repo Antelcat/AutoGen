@@ -18,6 +18,24 @@ namespace Antelcat.AutoGen.ComponentModel.Diagnostic
         internal MemberTypes MemberTypes => memberTypes;
 
         /// <summary>
+        /// Specify whether compiler generated members are included, default is false
+        /// </summary>
+        public bool IncludeImplicit { get; set; } = false;
+
+        /// <summary>
+        /// Specify <see cref="BindingFlags"/> when searching for members,
+        /// default is
+        /// <see cref="BindingFlags.NonPublic"/>
+        /// <see cref="BindingFlags.Public"/>
+        /// <see cref="BindingFlags.Instance"/>
+        /// <see cref="BindingFlags.Static"/>
+        /// </summary>
+        public BindingFlags BindingFlags { get; set; } = BindingFlags.NonPublic |
+                                                         BindingFlags.Public    |
+                                                         BindingFlags.Instance  |
+                                                         BindingFlags.Static;
+        
+        /// <summary>
         /// Template applying to generate code, you can use
         /// {Name} {PropertyType} {CanRead} ... those members
         /// come from inherits of <see cref="MemberInfo"/>
