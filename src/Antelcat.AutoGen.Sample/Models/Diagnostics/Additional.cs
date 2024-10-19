@@ -3,7 +3,6 @@ using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.Sample.Models.Diagnostics;
 using Extra;
 
-
 [assembly: AutoMetadataFrom(typeof(Simulator), MemberTypes.Property,
     Leading = """
               namespace Extra;
@@ -17,11 +16,21 @@ using Extra;
                """
 )]
 
-
-file class Test
+namespace Some
 {
-    Test()
+    [AutoMetadataFrom(typeof(Simulator), MemberTypes.Property,
+        Leading = "public global::System.Collections.Generic.IEnumerable<string> Writables(){",
+        Template =
+            """
+            yield return nameof(Antelcat.AutoGen.Sample.Models.Diagnostics.Simulator.{Name});
+
+            """,
+        Trailing = "}")]
+    public partial class Test
     {
-        new AnotherSimulator().A = "";
+        Test()
+        {
+            new AnotherSimulator().A = "";
+        }
     }
 }

@@ -4,16 +4,7 @@ using Antelcat.AutoGen.ComponentModel.Diagnostic;
 namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
 
 
-[AutoMetadataFrom(typeof(Simulator), MemberTypes.Property, 
-    Leading = "public global::System.Collections.Generic.IEnumerable<string> Writables(){",
-    Template =
-        """
-        #if {CanWrite}
-        yield return nameof({Name});
-        #endif
 
-        """,
-    Trailing = "}")]
 [AutoMetadataFrom(typeof(Simulator), MemberTypes.Property,
     Template =
         """
