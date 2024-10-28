@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>2.0.0-preview7</Version>
+        <Version>2.0.0-preview9</Version>
         <FileVersion>2.0.0</FileVersion>
         <AssemblyVersion>2.0.0</AssemblyVersion>
         
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>allow specified bindingflags and implicit members when using meta-generate</PackageReleaseNotes>
+        <PackageReleaseNotes>Add AutoParallelTaskScheduler</PackageReleaseNotes>
         
     </PropertyGroup>
 

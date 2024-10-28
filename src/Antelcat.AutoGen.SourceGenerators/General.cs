@@ -213,6 +213,10 @@ internal static class General
                 .WithLeadingTrivia(Header)
                 .AddMembers(aggregate);
         }
+        else
+        {
+            aggregate = aggregate.WithLeadingTrivia(Header);
+        }
         return compilationUnit.AddMembers(aggregate);
     }
 
