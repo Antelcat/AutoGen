@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 
 namespace Antelcat.AutoGen.SourceGenerators.Extensions;
 
@@ -15,4 +16,8 @@ public static class TypeExtension
         .QualifiedFullName()
         .Replace('<', '{')
         .Replace('>', '}');
+
+    public static string QualifiedSymbolFullName(this Type type) => type is Feast.CodeAnalysis.CompileTime.Type t
+        ? t.Symbol.GetFullyQualifiedName()
+        : type.QualifiedFullName();
 }

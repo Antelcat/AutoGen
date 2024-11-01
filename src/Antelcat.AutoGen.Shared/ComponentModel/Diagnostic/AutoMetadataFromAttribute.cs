@@ -12,7 +12,7 @@ namespace Antelcat.AutoGen.ComponentModel.Diagnostic
     /// <param name="memberTypes">Types of the members</param>
     [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = true,
         Inherited = false)]
-    public class AutoMetadataFrom(Type forType, MemberTypes memberTypes) : AutoGenAttribute
+    public class AutoMetadataFromAttribute(Type forType, MemberTypes memberTypes) : AutoGenAttribute
     {
         internal Type        ForType     => forType;
         internal MemberTypes MemberTypes => memberTypes;

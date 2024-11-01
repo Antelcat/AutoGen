@@ -20,9 +20,9 @@ public class AutoDeconstructIndexableGenerator : AttributeDetectBaseGenerator<Au
 {
     protected override bool FilterSyntax(SyntaxNode node) => node is CompilationUnitSyntax;
 
-    protected override void Initialize(SourceProductionContext context, Compilation compilation,
-        ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray)
+    protected override void Initialize(IncrementalGeneratorContexts contexts)
     {
+        var (_, context, _, syntaxArray) = contexts;
         var syntax = syntaxArray.First();
         var attr   = syntax
             .GetAttributes<AutoDeconstructIndexableAttribute>()

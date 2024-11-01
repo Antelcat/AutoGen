@@ -17,8 +17,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoFilePathAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoKeyAccessorAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoKeyEnumerableAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoObjectCloneAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoStringToAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoMetadataFrom.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoMetadataFromAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoTypeInferenceAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoReport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoWatchAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\AutoMapAttribute.cs" />

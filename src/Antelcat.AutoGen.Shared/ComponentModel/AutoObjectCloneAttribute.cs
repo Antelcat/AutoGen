@@ -4,12 +4,12 @@ using Antelcat.AutoGen.ComponentModel.Abstractions;
 namespace Antelcat.AutoGen.ComponentModel;
 
 /// <summary>
-/// Auto generate string.To() extension methods, which should be <see langword="partial"/> <see langword="static"/>
+/// Auto generate object clone extension methods, which should be <see langword="partial"/> <see langword="static"/> <see langword="unsafe"/>
 /// </summary>
 /// <param name="namespace"></param>
-/// <param name="accessibility">Specify the accessibility of the extension, accepts only <see cref="Accessibility.Public"/> or <see cref="Accessibility.Internal"/> </param>
+/// <param name="accessibility"></param>
 [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class, AllowMultiple = true)]
-public sealed class AutoStringToAttribute(
+public class AutoObjectCloneAttribute(
     string? @namespace = nameof(System),
     Accessibility accessibility = Accessibility.Public) : AutoGenAttribute
 {

@@ -22,7 +22,7 @@ public abstract class AttributeDetectBaseGenerator<TAttribute> : IIncrementalGen
         {
             try
             {
-                Initialize(ctx, tuple.Left, tuple.Right);
+                Initialize(new IncrementalGeneratorContexts(context, ctx, tuple.Left, tuple.Right));
             }
             catch (Exception e)
             {
@@ -31,5 +31,11 @@ public abstract class AttributeDetectBaseGenerator<TAttribute> : IIncrementalGen
         });
     }
 
-    protected abstract void Initialize(SourceProductionContext context, Compilation compilation, ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray);
+    protected record IncrementalGeneratorContexts(
+        IncrementalGeneratorInitializationContext InitializationContext,
+        SourceProductionContext SourceProductionContext,
+        Compilation Compilation,
+        ImmutableArray<GeneratorAttributeSyntaxContext> SyntaxContexts);
+
+    protected abstract void Initialize(IncrementalGeneratorContexts contexts);
 }

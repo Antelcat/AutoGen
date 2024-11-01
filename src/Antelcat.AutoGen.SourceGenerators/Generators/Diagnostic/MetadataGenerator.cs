@@ -19,7 +19,7 @@ using TypeInfo = Microsoft.CodeAnalysis.TypeInfo;
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
 
 [Generator(LanguageNames.CSharp)]
-public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
+public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFromAttribute>
 {
     private static IEnumerable<string> GetPlaceholders(string template)
     {
@@ -73,7 +73,7 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
     protected override bool FilterSyntax(SyntaxNode node) => true;
 
 
-    private static List<string> Resolve(AutoMetadataFrom metadata)
+    private static List<string> Resolve(AutoMetadataFromAttribute metadata)
     {
         List<string> members = [];
         var          target  = metadata.ForType;
@@ -116,13 +116,12 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
             _                                                => false
         };
 
-    protected override void Initialize(SourceProductionContext context,
-                                       Compilation compilation,
-                                       ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray)
+    protected override void Initialize(IncrementalGeneratorContexts contexts)
     {
+        var (_, context, _, syntaxArray) = contexts;
         foreach (var assemblySyntaxContext in syntaxArray
             .Where(x => x.TargetSymbol is IAssemblySymbol)
-            .SelectMany(static x => x.GetAttributes<AutoMetadataFrom>())
+            .SelectMany(static x => x.GetAttributes<AutoMetadataFromAttribute>())
             .Where(x => x.ForType is Feast.CodeAnalysis.CompileTime.Type { Symbol: INamedTypeSymbol })
             .GroupBy(static x => (x.ForType as Feast.CodeAnalysis.CompileTime.Type)!.Symbol,
                 SymbolEqualityComparer.Default))
@@ -151,7 +150,7 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFrom>
             var @class = (typeSyntaxContext.Key as INamedTypeSymbol)!;
             foreach (var syntaxContext in typeSyntaxContext)
             {
-                foreach (var (metadata, index) in syntaxContext.Attributes.GetAttributes<AutoMetadataFrom>()
+                foreach (var (metadata, index) in syntaxContext.Attributes.GetAttributes<AutoMetadataFromAttribute>()
                     .Select(static (x, i) => (x, i)))
                 {
                     MemberDeclarationSyntax partial = @class.PartialTypeDeclaration();

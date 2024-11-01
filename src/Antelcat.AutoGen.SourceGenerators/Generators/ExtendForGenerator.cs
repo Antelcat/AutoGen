@@ -22,10 +22,9 @@ public class ExtendForGenerator : AttributeDetectBaseGenerator<AutoExtendForAttr
         classDeclaration.Modifiers.Any(SyntaxKind.StaticKeyword) &&
         classDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword);
 
-    protected override void Initialize(SourceProductionContext context,
-        Compilation compilation,
-        ImmutableArray<GeneratorAttributeSyntaxContext> syntaxArray)
+    protected override void Initialize(IncrementalGeneratorContexts contexts)
     {
+        var (_, context, compilation, syntaxArray) = contexts;
 
         foreach (var attributes in syntaxArray
                      .Where(static x => x.TargetNode is CompilationUnitSyntax)

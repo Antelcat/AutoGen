@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Antelcat.AutoGen.ComponentModel;
+using Antelcat.AutoGen.ComponentModel.Abstractions;
 using Antelcat.AutoGen.SourceGenerators.Generators;
 using Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
 using Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
@@ -20,7 +21,6 @@ public class SampleIncrementalSourceGeneratorTests
     [SetUp]
     public void Setup()
     {
-        var n = typeof(IEnumerable<>).Name.Split('`');
     }
 
     private void RunTest<TGenerator>(params string[] sourceInput) where TGenerator : IIncrementalGenerator, new()
@@ -28,12 +28,11 @@ public class SampleIncrementalSourceGeneratorTests
         var driver = CSharpGeneratorDriver.Create(new TGenerator());
         var compilation = CSharpCompilation.Create(nameof(SampleIncrementalSourceGeneratorTests),
             sourceInput.Select(x => CSharpSyntaxTree.ParseText(x)).ToArray(),
-            new[]
-            {
+            [
                 // To support 'System.Attribute' inheritance, add reference to 'System.Private.CoreLib'.
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(AutoKeyAccessorAttribute).Assembly.Location),
-            });
+                MetadataReference.CreateFromFile(typeof(AutoGenAttribute).Assembly.Location)
+            ]);
         driver.RunGenerators(compilation).GetRunResult();
         compilation.GetDiagnostics()
             .Select(x =>
@@ -97,5 +96,12 @@ public class SampleIncrementalSourceGeneratorTests
     {
         var relative1 = (FilePath)@"d:\A\B\C" >> @"d:\A\D";
         var relative2 = (FilePath)@"d:\A\B\C" << @"d:\A\D";
+    }
+
+    [Test]
+    public void TestAnonymous()
+    {
+        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample"/ "Models" / "Diagnostics" / "Anonymous.cs";
+        RunTest<TypeInferenceGenerator>(File.ReadAllText(file));
     }
 }

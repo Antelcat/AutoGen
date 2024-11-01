@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 [assembly: AutoStringTo]
 [assembly: AutoFilePath]
 [assembly: AutoDeconstructIndexable(16, typeof(Foo), typeof(Foo<object>), typeof(Foo<>))]
+[assembly: AutoObjectClone]
 
 public static class General
 {
