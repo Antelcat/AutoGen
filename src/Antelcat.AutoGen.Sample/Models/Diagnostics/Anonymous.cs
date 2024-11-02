@@ -1,8 +1,13 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Reflection;
+using Antelcat.AutoGen.ComponentModel;
+using Antelcat.AutoGen.ComponentModel.Diagnostic;
 
-[assembly: global::Antelcat.AutoGen.ComponentModel.Diagnostic.AutoTypeInference]
+[assembly: AutoTypeInference(
+    Accessibility.Internal,
+    Suffixes = ["Temp"],
+    Kind = AutoTypeInferenceAttribute.TypeKind.Record,
+    AttributeOnType = "[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]"
+)]
 
 namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
 
@@ -19,25 +24,27 @@ public class DeclaredClass
 public class Anonymous
 {
     public int? field;
-    
+
     public void Test()
     {
+        var local = () =>
+        {
+            return 3;
+        };
+
         var declared = new DeclaredClass
         {
-            
         };
 
         DeclaredClass dec = new()
         {
-
         };
-        
-        var temp = new Temp
+
+        var temp = new AA.Temp
         {
-            
         };
 
-        Anony anony = new()
+        AnonyTemp anony = new()
         {
             A = "",
             B = temp,
@@ -46,23 +53,44 @@ public class Anonymous
             E = dec.Method(),
             F = field is 0 ? 1 : 2,
             G = MemberTypes.Method,
-            H = field++,
+            H = field++.Value,
             I = new DeclaredClass(),
             J = (DeclaredClass)new object(),
             K = new { Anonymouse = 1 },
-            L = null
+            L = null,
+            M = field ?? 2,
+            N = local(),
+            O = typeof(int)
         };
 
-        var namespaceandclass = new Namespace.Class()
+        var namespaceandclass = new Namespace.Then.Temp
         {
             A = "",
             B = temp
+        };
+
+        var global = new global::Namespace.Then.Temp
+        {
+            A = "",
+            B = temp
+        };
+    }
+
+    public interface IA;
+    public class A : IA;
+
+    public class CA : IA;
+
+    public void Test2()
+    {
+        var a = new global::IA.Temp
+        {
+            A = new A()
+        };
+        var b =  new global::IA.Temp
+        {
+            A = new CA()
         };
         
-        var global = new global::Namespace.Class()
-        {
-            A = "",
-            B = temp
-        };
     }
 }
