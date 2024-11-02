@@ -9,12 +9,19 @@ Auto generate anything you may want
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
-+ #### `[AutoMetadataFrom(Type, MemberTypes)]`
++ #### `[AutoMetadataFrom(Type, MemberTypes)]` :
+  
   Auto generate code using `Template` from target type members  
 
   ![AutoMetadata](./docs/AutoMetadata.png)
 
-+ #### `[AutoStringTo(string, Accessibility)]` :  
++ #### `[AutoTypeInference]` :
+  
+  Auto generate `Type` detected from `anonymous`object creation
+
+  ![AutoTypeInference](./docs/AutoTypeInference.png)
+
++ #### `[AutoStringTo(string, Accessibility)]` :
 
     Auto generate string To extension
 
