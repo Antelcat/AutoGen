@@ -172,3 +172,15 @@ Auto generate anything you may want
       }
   }
   ```
+
++ #### `[AutoExtractInterface]`
+
+  Auto generate interface for specified type
+
+  like :
+
+  ![AutoExtractInterface_1](./docs/AutoExtractInterface_1.png)
+
+  will generate
+
+  ![AutoExtractInterface_2](./docs/AutoExtractInterface_2.png)

@@ -104,4 +104,11 @@ public class SampleIncrementalSourceGeneratorTests
         string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample"/ "Models" / "Diagnostics" / "Anonymous.cs";
         RunTest<TypeInferenceGenerator>(File.ReadAllText(file));
     }
+    
+    [Test]
+    public void TestExtractInterface()
+    {
+        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample"/ "Models" / "WaitingForInterface.cs";
+        RunTest<AutoExtractInterfaceGenerator>(File.ReadAllText(file));
+    }
 }
