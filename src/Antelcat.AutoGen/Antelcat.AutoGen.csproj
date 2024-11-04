@@ -7,9 +7,9 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>2.1.0</Version>
-        <FileVersion>2.1.0</FileVersion>
-        <AssemblyVersion>2.1.0</AssemblyVersion>
+        <Version>2.1.1.1</Version>
+        <FileVersion>2.1.1</FileVersion>
+        <AssemblyVersion>2.1.1</AssemblyVersion>
         
         <Authors>Antelcat</Authors>
         <Title>Antelcat.AutoGen</Title>
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Add AutoExtractInterface</PackageReleaseNotes>
+        <PackageReleaseNotes>Fix exclude of AutoExtractInterface</PackageReleaseNotes>
         
     </PropertyGroup>
 

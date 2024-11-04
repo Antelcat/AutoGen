@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
-
+using static Antelcat.AutoGen.ComponentModel.Diagnostic.AutoExtractInterfaceAttribute.GenericConstrain;
 namespace Antelcat.AutoGen.Sample.Models;
 
 [AutoExtractInterface(ReceiveGeneric = [1,0], 
+    GenericConstrains = [Inherit | Out, Inherit | In],
     PassGeneric = ["0", "0,1"], 
-    Interfaces = [typeof(IList<>),typeof(IDictionary<,>)])]
-public class WaitingForInterface<T1, T2, T3>(object ord) : I 
+    Interfaces = [typeof(IList<>),typeof(IDictionary<,>)],
+    Exclude = [nameof(GenericProp)])]
+public class WaitingForInterface<T1, T2, T3>(object ord)
     where T1 : unmanaged
     where T2 : IList<T1> 
 {
