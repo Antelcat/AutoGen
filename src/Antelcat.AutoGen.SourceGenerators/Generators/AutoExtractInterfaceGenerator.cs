@@ -104,7 +104,7 @@ public class AutoExtractInterfaceGenerator : AttributeDetectBaseGenerator<AutoEx
                     var declare = InterfaceDeclaration(interfaceName)
                         .AddModifiers(Token(attribute.Accessibility is ComponentModel.Accessibility.Public
                             ? SyntaxKind.PublicKeyword
-                            : SyntaxKind.InternalKeyword))
+                            : SyntaxKind.InternalKeyword), Token(SyntaxKind.PartialKeyword))
                         .AddMembers(members.ToArray());
 
 
