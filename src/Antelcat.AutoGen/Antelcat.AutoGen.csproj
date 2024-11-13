@@ -7,9 +7,9 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>2.1.3</Version>
-        <FileVersion>2.1.1</FileVersion>
-        <AssemblyVersion>2.1.1</AssemblyVersion>
+        <Version>2.2.0</Version>
+        <FileVersion>2.2.0</FileVersion>
+        <AssemblyVersion>2.2.0</AssemblyVersion>
         
         <Authors>Antelcat</Authors>
         <Title>Antelcat.AutoGen</Title>
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Fix string extension</PackageReleaseNotes>
+        <PackageReleaseNotes>Add Object clone</PackageReleaseNotes>
         
     </PropertyGroup>
 
