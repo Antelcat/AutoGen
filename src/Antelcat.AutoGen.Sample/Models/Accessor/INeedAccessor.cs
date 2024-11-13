@@ -3,10 +3,12 @@ using System.Reflection;
 using Antelcat.AutoGen.ComponentModel;
 
 
+#if !NETSTANDARD2_0
 [AutoKeyAccessor]
+#endif
 public partial interface INeedAccessor
 {
-    public string A => nameof(A);
+    public string A { get; }
 }
 
 public record NeedBase
@@ -15,7 +17,7 @@ public record NeedBase
 }
 
 [AutoKeyAccessor(memberTypes: MemberTypes.Property)]
-public partial record NeedAccessor : NeedBase, INeedAccessor
+public partial record NeedAccessor(string A) : NeedBase, INeedAccessor
 {
     public int B { get; init; }
 
@@ -37,7 +39,13 @@ public static class Test
 {
     public static void Test1()
     {
-        string a = (dynamic)new object();
+        string a = 
+            #if !NETSTANDARD2_0
+            (dynamic)
+            #else
+            (string)
+            #endif
+            new object();
         
         var accessor = new StructAlsoNeedAccessor
         {

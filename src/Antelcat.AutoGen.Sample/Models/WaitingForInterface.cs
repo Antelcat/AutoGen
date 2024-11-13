@@ -6,7 +6,6 @@ using static Antelcat.AutoGen.ComponentModel.Diagnostic.AutoExtractInterfaceAttr
 namespace Antelcat.AutoGen.Sample.Models;
 
 [AutoExtractInterface(ReceiveGeneric = [1,0], 
-    GenericConstrains = [Inherit | Out, Inherit | In],
     PassGeneric = ["0", "0,1"], 
     Interfaces = [typeof(IList<>),typeof(IDictionary<,>)],
     Exclude = [nameof(GenericProp)])]
@@ -27,7 +26,9 @@ public class WaitingForInterface<T1, T2, T3>(object ord)
     public List<string> SetOnlyProp
     {
         private get => null;
-        set { _ = value; }
+        set { _ = value;
+            
+        }
     }
 
     public async Task<T1> ExistGenericMethod(IList<T1> arg) => throw new NotImplementedException();

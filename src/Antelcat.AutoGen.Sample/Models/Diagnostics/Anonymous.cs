@@ -5,8 +5,10 @@ using Antelcat.AutoGen.ComponentModel.Diagnostic;
 [assembly: AutoTypeInference(
     Accessibility.Internal,
     Suffixes = ["Temp"],
-    Kind = AutoTypeInferenceAttribute.TypeKind.Record,
-    AttributeOnType = "[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]"
+    Kind = AutoTypeInferenceAttribute.TypeKind.Record
+#if !NETSTANDARD2_0
+    ,AttributeOnType = "[System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties)]"
+#endif
 )]
 
 namespace Antelcat.AutoGen.Sample.Models.Diagnostics;

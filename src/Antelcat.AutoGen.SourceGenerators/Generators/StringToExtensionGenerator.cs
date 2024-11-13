@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
@@ -18,38 +18,46 @@ public class StringToExtensionGenerator : AttributeDetectBaseGenerator<AutoStrin
 {
     private const string ClassName = "StringToExtension";
 
-    private static string GetGenericConversion(Type? type)
+ 
+    private static MemberDeclarationSyntax[] Content(Compilation compilation)
     {
-        if (type is null || type.GenericParameterAttributes == GenericParameterAttributes.None) return string.Empty;
-        var sb = new StringBuilder($" where {type.Name} :");
-
-        if (type.GenericParameterAttributes.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint))
-        {
-            sb.Append(" class,");
-        }
-
-        if (type.GenericParameterAttributes.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint))
-        {
-            sb.Append(" struct,");
-        }
-        else if (type.GenericParameterAttributes.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
-        {
-            sb.Append(" new(),");
-        }
-
-        return sb.Remove(sb.Length - 1, 1).ToString();
-    }
-
-    private static readonly MemberDeclarationSyntax[] Content =
-        StringExtensions()
-            .Select(static x => ParseMemberDeclaration(x)!)
+        var csComp = (compilation as CSharpCompilation)!;
+        return csComp
+            .References
+            .Select(x => csComp.GetAssemblyOrModuleSymbol(x))
+            .OfType<IAssemblySymbol>()
+            .Aggregate(new List<IMethodSymbol>(), (list, c) =>
+            {
+                var collector = new TypeCollector(csComp.GetSpecialType(SpecialType.System_String));
+                c.GlobalNamespace.Accept(collector);
+                list.AddRange(collector.Methods);
+                return list;
+            })
+            .Select(x =>
+            {
+                var type       = x.Parameters[1].Type;
+                var returnName = type.GetFullyQualifiedName();
+                var typeName = x.ContainingType.GetFullyQualifiedName();
+                var declare =
+                    $"""
+                     /// <summary>
+                     /// Convert from <see cref="string"/> to <see cref="{typeName}"/>
+                     /// </summary>
+                     {GeneratedCodeAttribute(typeof(StringToExtensionGenerator)).GetText(Encoding.UTF8)}
+                     {ExcludeFromCodeCoverageAttribute().GetText(Encoding.UTF8)}
+                     [global::System.Runtime.CompilerServices.MethodImpl(global::System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+                     """ +
+                    $"public static {returnName} To{type.MetadataName}{GenericDeclaration(x)}(this string? str) {GenericConstrain(x)} => {typeName}.TryParse{GenericDeclaration(x)}(str, out var value) ? value : default;";
+                return ParseMemberDeclaration(declare)!;
+            })
             .ToArray();
+    }
 
     protected override bool FilterSyntax(SyntaxNode node) => node is CompilationUnitSyntax or ClassDeclarationSyntax;
 
     protected override void Initialize(IncrementalGeneratorContexts contexts)
     {
-        var (_, context, _, syntaxArray) = contexts;
+        var (_, context, compilation, syntaxArray) = contexts;
         var classes = syntaxArray
             .Where(static x => x.TargetNode is ClassDeclarationSyntax)
             .GroupBy(static x => x.TargetSymbol, SymbolEqualityComparer.Default);
@@ -61,10 +69,10 @@ public class StringToExtensionGenerator : AttributeDetectBaseGenerator<AutoStrin
                         .AddMembers(
                             ClassDeclaration(group.Key.Name)
                                 .AddModifiers(SyntaxKind.PartialKeyword)
-                                .AddMembers(Content))
+                                .AddMembers(Content(compilation)))
                         .WithLeadingTrivia(Header));
             context.AddSource($"AutoStringTo__{group.Key.Name.ToQualifiedFileName()}.g.cs", unit
-                .NormalizeWhitespace() 
+                .NormalizeWhitespace()
                 .GetText(Encoding.UTF8));
         }
 
@@ -92,39 +100,69 @@ public class StringToExtensionGenerator : AttributeDetectBaseGenerator<AutoStrin
                                     Accessibility.Public => SyntaxKind.PublicKeyword,
                                     _                    => SyntaxKind.InternalKeyword
                                 }, SyntaxKind.StaticKeyword)
-                                .AddMembers(Content))
+                                .AddMembers(Content(compilation)))
                         .WithLeadingTrivia(Header));
             context.AddSource($"{name}.{ClassName}.g.cs", unit
                 .NormalizeWhitespace()
                 .GetText(Encoding.UTF8));
         }
-
     }
 
-    private static IEnumerable<string> StringExtensions()
+    private static string GenericDeclaration(IMethodSymbol method)
     {
-        var contexts = new List<(Type Type, MethodInfo method, Type? GType)>();
-        foreach (var type in typeof(string).Assembly.ExportedTypes)
+        var ret = string.Join(",", method.TypeParameters.Select(x => x.Name));
+        return string.IsNullOrWhiteSpace(ret) ? string.Empty : $"<{ret}>";
+    }
+
+    private static string GenericConstrain(IMethodSymbol method)
+    {
+        return string.Join(" ", method.TypeParameters.Select(x =>
         {
-            var method = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .FirstOrDefault(static x => x.Name == nameof(int.TryParse) && x.GetParameters().Length == 2);
-            if (method is null) continue;
-            contexts.Add(method.IsGenericMethod
-                ? (type, method, method.GetGenericArguments().First())
-                : (type, method, null));
+            System.Collections.Generic.List<string> constrains = [];
+
+            if (x.HasReferenceTypeConstraint) constrains.Add("class");
+            if (x.HasNotNullConstraint) constrains.Add("notnull");
+            if (x.HasValueTypeConstraint) constrains.Add(x.HasUnmanagedTypeConstraint ? "unmanaged" : "struct");
+            if (x.HasConstructorConstraint) constrains.Add("new()");
+            return constrains.Count == 0 ? string.Empty : $"where {x.Name} : {string.Join(", ", constrains)}";
+        }));
+    }
+
+    private class TypeCollector(INamedTypeSymbol stringSymbol) : SymbolVisitor
+    {
+        public List<IMethodSymbol> Methods { get; } = [];
+
+        public override void VisitNamespace(INamespaceSymbol symbol)
+        {
+            foreach (var member in symbol.GetMembers())
+            {
+                member.Accept(this);
+            }
         }
 
-        return contexts
-            .Select(static x =>
-                $"""
+        public override void VisitNamedType(INamedTypeSymbol symbol)
+        {
+            var method =
+                symbol.GetMembers()
+                    .OfType<IMethodSymbol>()
+                    .FirstOrDefault(x => x is
+                                         {
+                                             IsExtensionMethod: false,
+                                             IsStatic         : true,
+                                             Name             : "TryParse",
+                                             Parameters.Length: 2
+                                         }
+                                         && SymbolEqualityComparer.Default.Equals(x.Parameters[0].Type, stringSymbol)
+                    );
+            if (method is not null)
+            {
+                Methods.Add(method);
+            }
 
-                 /// <summary>
-                 /// Convert from <see cref="string"/> to <see cref="{Global(x.Type)}"/>
-                 /// </summary>
-                 {GeneratedCodeAttribute(typeof(StringToExtensionGenerator)).GetText(Encoding.UTF8)}
-                 {ExcludeFromCodeCoverageAttribute().GetText(Encoding.UTF8)}
-                 public static {x.GType?.Name ?? Global(x.Type)}{Nullable(x.GType ?? x.Type)} To{x.Type.Name}{Generic(x.GType?.Name)}(this string? str){
-                     GetGenericConversion(x.GType)} => {Global(x.Type)}.{nameof(int.TryParse)}{Generic(x.GType?.Name)}(str, out var result) ? result : default;
-                 """); 
+            foreach (var member in symbol.GetMembers())
+            {
+                member.Accept(this);
+            }
+        }
     }
 }

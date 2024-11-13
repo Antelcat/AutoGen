@@ -1,7 +1,9 @@
-﻿using System.Text.Json;
-using Antelcat.AutoGen.ComponentModel;
-using Antelcat.AutoGen.ComponentModel.Diagnostic;
+﻿using Antelcat.AutoGen.ComponentModel;
 
 [assembly: AutoFilePath]
 [assembly: AutoDeconstructIndexable]
-[assembly: AutoObjectClone]
+[assembly: AutoObjectClone(accessibility: Accessibility.Internal)]
+
+#if NET5_0_OR_GREATER
+
+#endif

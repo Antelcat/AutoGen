@@ -9,6 +9,7 @@ using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.ComponentModel.Abstractions;
 using Antelcat.AutoGen.SourceGenerators.Generators;
 using Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
+using Antelcat.AutoGen.SourceGenerators.Generators.Internal;
 using Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -110,5 +111,11 @@ public class SampleIncrementalSourceGeneratorTests
     {
         string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample"/ "Models" / "WaitingForInterface.cs";
         RunTest<AutoExtractInterfaceGenerator>(File.ReadAllText(file));
+    }
+
+    [Test]
+    public void TestTest()
+    {
+        RunTest<TestGenerator>("");
     }
 }
