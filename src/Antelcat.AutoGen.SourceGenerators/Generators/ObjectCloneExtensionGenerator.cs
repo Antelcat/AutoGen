@@ -145,7 +145,9 @@ public class ObjectCloneExtensionGenerator : AttributeDetectBaseGenerator<AutoOb
 
     private static string CloneHelper(string filterValueType) =>
         $$"""
-
+          using System.Collections.Generic;
+          using System.Linq;
+          
           file static class CloneHelper
           {
           #if NET5_0_OR_GREATER
@@ -189,7 +191,7 @@ public class ObjectCloneExtensionGenerator : AttributeDetectBaseGenerator<AutoOb
                   if (type.IsArray) return GetArrayMapper(type.GetElementType()!);
               
                   // is {}
-                  var fields = type.GetFields(global::System.Reflection.BindingFlags.Public | global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Instance);
+                  var fields = GetFields(type).ToArray();
                   global::System.Func<object, object> handle = arg =>
                   {
                       var ret = 
@@ -225,6 +227,14 @@ public class ObjectCloneExtensionGenerator : AttributeDetectBaseGenerator<AutoOb
               
                       return array;
                   };
+                  
+              {{RequiresDynamicCode("Array creation")}}
+              private static global::System.Collections.Generic.IEnumerable<global::System.Reflection.FieldInfo> GetFields(global::System.Type type)
+                {
+                    var fields   = type.GetFields(global::System.Reflection.BindingFlags.Public | global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Instance);
+                    var baseType = type.BaseType;
+                    return baseType != null ? fields.Concat(GetFields(baseType)) : fields;
+                }
           }
           """;
 }
