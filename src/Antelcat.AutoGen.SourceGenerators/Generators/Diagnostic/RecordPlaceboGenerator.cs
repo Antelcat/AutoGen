@@ -12,10 +12,22 @@ namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
 public class RecordPlaceboGenerator : IIncrementalGenerator
 {
     private static readonly MemberDeclarationSyntax ToStringMethod = ParseMemberDeclaration(
-        $"public override string {nameof(ToString)}() => {nameof(GetType)}().{nameof(ToString)}();")!;
+        $"""
+         /// <summary>
+         /// Placebo by <see cref="{typeof(AutoRecordPlaceboAttribute).FullName}"/>
+         /// </summary>
+         /// <returns><see cref="object.{nameof(GetType)}"/>.<see cref="{nameof(ToString)}"/></returns>
+         public override string {nameof(ToString)}() => {nameof(GetType)}().{nameof(ToString)}();
+         """)!;
 
     private static readonly MemberDeclarationSyntax GetHashCodeMethod = ParseMemberDeclaration(
-        $"public override int {nameof(GetHashCode)}() => base.{nameof(GetHashCode)}();")!;
+        $"""
+         /// <summary>
+         /// Placebo by <see cref="{typeof(AutoRecordPlaceboAttribute).FullName}"/>
+         /// </summary>
+         /// <returns>base.<see cref="{nameof(GetHashCode)}"/></returns>
+         public override int {nameof(GetHashCode)}() => base.{nameof(GetHashCode)}();
+         """)!;
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
