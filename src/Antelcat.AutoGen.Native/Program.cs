@@ -1,13 +1,25 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
-using Antelcat.AutoGen.Native;
+[assembly: AutoRecordPlacebo]
 
-[assembly: AutoTypeInference]
+var a = new A();
+var b = new B() { A = a };
+a.B = b;
 
+var s = a.GetHashCode();
+Debugger.Break();
 
-var obj = new TempClass()
+partial record A : O
 {
-    A = 1
-};
+    public B B { get; set; }
+}
 
 
+partial record B : O
+{
+    public A A { get; set; }
+}
+
+partial record O
+{
+}

@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>2.2.1</Version>
+        <Version>2.2.2</Version>
         <FileVersion>2.2.0</FileVersion>
         <AssemblyVersion>2.2.0</AssemblyVersion>
         
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Fix Object clone base type include</PackageReleaseNotes>
+        <PackageReleaseNotes>Fix Object clone array index</PackageReleaseNotes>
         
     </PropertyGroup>
 

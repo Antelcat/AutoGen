@@ -5,12 +5,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.ComponentModel.Abstractions;
 using Antelcat.AutoGen.SourceGenerators.Generators;
 using Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
-using Antelcat.AutoGen.SourceGenerators.Generators.Internal;
-using Antelcat.AutoGen.SourceGenerators.Generators.Mapping;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -18,7 +15,6 @@ namespace Antelcat.AutoGen.Tests;
 
 public class SampleIncrementalSourceGeneratorTests
 {
-    
     [SetUp]
     public void Setup()
     {
@@ -48,7 +44,8 @@ public class SampleIncrementalSourceGeneratorTests
     [Test]
     public void Test()
     {
-        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample"/ "Models" / "Accessor" / "INeedAccessor.cs";
+        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample" / "Models" / "Accessor" /
+                      "INeedAccessor.cs";
         RunTest<KeyAccessorGenerator>(File.ReadAllText(file));
     }
 
@@ -66,7 +63,7 @@ public class SampleIncrementalSourceGeneratorTests
         var file = (General.Dir() << 1).FullPath / "Usings.cs";
         RunTest<AutoDeconstructIndexableGenerator>(File.ReadAllText(file));
     }
-    
+
     [Test]
     public void TestWatch()
     {
@@ -102,20 +99,22 @@ public class SampleIncrementalSourceGeneratorTests
     [Test]
     public void TestAnonymous()
     {
-        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample"/ "Models" / "Diagnostics" / "Anonymous.cs";
+        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample" / "Models" / "Diagnostics" /
+                      "Anonymous.cs";
         RunTest<TypeInferenceGenerator>(File.ReadAllText(file));
     }
-    
+
     [Test]
     public void TestExtractInterface()
     {
-        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample"/ "Models" / "WaitingForInterface.cs";
+        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample" / "Models" / "WaitingForInterface.cs";
         RunTest<AutoExtractInterfaceGenerator>(File.ReadAllText(file));
     }
 
     [Test]
-    public void TestTest()
+    public void TestRecordPlacebo()
     {
-        RunTest<TestGenerator>("");
+        string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample" / "Models" / "Diagnostics" / "Records.cs";
+        RunTest<RecordPlaceboGenerator>(File.ReadAllText(file));
     }
 }

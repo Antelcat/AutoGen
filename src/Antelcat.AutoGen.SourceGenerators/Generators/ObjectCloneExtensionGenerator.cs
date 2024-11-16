@@ -221,7 +221,7 @@ public class ObjectCloneExtensionGenerator : AttributeDetectBaseGenerator<AutoOb
                       var array  = global::System.Array.CreateInstance(elementType, length);
                       for (var i = 0; i < length; i++)
                       {
-                          var value = arr.GetValue(0);
+                          var value = arr.GetValue(i);
                           array.SetValue(value?.DeepClone(value.GetType()), i);
                       }
               

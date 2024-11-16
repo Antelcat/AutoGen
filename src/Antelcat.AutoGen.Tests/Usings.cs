@@ -6,7 +6,6 @@ using Antelcat.AutoGen;
 using Antelcat.AutoGen.ComponentModel;
 using Microsoft.CodeAnalysis;
 
-[assembly: AutoStringTo]
 [assembly: AutoFilePath]
 [assembly: AutoDeconstructIndexable(16, typeof(Foo), typeof(Foo<object>), typeof(Foo<>))]
 [assembly: AutoObjectClone]
