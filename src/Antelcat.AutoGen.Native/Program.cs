@@ -1,6 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
+using CommunityToolkit.Mvvm.ComponentModel;
+
 var a = new A();
 var b = new B { A = a };
 a.B = b;
@@ -8,8 +11,9 @@ a.B = b;
 var s = (a as object).GetHashCode();
 Debugger.Break();
 
+[ObservableObject]
 [AutoRecordPlacebo]
-partial record A : O
+partial record A 
 {
     public B B { get; set; }
 
@@ -17,6 +21,9 @@ partial record A : O
     {
         return RuntimeHelpers.GetHashCode(this);
     }
+
+    [ObservableProperty]
+    private string read;
 
 }
 

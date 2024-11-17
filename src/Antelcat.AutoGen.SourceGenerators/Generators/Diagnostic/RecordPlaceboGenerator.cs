@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
@@ -60,8 +61,7 @@ public class RecordPlaceboGenerator : IIncrementalGenerator
 
                         if (comp is null) continue;
 
-                        source.AddSource(
-                            "AutoRecordPlacebo_" + symbol.GetFullyQualifiedName().ToQualifiedFileName() + ".cs", comp);
+                        source.AddSource(symbol.GetFullyQualifiedName().ToQualifiedFileName("AutoRecordPlacebo"), comp);
                     }
                 }
                 else
@@ -79,9 +79,8 @@ public class RecordPlaceboGenerator : IIncrementalGenerator
                             .NormalizeWhitespace().GetText(Encoding.UTF8);
 
                         if (comp is null) continue;
-
-                        source.AddSource(
-                            "AutoRecordPlacebo_" + symbol.GetFullyQualifiedName().ToQualifiedFileName() + ".cs", comp);
+                        
+                        source.AddSource(symbol.GetFullyQualifiedName().ToQualifiedFileName("AutoRecordPlacebo"), comp);
 
                     }
                 }

@@ -63,7 +63,7 @@ public class ExtendForGenerator : AttributeDetectBaseGenerator<AutoExtendForAttr
                     .AddMembers(NamespaceDeclaration(ParseName(attrs.Key))
                         .AddMembers(classDeclare)
                         .WithLeadingTrivia(Header));
-                context.AddSource($"AutoExtendFor__{attrs.Key}.{className.ToQualifiedFileName()}.g.cs",
+                context.AddSource($"{attrs.Key}.{className}".ToQualifiedFileName("AutoExtendFor"),
                     SourceText(unit.NormalizeWhitespace().ToFullString()));
             }
         }
@@ -110,7 +110,7 @@ public class ExtendForGenerator : AttributeDetectBaseGenerator<AutoExtendForAttr
                     unit = unit.AddMembers(classDeclare.WithLeadingTrivia(Header));
                 }
 
-                context.AddSource($"AutoExtendFor__{nameSpace}.{className.ToQualifiedFileName()}.g.cs",
+                context.AddSource($"{nameSpace}.{className}".ToQualifiedFileName("AutoExtendFor"),
                     SourceText(unit.NormalizeWhitespace().ToFullString()));
             }
         }

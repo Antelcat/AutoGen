@@ -88,9 +88,7 @@ public class MapperGenerator : IIncrementalGenerator
                                 .WithBody(new MapInfo(method, fromType, toType).Map()));
                     }
 
-                    ctx.AddSource($"{nameof(AutoMap)}__.{@class
-                        .GetFullyQualifiedName()
-                        .ToQualifiedFileName()}.g.cs",
+                    ctx.AddSource(@class.GetFullyQualifiedName().ToQualifiedFileName(nameof(AutoMap)),
                         CompilationUnit()
                             .AddPartialType(@class, x => partial)
                             .NormalizeWhitespace()

@@ -26,8 +26,7 @@ public class AutoDeconstructGenerator : AttributeDetectBaseGenerator<AutoDeconst
             var declare = Generate(type);
             if (declare is null) continue;
             var comp = CompilationUnit().AddPartialType(type, t => t.AddMembers(declare));
-            var name = $"{type.GlobalName().ToQualifiedFileName()}.Deconstruct.cs";
-            context.AddSource(name, comp.NormalizeWhitespace().GetText(Encoding.UTF8));
+            context.AddSource(type.GlobalName().ToQualifiedFileName("AutoDeconstruct","Deconstruct"), comp.NormalizeWhitespace().GetText(Encoding.UTF8));
         }
     }
 

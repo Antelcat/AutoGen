@@ -23,7 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoMetadataFromAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoRecordPlaceboAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoTypeInferenceAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoReport.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoReportAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoWatchAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\AutoMapAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapConfigAttribute.cs" />

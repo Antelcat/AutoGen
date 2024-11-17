@@ -64,7 +64,7 @@ public class TypeInferenceGenerator : IIncrementalGenerator
             {
                 try
                 {
-                    source.AddSource($"AutoTypeInference_{type.FullName}.cs",
+                    source.AddSource($"AutoTypeInference__{type.FullName}.g.cs",
                         CompilationUnit()
                             .AddMembers(type.Code(attr))
                             .NormalizeWhitespace().GetText(Encoding.UTF8));

@@ -70,7 +70,7 @@ public class KeyEnumerableGenerator: AttributeDetectBaseGenerator<AutoKeyEnumera
             var nameSpace = typeSymbol.ToType().Namespace;
             nameSpace = nameSpace is null ? "" : $"{nameSpace}.";
             var unit = CompilationUnit().AddPartialType(typeSymbol, x => x.AddMembers(ParseMemberDeclaration(method)!));
-            context.AddSource($"AutoKeyEnumerable__{nameSpace}{className.ToQualifiedFileName()}.g.cs",
+            context.AddSource($"{nameSpace}{className}".ToQualifiedFileName("AutoKeyEnumerable"),
                 SourceText(unit.NormalizeWhitespace().ToFullString()));
             continue;
 

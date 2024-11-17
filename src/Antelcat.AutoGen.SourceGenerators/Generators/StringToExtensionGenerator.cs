@@ -71,7 +71,7 @@ public class StringToExtensionGenerator : AttributeDetectBaseGenerator<AutoStrin
                                 .AddModifiers(SyntaxKind.PartialKeyword)
                                 .AddMembers(Content(compilation)))
                         .WithLeadingTrivia(Header));
-            context.AddSource($"AutoStringTo__{group.Key.Name.ToQualifiedFileName()}.g.cs", unit
+            context.AddSource(group.Key.Name.ToQualifiedFileName("AutoStringTo"), unit
                 .NormalizeWhitespace()
                 .GetText(Encoding.UTF8));
         }

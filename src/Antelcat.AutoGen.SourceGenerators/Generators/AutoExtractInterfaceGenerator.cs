@@ -196,7 +196,7 @@ public class AutoExtractInterfaceGenerator : AttributeDetectBaseGenerator<AutoEx
                             .AddMembers(declare
                                 .WithLeadingTrivia(Header)
                             ).NormalizeWhitespace();
-                        source.AddSource("AutoExtractInterface_" + interfaceName.ToQualifiedFileName() + ".cs",
+                        source.AddSource(interfaceName.ToQualifiedFileName("AutoExtractInterface"),
                             comp.GetText(Encoding.UTF8));
                     }
                     else
@@ -206,15 +206,13 @@ public class AutoExtractInterfaceGenerator : AttributeDetectBaseGenerator<AutoEx
                                 .WithLeadingTrivia(Header)
                                 .AddMembers(declare)
                             ).NormalizeWhitespace();
-                        source.AddSource(
-                            "AutoExtractInterface_" + @namespace + "." + interfaceName.ToQualifiedFileName() + ".cs",
+                        source.AddSource((@namespace + "." + interfaceName).ToQualifiedFileName("AutoExtractInterface"),
                             comp.GetText(Encoding.UTF8));
                     }
                 }
                 catch (Exception ex)
                 {
-                    source.AddSource(
-                        "AutoExtractInterface_" + @namespace + "." + interfaceName.ToQualifiedFileName() + ".Error.cs",
+                    source.AddSource((@namespace + "." + interfaceName).ToQualifiedFileName("AutoExtractInterface","Error"),
                         SourceText.From(
                             string.Join("\n",
                                 ex.ToString().Split(90).Select(x => $"// {x}")), Encoding.UTF8));

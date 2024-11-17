@@ -53,9 +53,6 @@ public partial class SampleEntity : ObservableObject
     [MapExclude(nameof(Email))]
     public partial object ToAnonymous();
 
-    [AutoReport]
-    internal partial void Report(AutoReport.ReportHandler handler);
-
     void Fun([CallerFilePath] string path = "")
     {
         var directory       = (FilePath)path << 1;

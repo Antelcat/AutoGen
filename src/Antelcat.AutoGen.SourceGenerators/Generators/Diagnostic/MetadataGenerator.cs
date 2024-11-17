@@ -129,7 +129,7 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFromAt
             var target = (assemblySyntaxContext.Key as INamedTypeSymbol).ToType();
             foreach (var (metadata, index) in assemblySyntaxContext.Select((x, i) => (x, i)))
             {
-                var fileName = $"Assembly_From_{target.QualifiedFullFileName()}_{index}.cs";
+                var fileName = $"AutoMetadataFrom__Assembly_From_{target.QualifiedFullFileName()}_{index}.g.cs";
                 var declare  = ParseMemberDeclaration(string.Join(string.Empty, Resolve(metadata)));
                 var unit = declare is null
                     ? ParseCompilationUnit(string.Join(string.Empty, Resolve(metadata)))
@@ -157,7 +157,7 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<AutoMetadataFromAt
 
                     var target = metadata.ForType;
                     var fileName =
-                        $"{@class.ToType().QualifiedFullFileName()}_From_{target.QualifiedFullFileName()}_{index}.cs";
+                        $"AutoMetadataFrom__{@class.ToType().QualifiedFullFileName()}_From_{target.QualifiedFullFileName()}_{index}.g.cs";
                     var text = partial.WithoutTrailingTrivia()
                         .NormalizeWhitespace()
                         .GetText(Encoding.UTF8)

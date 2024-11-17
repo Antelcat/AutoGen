@@ -93,10 +93,16 @@ internal static class General
         return symbol.DeclaredAccessibility.IsIncludedIn(access);
     }
 
-    internal static string ToQualifiedFileName(this string className) => className
-        .Replace("global::", "")
-        .Replace('<', '{')
-        .Replace('>', '}');
+    internal static string ToQualifiedFileName(this string className,
+                                               string category,
+                                               string? trailing = null)
+        => new StringBuilder(category + "__" )
+            .Append(className)
+            .Replace("global::", "")
+            .Replace('<', '{')
+            .Replace('>', '}')
+            .Append(trailing is null ? null : '.' + trailing)
+            .Append(".g.cs").ToString();
     
     
     /// <summary>

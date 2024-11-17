@@ -82,7 +82,7 @@ public class AutoDeconstructIndexableGenerator : AttributeDetectBaseGenerator<Au
                                 ..extra.SelectMany(x => x).ToArray()
                             ])));
 
-        context.AddSource($"{attr.Namespace}.DeconstructIndexableExtension.cs",
+        context.AddSource($"AutoDeconstructIndexable__{attr.Namespace}.DeconstructIndexableExtension.g.cs",
             SourceText(unit.NormalizeWhitespace().ToFullString()));
     }
 

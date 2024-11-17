@@ -54,7 +54,7 @@ public class ObjectCloneExtensionGenerator : AttributeDetectBaseGenerator<AutoOb
                                                         .ToArray()), false)
                                                 .NormalizeWhitespace()
                                                 .GetText(Encoding.UTF8));
-            context.AddSource($"AutoObjectClone__{typeSymbol.GetFullyQualifiedName().ToQualifiedFileName()}.g.cs",
+            context.AddSource(typeSymbol.GetFullyQualifiedName().ToQualifiedFileName("AutoObjectClone"),
                 comp.GetText(Encoding.UTF8));
         }
 

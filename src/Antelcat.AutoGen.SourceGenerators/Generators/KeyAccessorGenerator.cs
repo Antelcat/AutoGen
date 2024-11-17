@@ -90,7 +90,7 @@ public class KeyAccessorGenerator : AttributeDetectBaseGenerator<AutoKeyAccessor
             var nameSpace = typeSymbol.ToType().Namespace;
             nameSpace = nameSpace is null ? "" : $"{nameSpace}.";
             var unit = CompilationUnit().AddPartialType(typeSymbol, x => x.AddMembers(ParseMemberDeclaration(method)!));
-            context.AddSource($"AutoKeyAccessor__{nameSpace}{className.ToQualifiedFileName()}.g.cs",
+            context.AddSource($"{nameSpace}{className}".ToQualifiedFileName("AutoKeyAccessor"),
                 SourceText(unit.NormalizeWhitespace().ToFullString()));
             continue;
 
