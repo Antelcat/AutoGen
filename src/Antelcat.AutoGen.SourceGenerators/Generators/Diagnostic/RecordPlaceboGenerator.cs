@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
@@ -28,7 +27,7 @@ public class RecordPlaceboGenerator : IIncrementalGenerator
          /// <returns>base.<see cref="{nameof(GetHashCode)}"/></returns>
          public override int {nameof(GetHashCode)}() => base.{nameof(GetHashCode)}();
          """)!;
-    
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider
@@ -46,34 +45,66 @@ public class RecordPlaceboGenerator : IIncrementalGenerator
             {
                 var (compilation, tuple) = triple;
                 var (attrs, record)      = tuple;
-                if (!attrs.Any()) return;
-                foreach (var cs in record
-                    .GroupBy(static x => x.SemanticModel.GetDeclaredSymbol(x.Node), SymbolEqualityComparer.Default))
+                var groups = record
+                    .GroupBy(static x => x.SemanticModel.GetDeclaredSymbol(x.Node),
+                        SymbolEqualityComparer.Default);
+                if (attrs.Any(x => x.TargetSymbol is IAssemblySymbol))
                 {
-                    var symbol  = (cs.Key as INamedTypeSymbol)!;
-                    var members = new List<MemberDeclarationSyntax>();
-                    var methods = cs.SelectMany(x =>
-                            (x.Node as RecordDeclarationSyntax)!
-                            .ChildNodes()
-                            .OfType<MethodDeclarationSyntax>()
-                            .Select(m => (x.SemanticModel.GetDeclaredSymbol(m) as IMethodSymbol)!))
-                        .ToList();
-                    if (!methods.Any(static m => m is { Name: nameof(GetHashCode), Parameters.Length: 0 })) 
-                        members.Add(GetHashCodeMethod);
-                    
-                    if (!methods.Any(static m => m is { Name: nameof(ToString), Parameters.Length: 0 })) 
-                        members.Add(ToStringMethod);
-                    
-                    if(members.Count is 0) continue;
+                    foreach (var group in groups)
+                    {
+                        var symbol = (group.Key as INamedTypeSymbol)!;
+                        var comp = PartialRecord(symbol,
+                                group.Select(static x =>
+                                    ((x.Node as RecordDeclarationSyntax)!, x.SemanticModel)))?
+                            .NormalizeWhitespace().GetText(Encoding.UTF8);
 
-                    var comp = CompilationUnit()
-                        .AddPartialType(symbol, c => c.AddMembers(members.ToArray()))
-                        .NormalizeWhitespace()
-                        .GetText(Encoding.UTF8);
+                        if (comp is null) continue;
 
-                    source.AddSource(
-                        "AutoRecordPlacebo_" + symbol.GetFullyQualifiedName().ToQualifiedFileName() + ".cs", comp);
+                        source.AddSource(
+                            "AutoRecordPlacebo_" + symbol.GetFullyQualifiedName().ToQualifiedFileName() + ".cs", comp);
+                    }
+                }
+                else
+                {
+                    foreach (var syntax in
+                        groups.Where(x =>
+                            attrs.Any(a =>
+                                a.TargetSymbol.Equals(x.Key, SymbolEqualityComparer.Default))))
+                    {
+
+                        var symbol = (syntax.Key as INamedTypeSymbol)!;
+                        var comp = PartialRecord(symbol,
+                                syntax.Select(static x =>
+                                    ((x.Node as RecordDeclarationSyntax)!, x.SemanticModel)))?
+                            .NormalizeWhitespace().GetText(Encoding.UTF8);
+
+                        if (comp is null) continue;
+
+                        source.AddSource(
+                            "AutoRecordPlacebo_" + symbol.GetFullyQualifiedName().ToQualifiedFileName() + ".cs", comp);
+
+                    }
                 }
             });
+    }
+
+    private static CompilationUnitSyntax? PartialRecord(INamedTypeSymbol symbol,
+                                                        IEnumerable<(RecordDeclarationSyntax Syntax,SemanticModel Semantic)> declarations)
+    {
+        var members = new List<MemberDeclarationSyntax>();
+        var methods = declarations.SelectMany(x =>
+                x.Syntax.ChildNodes()
+                    .OfType<MethodDeclarationSyntax>()
+                    .Select(m => (x.Semantic.GetDeclaredSymbol(m) as IMethodSymbol)!))
+            .ToList();
+        if (!methods.Any(static m => m is { Name: nameof(GetHashCode), Parameters.Length: 0 }))
+            members.Add(GetHashCodeMethod);
+
+        if (!methods.Any(static m => m is { Name: nameof(ToString), Parameters.Length: 0 }))
+            members.Add(ToStringMethod);
+
+        return members.Count is 0
+            ? null
+            : CompilationUnit().AddPartialType(symbol, c => c.AddMembers(members.ToArray()));
     }
 }
