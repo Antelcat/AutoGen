@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using Antelcat.AutoGen.ComponentModel.Threading;
 using Antelcat.AutoGen.SourceGenerators.Extensions;

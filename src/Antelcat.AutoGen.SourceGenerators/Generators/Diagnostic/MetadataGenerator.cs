@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -11,10 +10,6 @@ using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using EventInfo = Feast.CodeAnalysis.CompileTime.EventInfo;
-using FieldInfo = Feast.CodeAnalysis.CompileTime.FieldInfo;
-using MethodInfo = Feast.CodeAnalysis.CompileTime.MethodInfo;
-using TypeInfo = Microsoft.CodeAnalysis.TypeInfo;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
 

@@ -35,6 +35,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="Antelcat.AutoGen.Sample" />
+        <InternalsVisibleTo Include="Antelcat.AutoGen.Native" />
     </ItemGroup>
     
     <ItemGroup Label="Package">

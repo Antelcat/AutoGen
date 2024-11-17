@@ -13,6 +13,7 @@ Debugger.Break();
 
 [ObservableObject]
 [AutoRecordPlacebo]
+[AutoReport]
 partial record A 
 {
     public B B { get; set; }

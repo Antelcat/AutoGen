@@ -1,14 +1,9 @@
-﻿using Antelcat.AutoGen.ComponentModel.Diagnostic;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
+﻿using System.Linq;
 using System.Text;
+using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SourceText = Microsoft.CodeAnalysis.Text.SourceText;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
@@ -20,5 +15,21 @@ internal class ReportGenerator : AttributeDetectBaseGenerator<AutoReportAttribut
 
     protected override void Initialize(IncrementalGeneratorContexts contexts)
     {
+        foreach (var context in contexts.SyntaxContexts)
+        {
+            if (context.TargetSymbol is not INamedTypeSymbol typeSymbol) continue;
+            var members = typeSymbol.GetAllMembers().Select(x =>
+                $"""
+                // {x}
+                """
+            );
+            contexts.SourceProductionContext.AddSource(
+                typeSymbol.GetFullyQualifiedName().ToQualifiedFileName("AutoReport"),
+                SourceText.From(
+                    $"""
+                     // {typeSymbol.GetFullyQualifiedName()}
+                     {string.Join("\n", members)}
+                     """, Encoding.UTF8));
+        }
     }
 }
