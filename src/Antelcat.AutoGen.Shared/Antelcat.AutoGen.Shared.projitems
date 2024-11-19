@@ -25,6 +25,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoTypeInferenceAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoReportAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoWatchAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\RecordExcludeAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\AutoMapAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapConfigAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Mapping\MapConstructorAttribute.cs" />

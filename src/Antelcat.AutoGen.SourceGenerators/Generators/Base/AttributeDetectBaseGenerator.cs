@@ -8,7 +8,7 @@ public abstract class AttributeDetectBaseGenerator<TAttribute> : IIncrementalGen
 {
     protected string AttributeName { get; } = typeof(TAttribute).FullName!;
     protected abstract bool FilterSyntax(SyntaxNode node);
-    
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var provider = context.SyntaxProvider.ForAttributeWithMetadataName(

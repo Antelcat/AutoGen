@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Antelcat.AutoGen.Tests;
+namespace Antelcat.AutoGen.SourceGenerators.Tests;
 
 public class RuntimeTests
 {

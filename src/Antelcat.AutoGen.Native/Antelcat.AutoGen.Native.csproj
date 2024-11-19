@@ -7,11 +7,22 @@
         <Nullable>enable</Nullable>
         <PublishAot>true</PublishAot>
         <LangVersion>preview</LangVersion>
+        <Weaver>Antelcat.AutoGen.AssemblyWeaver</Weaver>
     </PropertyGroup>
 
+    <UsingTask AssemblyFile="../$(Weaver)/bin/Debug/netstandard2.0/$(Weaver).dll" TaskName="$(Weaver).WeaveTask" />
+    
     <ItemGroup>
       <ProjectReference Include="..\Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj" />
-      <ProjectReference ReferenceOutputAssembly="false" OutputItemType="Analyzer" Include="..\Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj" />
+      <ProjectReference ReferenceOutputAssembly="false" 
+                        OutputItemType="Analyzer" 
+                        Include="..\Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj" />
     </ItemGroup>
 
+  
+    <Target Name="WeaveAssembly" AfterTargets="PostBuildEvent">
+        <WeaveTask Target="$(TargetPath)">
+            <Output PropertyName="OutputPath" TaskParameter="Output"/>
+        </WeaveTask>
+    </Target>
 </Project>

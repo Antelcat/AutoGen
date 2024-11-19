@@ -18,7 +18,6 @@ public class Parent
 
     public void Method()
     {
-
     }
 
     public Parent()

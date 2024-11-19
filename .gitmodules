@@ -1,3 +1,6 @@
 [submodule "extern/CodeAnalysis"]
 	path = extern/CodeAnalysis
 	url = https://github.com/feast107/CodeAnalysis
+[submodule "extern/cecil"]
+	path = extern/cecil
+	url = https://github.com/Fody/cecil

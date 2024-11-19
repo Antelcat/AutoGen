@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antelcat.AutoGen.SourceGene
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antelcat.AutoGen.Sample", "Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj", "{3473578A-8C02-42AC-BE81-ABB1DC3C4AAF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antelcat.AutoGen.Tests", "Antelcat.AutoGen.Tests\Antelcat.AutoGen.Tests.csproj", "{0581DAB8-B73E-4225-B021-4486FC319F5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Antelcat.AutoGen.SourceGenerators.Tests", "Antelcat.AutoGen.SourceGenerators.Tests\Antelcat.AutoGen.SourceGenerators.Tests.csproj", "{0581DAB8-B73E-4225-B021-4486FC319F5C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extern", "Extern", "{EC8707B7-D7FD-49A2-9946-89C876B192EA}"
 EndProject
@@ -26,6 +26,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{81B8AFDC-AF24-48
 		..\README.md = ..\README.md
 		..\README.zh.md = ..\README.zh.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.AssemblyWeaver", "Antelcat.AutoGen.AssemblyWeaver\Antelcat.AutoGen.AssemblyWeaver.csproj", "{F46A37E9-C49A-41E2-AC29-6E046D6D5854}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Cecil", "..\extern\cecil\Mono.Cecil.csproj", "{35859FAE-BCB2-480C-B97F-E171C749E719}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{89CF9EBF-F7FF-411B-9C25-767117D9BA36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.AssemblyWeaver.Tests", "Antelcat.AutoGen.AssemblyWeaver.Tests\Antelcat.AutoGen.AssemblyWeaver.Tests.csproj", "{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +69,18 @@ Global
 		{85B170CB-C967-4F4E-94C5-8CC3184E003C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85B170CB-C967-4F4E-94C5-8CC3184E003C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85B170CB-C967-4F4E-94C5-8CC3184E003C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F46A37E9-C49A-41E2-AC29-6E046D6D5854}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F46A37E9-C49A-41E2-AC29-6E046D6D5854}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F46A37E9-C49A-41E2-AC29-6E046D6D5854}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F46A37E9-C49A-41E2-AC29-6E046D6D5854}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35859FAE-BCB2-480C-B97F-E171C749E719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35859FAE-BCB2-480C-B97F-E171C749E719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35859FAE-BCB2-480C-B97F-E171C749E719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35859FAE-BCB2-480C-B97F-E171C749E719}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +88,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{ABC886DA-DE89-42DC-A7FE-8F1ED08BD5C3} = {EC8707B7-D7FD-49A2-9946-89C876B192EA}
 		{AC314F19-4427-4D6F-A4F2-E04DF165C7DF} = {EC8707B7-D7FD-49A2-9946-89C876B192EA}
+		{35859FAE-BCB2-480C-B97F-E171C749E719} = {EC8707B7-D7FD-49A2-9946-89C876B192EA}
+		{0581DAB8-B73E-4225-B021-4486FC319F5C} = {89CF9EBF-F7FF-411B-9C25-767117D9BA36}
+		{40B4061A-D02F-44F5-ACE6-33BEE191D7D6} = {89CF9EBF-F7FF-411B-9C25-767117D9BA36}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems*{2af94890-5351-4827-933d-9a193812a811}*SharedItemsImports = 5

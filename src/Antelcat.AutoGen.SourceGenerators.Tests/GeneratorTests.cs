@@ -11,7 +11,7 @@ using Antelcat.AutoGen.SourceGenerators.Generators.Diagnostic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace Antelcat.AutoGen.Tests;
+namespace Antelcat.AutoGen.SourceGenerators.Tests;
 
 public class SampleIncrementalSourceGeneratorTests
 {
@@ -92,8 +92,8 @@ public class SampleIncrementalSourceGeneratorTests
     [Test]
     public void TestPath()
     {
-        var relative1 = (FilePath)@"d:\A\B\C" >> @"d:\A\D";
-        var relative2 = (FilePath)@"d:\A\B\C" << @"d:\A\D";
+        var relative1 = (System.FilePath)@"d:\A\B\C" >> @"d:\A\D";
+        var relative2 = (System.FilePath)@"d:\A\B\C" << @"d:\A\D";
     }
 
     [Test]
@@ -117,4 +117,5 @@ public class SampleIncrementalSourceGeneratorTests
         string file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample" / "Models" / "Diagnostics" / "Records.cs";
         RunTest<RecordPlaceboGenerator>(File.ReadAllText(file));
     }
+    
 }

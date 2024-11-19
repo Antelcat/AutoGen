@@ -1,10 +1,8 @@
 ﻿global using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Antelcat.AutoGen;
 using Antelcat.AutoGen.ComponentModel;
-using Microsoft.CodeAnalysis;
 
 [assembly: AutoFilePath]
 [assembly: AutoDeconstructIndexable(16, typeof(Foo), typeof(Foo<object>), typeof(Foo<>))]
