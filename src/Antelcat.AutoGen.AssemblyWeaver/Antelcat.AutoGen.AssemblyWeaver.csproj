@@ -3,6 +3,8 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <LangVersion>preview</LangVersion>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +30,13 @@
         </Compile>
         <Compile Include="../../extern/cecil/Mono.Security.Cryptography\*.cs">
             <LinkBase>cecil/Mono.Security.Cryptography</LinkBase>
+        </Compile>
+
+        <Compile Include="../../extern/cecil/symbols/pdb/Mono.Cecil.Pdb/*.cs">
+            <LinkBase>cecil/Mono.Cecil.Pdb</LinkBase>
+        </Compile>
+        <Compile Include="../../extern/cecil/symbols/pdb/Microsoft.Cci.Pdb/*.cs">
+            <LinkBase>cecil/Microsoft.Cci.Pdb</LinkBase>
         </Compile>
         
         <InternalsVisibleTo Include="Antelcat.AutoGen.AssemblyWeaver.Tests"/>

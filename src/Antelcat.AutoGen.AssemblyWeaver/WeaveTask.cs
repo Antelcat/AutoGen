@@ -1,10 +1,10 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Antelcat.AutoGen.AssemblyWeaver.Weavers;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Antelcat.AutoGen.AssemblyWeaver;
 
@@ -14,7 +14,7 @@ internal static class WeaveTaskInternal
     {
         using var assembly = AssemblyDefinition.ReadAssembly(target, new ReaderParameters
         {
-            InMemory = true
+            InMemory = true,
         });
         foreach (var weaver in Weavers())
         {
@@ -27,10 +27,14 @@ internal static class WeaveTaskInternal
                 errorLog?.Invoke($"{weaver} : {ex}");
             }
         }
-        assembly.Write(target);
+        assembly.Write(target, new WriterParameters
+        {
+            SymbolWriterProvider = new PortablePdbWriterProvider(),
+            WriteSymbols = true
+        });
     }
     
-    private static IEnumerable<Weaver> Weavers()
+    private static IEnumerable<IWeaver> Weavers()
     {
         yield return new RecordPlaceboWeaver();
     }
@@ -47,8 +51,7 @@ public class WeaveTask : Task
 
     public override bool Execute()
     {
-        //WeaveTaskInternal.Execute(Target, x => Log.LogError($"[{Category}] {x}"));
+        WeaveTaskInternal.Execute(Target, x => Log.LogError($"[{Category}] {x}"));
         return true;
     }
-
 }

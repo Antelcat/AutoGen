@@ -13,6 +13,7 @@
     <UsingTask AssemblyFile="../$(Weaver)/bin/Debug/netstandard2.0/$(Weaver).dll" TaskName="$(Weaver).WeaveTask" />
     
     <ItemGroup>
+      <ProjectReference ReferenceOutputAssembly="false" Include="..\Antelcat.AutoGen.AssemblyWeaver\Antelcat.AutoGen.AssemblyWeaver.csproj" />
       <ProjectReference Include="..\Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj" />
       <ProjectReference ReferenceOutputAssembly="false" 
                         OutputItemType="Analyzer" 

@@ -5,49 +5,22 @@ var a = new A();
 var b = new B { A = a };
 a.B = b;
 
-var s = a.GetHashCode();
-Debugger.Break();
+Console.WriteLine(a.GetHashCode());
+Console.WriteLine(b.GetHashCode());
 
-record TempRecord<T>(T? Arg)
-{
-    public T? GetOnly => default;
-
-    public None? SetOnly
-    {
-        set => value = default;
-    }
-
-    public T? Field;
-
-    public Func<object>?       Delegate { get; set; }
-    public event Func<object>? Event;
-}
-
-
-partial record A 
+record A 
 {
     public B B { get; set; }
 
     public override string ToString() => "";
-
 }
 
 
-partial record B() : O
+record B
 {
+    [RecordExclude]
     public A A { get; set; }
 
     public override string ToString() => "";
-    
-    public override int GetHashCode() => 1;
 
-}
-
-partial record O
-{
-}
-
-record None
-{
-    
 }
