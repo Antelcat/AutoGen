@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 
 var a = new A();
@@ -7,20 +8,41 @@ a.B = b;
 
 Console.WriteLine(a.GetHashCode());
 Console.WriteLine(b.GetHashCode());
+Console.WriteLine(a);
+Console.WriteLine(b);
+Debugger.Break();
 
-record A 
+record A
 {
     public B B { get; set; }
-
-    public override string ToString() => "";
 }
 
 
 record B
 {
-    [RecordExclude]
-    public A A { get; set; }
+    [RecordIgnore] public A A { get; set; }
 
-    public override string ToString() => "";
+}
 
+record Base
+{
+    public Record<int> R { get; set; }
+}
+
+record Record<T>(T Arg) : Antelcat.AutoGen.Sample.Models.Diagnostics.C
+{
+    public int GetOnly { get; }
+    public int GetOnly2 { get; }
+    public object GetOnly3 { get; }
+
+    public nint SetOnly
+    {
+        set { }
+    }
+
+    public T Prop { get; set; }
+
+    public T Field;
+
+    public event Func<T> Event;
 }

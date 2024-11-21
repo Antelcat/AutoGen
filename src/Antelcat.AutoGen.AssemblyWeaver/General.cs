@@ -35,6 +35,9 @@ public static class General
     private const BindingFlags MemberBindingFlags =
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
+    public static bool HasAttribute<TAttribute>(this ICustomAttributeProvider provider)
+        where TAttribute : Attribute => provider.GetAttributes<TAttribute>().Any();
+    
     public static IEnumerable<TAttribute> GetAttributes<TAttribute>(this ICustomAttributeProvider provider)
         where TAttribute : Attribute => provider.CustomAttributes.GetAttributes<TAttribute>();
 

@@ -10,29 +10,31 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6"/>
 
-        <Compile Include="../../extern/cecil/Mono\*.cs">
+        <Compile Include="../../extern/cecil/Mono/*.cs">
             <LinkBase>cecil/Mono</LinkBase>
         </Compile>
-        <Compile Include="../../extern/cecil/Mono.Cecil\*.cs" Exclude="../../extern/cecil/Mono.Cecil/AssemblyInfo.cs">
+        <Compile Include="../../extern/cecil/Mono.Cecil/*.cs" 
+                 Exclude="../../extern/cecil/Mono.Cecil/AssemblyInfo.cs">
             <LinkBase>cecil/Mono.Cecil</LinkBase>
         </Compile>
-        <Compile Include="../../extern/cecil/Mono.Cecil.Cil\*.cs">
+        <Compile Include="../../extern/cecil/Mono.Cecil.Cil/*.cs">
             <LinkBase>cecil/Mono.Cecil.Cil</LinkBase>
         </Compile>
-        <Compile Include="../../extern/cecil/Mono.Cecil.Metadata\*.cs">
+        <Compile Include="../../extern/cecil/Mono.Cecil.Metadata/*.cs">
             <LinkBase>cecil/Mono.Cecil.Metadata</LinkBase>
         </Compile>
-        <Compile Include="../../extern/cecil/Mono.Cecil.PE\*.cs">
+        <Compile Include="../../extern/cecil/Mono.Cecil.PE/*.cs">
             <LinkBase>cecil/Mono.Cecil.PE</LinkBase>
         </Compile>
-        <Compile Include="../../extern/cecil/Mono.Collections.Generic\*.cs">
+        <Compile Include="../../extern/cecil/Mono.Collections.Generic/*.cs">
             <LinkBase>cecil/Mono.Collections.Generic</LinkBase>
         </Compile>
-        <Compile Include="../../extern/cecil/Mono.Security.Cryptography\*.cs">
+        <Compile Include="../../extern/cecil/Mono.Security.Cryptography/*.cs">
             <LinkBase>cecil/Mono.Security.Cryptography</LinkBase>
         </Compile>
 
-        <Compile Include="../../extern/cecil/symbols/pdb/Mono.Cecil.Pdb/*.cs">
+        <Compile Include="../../extern/cecil/symbols/pdb/Mono.Cecil.Pdb/*.cs" 
+                 Exclude="../../extern/cecil/symbols/pdb/Mono.Cecil.Pdb/AssemblyInfo.cs">
             <LinkBase>cecil/Mono.Cecil.Pdb</LinkBase>
         </Compile>
         <Compile Include="../../extern/cecil/symbols/pdb/Microsoft.Cci.Pdb/*.cs">
@@ -42,6 +44,6 @@
         <InternalsVisibleTo Include="Antelcat.AutoGen.AssemblyWeaver.Tests"/>
     </ItemGroup>
 
-    <Import Project="..\Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems" Label="Shared"/>
+    <Import Project="../Antelcat.AutoGen.Shared/Antelcat.AutoGen.Shared.projitems" Label="Shared"/>
 
 </Project>
