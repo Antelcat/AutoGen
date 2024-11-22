@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{89CF9EBF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.AssemblyWeaver.Tests", "Antelcat.AutoGen.AssemblyWeaver.Tests\Antelcat.AutoGen.AssemblyWeaver.Tests.csproj", "{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.Framework", "Antelcat.AutoGen.Framework\Antelcat.AutoGen.Framework.csproj", "{214ADADE-B38E-4817-8F66-11B5DF55B806}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{214ADADE-B38E-4817-8F66-11B5DF55B806}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{214ADADE-B38E-4817-8F66-11B5DF55B806}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{214ADADE-B38E-4817-8F66-11B5DF55B806}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{214ADADE-B38E-4817-8F66-11B5DF55B806}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,16 +13,17 @@ namespace Antelcat.AutoGen.AssemblyWeaver;
 
 internal static class WeaveTaskInternal
 {
-    public static void Execute(string target, Action<string>? errorLog = null)
+    public static bool Execute(WeaveTask task, Action<string>? errorLog = null)
     {
-        var resolver =  new DefaultAssemblyResolver();
-        resolver.AddSearchDirectory(Path.GetDirectoryName(target)!);
-        using var assembly = AssemblyDefinition.ReadAssembly(target, new ReaderParameters
+        var resolver = new DefaultAssemblyResolver();
+        resolver.AddSearchDirectory(Path.GetDirectoryName(task.AssemblyFile)!);
+        using var assembly = AssemblyDefinition.ReadAssembly(task.AssemblyFile, new ReaderParameters
         {
-            InMemory = true,
+            InMemory             = true,
             SymbolReaderProvider = new PdbReaderProvider(),
-            AssemblyResolver = resolver
+            AssemblyResolver     = resolver,
         });
+        List<Exception> exceptions = [];
         foreach (var weaver in Weavers())
         {
             try
@@ -31,17 +32,44 @@ internal static class WeaveTaskInternal
             }
             catch (Exception ex)
             {
-                Debugger.Break();
-                errorLog?.Invoke($"{weaver} : {ex}");
+                exceptions.Add(ex);
             }
         }
-        assembly.Write(target, new WriterParameters
+
+        if (exceptions.Count > 0)
         {
-            SymbolWriterProvider = new PortablePdbWriterProvider(),
-            WriteSymbols = true
-        });
+            foreach (var exception in exceptions)
+            {
+#if DEBUG
+                Debugger.Break();
+#endif
+                errorLog?.Invoke(exception.ToString());
+            }
+
+            return false;
+        }
+
+        var temp = Path.GetTempFileName();
+        try
+        {
+            assembly.Write(temp, new WriterParameters
+            {
+                SymbolWriterProvider = new PortablePdbWriterProvider(),
+                WriteSymbols         = true,
+            });
+            File.Copy(temp, task.AssemblyFile, true);
+            return true;
+        }
+        catch (Exception exception)
+        {
+#if DEBUG
+            Debugger.Break();
+#endif
+            errorLog?.Invoke(exception.ToString());
+            return false;
+        }
     }
-    
+
     private static IEnumerable<IWeaver> Weavers()
     {
         yield return new RecordPlaceboWeaver();
@@ -51,15 +79,19 @@ internal static class WeaveTaskInternal
 [Serializable]
 public class WeaveTask : Task
 {
-    private const string Category = $"{nameof(Antelcat)}.{nameof(AutoGen)}.{nameof(AssemblyWeaver)}.{nameof(WeaveTask)}";
+    private const string Category =
+        $"{nameof(Antelcat)}.{nameof(AutoGen)}.{nameof(AssemblyWeaver)}.{nameof(WeaveTask)}";
 
-    [Required] public string Target { get; set; }
+    [Required] public required string  AssemblyFile              { get; set; }
+    public string? AssemblyOriginatorKeyFile { get; set; }
 
-    [Output] public string Output { get; set; }
+    [Output] public string? Output { get; set; }
 
     public override bool Execute()
     {
-        WeaveTaskInternal.Execute(Target, x => Log.LogError($"[{Category}] {x}"));
+        Log.LogMessage(MessageImportance.High, $"[{Category}] Weaving start");
+        if (!WeaveTaskInternal.Execute(this, x => Log.LogError($"[{Category}] {x}"))) return false;
+        Log.LogMessage(MessageImportance.High, $"[{Category}] Weaving complete");
         return true;
     }
 }

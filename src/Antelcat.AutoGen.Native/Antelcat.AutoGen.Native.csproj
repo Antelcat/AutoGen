@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+    <Import Project="../Antelcat.AutoGen.AssemblyWeaver/Antelcat.AutoGen.AssemblyWeaver.targets"/>
+    
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
@@ -7,10 +9,7 @@
         <Nullable>enable</Nullable>
         <PublishAot>true</PublishAot>
         <LangVersion>preview</LangVersion>
-        <Weaver>Antelcat.AutoGen.AssemblyWeaver</Weaver>
     </PropertyGroup>
-
-    <UsingTask AssemblyFile="../$(Weaver)/bin/Debug/netstandard2.0/$(Weaver).dll" TaskName="$(Weaver).WeaveTask" />
     
     <ItemGroup>
       <ProjectReference ReferenceOutputAssembly="false" Include="..\Antelcat.AutoGen.AssemblyWeaver\Antelcat.AutoGen.AssemblyWeaver.csproj" />
@@ -21,9 +20,4 @@
     </ItemGroup>
 
   
-    <Target Name="WeaveAssembly" AfterTargets="PostBuildEvent">
-        <WeaveTask Target="$(TargetPath)">
-            <Output PropertyName="OutputPath" TaskParameter="Output"/>
-        </WeaveTask>
-    </Target>
 </Project>

@@ -20,8 +20,8 @@ namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
         """)]
 public partial record Simulator
 {
-    public string A { get; set; }
-    public string B { get; }
-    public string C { get; set; }
-    public string D { get; }
+    public string? A { get; set; }
+    public string? B { get; }
+    public string? C { get; set; }
+    public string? D { get; }
 }

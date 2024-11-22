@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="../Antelcat.AutoGen.AssemblyWeaver/Antelcat.AutoGen.AssemblyWeaver.targets"/>
+    
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net40</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\Antelcat.AutoGen\Antelcat.AutoGen.csproj" />
+    </ItemGroup>
+
+</Project>

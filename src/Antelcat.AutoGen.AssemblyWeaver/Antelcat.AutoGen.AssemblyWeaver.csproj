@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
         <LangVersion>preview</LangVersion>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -42,6 +42,11 @@
         </Compile>
         
         <InternalsVisibleTo Include="Antelcat.AutoGen.AssemblyWeaver.Tests"/>
+        
+        <PackageReference Include="PolySharp" Version="1.15.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <Import Project="../Antelcat.AutoGen.Shared/Antelcat.AutoGen.Shared.projitems" Label="Shared"/>

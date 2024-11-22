@@ -15,7 +15,13 @@ public record RecordPlaceboWeaver : IWeaver
     private ModuleDefinition module;
 
     private Lazy<AssemblyNameReference> System_Collections => new(() =>
-        module.AssemblyReferences.Single(x => x.Name == "System.Collections"));
+        module.AssemblyReferences.Single(x => x.Name ==
+#if NETSTANDARD
+                                              "System.Collections"
+#else
+                                                "mscorlib"
+#endif
+        ));
     
     private AssemblyNameReference? system_Runtime;
 
