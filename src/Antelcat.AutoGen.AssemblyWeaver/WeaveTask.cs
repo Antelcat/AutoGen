@@ -83,7 +83,9 @@ public class WeaveTask : Task
         $"{nameof(Antelcat)}.{nameof(AutoGen)}.{nameof(AssemblyWeaver)}.{nameof(WeaveTask)}";
 
     [Required] public required string  AssemblyFile              { get; set; }
-    public string? AssemblyOriginatorKeyFile { get; set; }
+    public                     string? AssemblyOriginatorKeyFile { get; set; }
+    public                     bool    SignAssembly              { get; set; }
+    public                     bool    DelaySign                 { get; set; }
 
     [Output] public string? Output { get; set; }
 
