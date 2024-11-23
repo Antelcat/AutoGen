@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Antelcat.AutoGen.AssemblyWeaver.Tests;
+namespace Antelcat.AutoGen.AssemblyWeavers.Tests;
 
 public class Tests
 {

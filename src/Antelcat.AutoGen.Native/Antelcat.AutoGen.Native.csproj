@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="../Antelcat.AutoGen.AssemblyWeaver/Antelcat.AutoGen.AssemblyWeaver.targets"/>
+    <Import Project="../Antelcat.AutoGen.AssemblyWeavers/Antelcat.AutoGen.AssemblyWeavers.targets"/>
     
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -12,7 +12,7 @@
     </PropertyGroup>
     
     <ItemGroup>
-      <ProjectReference ReferenceOutputAssembly="false" Include="..\Antelcat.AutoGen.AssemblyWeaver\Antelcat.AutoGen.AssemblyWeaver.csproj" />
+      <ProjectReference ReferenceOutputAssembly="false" Include="..\Antelcat.AutoGen.AssemblyWeavers\Antelcat.AutoGen.AssemblyWeavers.csproj" />
       <ProjectReference Include="..\Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj" />
       <ProjectReference ReferenceOutputAssembly="false" 
                         OutputItemType="Analyzer" 

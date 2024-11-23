@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="../Antelcat.AutoGen.AssemblyWeaver/Antelcat.AutoGen.AssemblyWeaver.targets"/>
+    <Import Project="../Antelcat.AutoGen.AssemblyWeavers/Antelcat.AutoGen.AssemblyWeavers.targets"/>
     
     <PropertyGroup>
         <OutputType>Exe</OutputType>

@@ -8,7 +8,7 @@ using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
-namespace Antelcat.AutoGen.AssemblyWeaver.Weavers;
+namespace Antelcat.AutoGen.AssemblyWeavers.Weavers;
 
 public record RecordPlaceboWeaver : IWeaver
 {

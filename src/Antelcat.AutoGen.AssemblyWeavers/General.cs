@@ -11,7 +11,7 @@ using ICustomAttributeProvider = Mono.Cecil.ICustomAttributeProvider;
 using MethodAttributes = Mono.Cecil.MethodAttributes;
 using PropertyAttributes = Mono.Cecil.PropertyAttributes;
 
-namespace Antelcat.AutoGen.AssemblyWeaver;
+namespace Antelcat.AutoGen.AssemblyWeavers;
 
 public static class General
 {

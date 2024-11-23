@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Antelcat.AutoGen.AssemblyWeaver.Weavers;
+using Antelcat.AutoGen.AssemblyWeavers.Weavers;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
 
-namespace Antelcat.AutoGen.AssemblyWeaver;
+namespace Antelcat.AutoGen.AssemblyWeavers;
 
 internal static class WeaveTaskInternal
 {
@@ -80,7 +80,7 @@ internal static class WeaveTaskInternal
 public class WeaveTask : Task
 {
     private const string Category =
-        $"{nameof(Antelcat)}.{nameof(AutoGen)}.{nameof(AssemblyWeaver)}.{nameof(WeaveTask)}";
+        $"{nameof(Antelcat)}.{nameof(AutoGen)}.{nameof(AssemblyWeavers)}.{nameof(WeaveTask)}";
 
     [Required] public required string  AssemblyFile              { get; set; }
     public                     string? AssemblyOriginatorKeyFile { get; set; }

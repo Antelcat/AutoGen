@@ -1,6 +1,6 @@
 ﻿using Mono.Cecil;
 
-namespace Antelcat.AutoGen.AssemblyWeaver;
+namespace Antelcat.AutoGen.AssemblyWeavers;
 
 public interface IWeaver
 {

@@ -3,16 +3,16 @@
         <AssemblyWeaverDirectory Condition="$(MSBuildRuntimeType) == 'Core'">netstandard2.0</AssemblyWeaverDirectory>
         <AssemblyWeaverDirectory Condition="$(MSBuildRuntimeType) != 'Core'">net472</AssemblyWeaverDirectory>
     </PropertyGroup>
-    <UsingTask AssemblyFile="bin/$(Configuration)/$(AssemblyWeaverDirectory)/Antelcat.AutoGen.AssemblyWeaver.dll"
-               TaskName="Antelcat.AutoGen.AssemblyWeaver.WeaveTask"/>
+    <UsingTask AssemblyFile="bin/$(Configuration)/$(AssemblyWeaverDirectory)/Antelcat.AutoGen.AssemblyWeavers.dll"
+               TaskName="Antelcat.AutoGen.AssemblyWeavers.WeaveTask"/>
 
     <Target Name="WeaveAssembly" AfterTargets="PostBuildEvent">
-        <Antelcat.AutoGen.AssemblyWeaver.WeaveTask
+        <Antelcat.AutoGen.AssemblyWeavers.WeaveTask
                 AssemblyFile="$(TargetPath)"
                 AssemblyOriginatorKeyFile="$(AssemblyOriginatorKeyFile)"
                 SignAssembly="$(SignAssembly)"
                 DelaySign="$(DelaySign)">
             <Output PropertyName="OutputPath" TaskParameter="Output"/>
-        </Antelcat.AutoGen.AssemblyWeaver.WeaveTask>
+        </Antelcat.AutoGen.AssemblyWeavers.WeaveTask>
     </Target>
 </Project>

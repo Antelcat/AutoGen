@@ -41,7 +41,7 @@
             <LinkBase>cecil/Microsoft.Cci.Pdb</LinkBase>
         </Compile>
         
-        <InternalsVisibleTo Include="Antelcat.AutoGen.AssemblyWeaver.Tests"/>
+        <InternalsVisibleTo Include="Antelcat.AutoGen.AssemblyWeavers.Tests"/>
         
         <PackageReference Include="PolySharp" Version="1.15.0">
           <PrivateAssets>all</PrivateAssets>

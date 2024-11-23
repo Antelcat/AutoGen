@@ -27,11 +27,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{81B8AFDC-AF24-48
 		..\README.zh.md = ..\README.zh.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.AssemblyWeaver", "Antelcat.AutoGen.AssemblyWeaver\Antelcat.AutoGen.AssemblyWeaver.csproj", "{F46A37E9-C49A-41E2-AC29-6E046D6D5854}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.AssemblyWeavers", "Antelcat.AutoGen.AssemblyWeavers\Antelcat.AutoGen.AssemblyWeavers.csproj", "{F46A37E9-C49A-41E2-AC29-6E046D6D5854}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{89CF9EBF-F7FF-411B-9C25-767117D9BA36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.AssemblyWeaver.Tests", "Antelcat.AutoGen.AssemblyWeaver.Tests\Antelcat.AutoGen.AssemblyWeaver.Tests.csproj", "{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.AssemblyWeavers.Tests", "Antelcat.AutoGen.AssemblyWeavers.Tests\Antelcat.AutoGen.AssemblyWeavers.Tests.csproj", "{40B4061A-D02F-44F5-ACE6-33BEE191D7D6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Antelcat.AutoGen.Framework", "Antelcat.AutoGen.Framework\Antelcat.AutoGen.Framework.csproj", "{214ADADE-B38E-4817-8F66-11B5DF55B806}"
 EndProject
