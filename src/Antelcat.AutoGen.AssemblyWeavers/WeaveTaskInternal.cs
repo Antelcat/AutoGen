@@ -17,7 +17,7 @@ internal static class WeaveTaskInternal
         using var assembly = AssemblyDefinition.ReadAssembly(arguments.AssemblyFile, new ReaderParameters
         {
             InMemory = true,
-            SymbolReaderProvider = arguments.ReadWritePdb ? new PortablePdbReaderProvider() : default,
+            SymbolReaderProvider = arguments.ReadWritePdb ? new PortablePdbReaderProvider() : default!,
             AssemblyResolver = resolver,
         });
         List<Exception> exceptions = [];
@@ -51,7 +51,7 @@ internal static class WeaveTaskInternal
         {
             assembly.Write(temp, new WriterParameters
             {
-                SymbolWriterProvider = arguments.ReadWritePdb ? new PortablePdbWriterProvider() : default,
+                SymbolWriterProvider = arguments.ReadWritePdb ? new PortablePdbWriterProvider() : default!,
                 WriteSymbols         = arguments.ReadWritePdb,
             });
             File.Copy(temp, arguments.AssemblyFile, true);

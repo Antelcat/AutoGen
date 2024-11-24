@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 
 var a = new A();
@@ -11,7 +12,8 @@ Console.WriteLine(a);
 Console.WriteLine(b);
 Debugger.Break();
 
-record Record<T>([property: RecordIgnore]T Arg)
+
+record Record<T>([property: RecordIgnore] T Arg)
 {
     public int    GetOnly  { get; }
     public int    GetOnly2 { get; }
@@ -27,6 +29,7 @@ record Record<T>([property: RecordIgnore]T Arg)
     public T Field;
 
     public event Func<T> Event;
+
 }
 
 record A

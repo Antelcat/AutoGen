@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -7,10 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Mono.Cecil;
 using Mono.Collections.Generic;
-using FieldAttributes = Mono.Cecil.FieldAttributes;
 using ICustomAttributeProvider = Mono.Cecil.ICustomAttributeProvider;
-using MethodAttributes = Mono.Cecil.MethodAttributes;
-using PropertyAttributes = Mono.Cecil.PropertyAttributes;
 
 namespace Antelcat.AutoGen.AssemblyWeavers;
 
@@ -119,6 +115,9 @@ public static class General
 
     public static AssemblyNameReference MSCorLib(this IEnumerable<AssemblyNameReference> assemblyNameReferences)
         => assemblyNameReferences.First(static x => x.Name == "mscorlib");
+    
+    public static AssemblyNameReference PrivateCoreLib(this IEnumerable<AssemblyNameReference> assemblyNameReferences)
+        => assemblyNameReferences.First(static x => x.Name == "System.Private.CoreLib");
 
     public static AssemblyNameReference ByName(this IEnumerable<AssemblyNameReference> assemblyNameReferences,
                                                 string assemblyName)
@@ -133,4 +132,20 @@ public static class General
     public static bool TryGetTypeReference(this ModuleDefinition moduleDefinition, Type type,
                                            [NotNullWhen(true)] out TypeReference? reference) =>
         moduleDefinition.TryGetTypeReference(type.FullName!, out reference);
+
+    public static T Revise<T>(this T source, ModuleDefinition module, Action<T, AssemblyNameReference> typeHandler,
+                              string whereInNetCore = "System.Runtime")
+    {
+        switch (module.RuntimeFramework())
+        {
+            case AssemblyWeavers.RuntimeFramework.NET:
+                typeHandler(source, module.AssemblyReferences.ByName(whereInNetCore));
+                break;
+            case AssemblyWeavers.RuntimeFramework.NET_Standard:
+                typeHandler(source, module.AssemblyReferences.NETStandard());
+                break;
+        }
+
+        return source;
+    }
 }

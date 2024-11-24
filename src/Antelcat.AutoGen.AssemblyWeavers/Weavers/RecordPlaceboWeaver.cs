@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
@@ -15,7 +14,6 @@ public record RecordPlaceboWeaver : IWeaver
 {
     private ModuleDefinition module;
 
-    
     [field: AllowNull, MaybeNull]
     private TypeReference EqualityComparer => field ??=
         module.TryGetTypeReference(typeof(EqualityComparer<>).FullName!, out var reference)
@@ -26,29 +24,17 @@ public record RecordPlaceboWeaver : IWeaver
     private TypeDefinition EqualityComparerDefinition => field ??= EqualityComparer.Resolve();
 
     [field: AllowNull, MaybeNull]
-    private MethodReference EnsureSufficientExecutionStack
-    {
-        get
-        {
-            if (field is not null) return field;
-            field = module.ImportReference(module.TryGetTypeReference(typeof(RuntimeHelpers), out var reference)
-                    ? reference
-                        .Resolve()
-                        .Methods
-                        .First(x => x.Name == nameof(RuntimeHelpers.EnsureSufficientExecutionStack))
-                    : throw new NullReferenceException(nameof(RuntimeHelpers)));
-            switch (module.RuntimeFramework())
+    private MethodReference EnsureSufficientExecutionStack => field ??=
+        module.ImportReference(module.TryGetTypeReference(typeof(RuntimeHelpers), out var reference)
+                ? reference
+                    .Resolve()
+                    .Methods
+                    .First(static x => x.Name == nameof(RuntimeHelpers.EnsureSufficientExecutionStack))
+                : throw new NullReferenceException(nameof(RuntimeHelpers)))
+            .Revise(module, static (m, a) =>
             {
-                case RuntimeFramework.NET:
-                    field.DeclaringType.Scope = module.AssemblyReferences.ByName("System.Runtime");
-                    break;
-                case RuntimeFramework.NET_Standard:
-                    field.DeclaringType.Scope = module.AssemblyReferences.NETStandard();
-                    break;
-            }
-            return field;
-        }
-    }
+                m.DeclaringType.Scope = a;
+            });
 
     [field: AllowNull, MaybeNull]
     private TypeDefinition StringBuilderDefinition => field ??= module
@@ -57,34 +43,51 @@ public record RecordPlaceboWeaver : IWeaver
 
     [field: AllowNull, MaybeNull]
     private MethodReference StringBuilder_Append_String => field ??= module.ImportReference(
-        StringBuilderDefinition
-            .Methods
-            .First(x => x.Name == nameof(StringBuilder.Append) &&
-                        x.Parameters.First().ParameterType.Is(typeof(string))));
+            StringBuilderDefinition
+                .Methods
+                .First(static x => x.Name == nameof(StringBuilder.Append) &&
+                                   x.Parameters.FirstOrDefault()?.ParameterType.Is(typeof(string)) is true))
+        .Revise(module, static (m, a) =>
+        {
+            m.DeclaringType.Scope = a;
+            m.ReturnType.Scope    = a;
+        });
 
     [field: AllowNull, MaybeNull]
     private MethodReference StringBuilder_Append_Object => field ??= module.ImportReference(
-        StringBuilderDefinition
-            .Methods
-            .First(x => x.Name == nameof(StringBuilder.Append) &&
-                        x.Parameters.First().ParameterType.Is(typeof(object))));
+            StringBuilderDefinition
+                .Methods
+                .First(static x => x.Name == nameof(StringBuilder.Append) &&
+                                   x.Parameters.FirstOrDefault()?.ParameterType.Is(typeof(object)) is true))
+        .Revise(module, static (m, a) =>
+        {
+            m.DeclaringType.Scope = a;
+            m.ReturnType.Scope    = a;
+        });
 
     [field: AllowNull, MaybeNull]
     private MethodReference Object_ToString => field ??= module.ImportReference(module
             .GetTypeReference(typeof(object))!
             .Resolve()
             .Methods
-            .First(x => x.Name == nameof(object.ToString) &&
-                        x.Parameters.Count is 0));
+            .First(static x => x.Name == nameof(object.ToString) &&
+                               x.Parameters.Count is 0))
+        .Revise(module, static (m, a) =>
+        {
+            m.DeclaringType.Scope = a;
+        });
 
-    private (MethodReference Default_Get, MethodReference HashCode) Resolve(TypeReference type)
+    
+
+
+    private (MethodReference DefaultGet, MethodReference HashCode) Resolve(TypeReference type)
     {
         var generic = EqualityComparer;
         var genericDef = EqualityComparerDefinition;
         var getDefault = module.ImportReference(
-            genericDef.Properties.First(x => x.Name == "Default").GetMethod);
+            genericDef.Properties.First(static x => x.Name == "Default").GetMethod);
         var getHashCode = module.ImportReference(
-            genericDef.Methods.First(x => x.Name == nameof(GetHashCode)));
+            genericDef.Methods.First(static x => x.Name == nameof(GetHashCode)));
         TypeReference containingType;
         if (type.IsGenericParameter || type.ContainsGenericParameter)
         {
@@ -111,7 +114,7 @@ public record RecordPlaceboWeaver : IWeaver
         module = assembly.MainModule;
         var records = assembly.MainModule
             .Types
-            .Where(x => x.IsRecord());
+            .Where(static x => x.IsRecord());
         foreach (var type in records)
         {
             var printMembers = type.Methods.FirstOrDefault(static x =>
@@ -131,7 +134,7 @@ public record RecordPlaceboWeaver : IWeaver
                                    x.GetBackingField()?.HasAttribute<RecordIgnoreAttribute>() is true)
                 .ToArray();
             var excludeFields = type.Fields
-                .Where(static x => x.HasAttribute<RecordIgnoreAttribute>() || 
+                .Where(static x => x.HasAttribute<RecordIgnoreAttribute>() ||
                                    x.GetFrontingProperty()?.HasAttribute<RecordIgnoreAttribute>() is true)
                 .ToArray();
             if (excludeFields.Length + excludeProps.Length == 0) continue; // nothing to exclude
@@ -142,7 +145,18 @@ public record RecordPlaceboWeaver : IWeaver
                 excludeFields,
                 printMembers,
                 getHashCode);
-        } 
+        }
+
+        if (module.RuntimeFramework() != RuntimeFramework.NET) return;
+        try
+        {
+            var privateCorLib = module.AssemblyReferences.PrivateCoreLib();
+            module.AssemblyReferences.Remove(privateCorLib);
+        }
+        catch
+        {
+            //
+        }
     }
 
     private void Rewrite(TypeDefinition type,
@@ -160,7 +174,7 @@ public record RecordPlaceboWeaver : IWeaver
             {
                 // call EqualityComparer<Type>.Default.GetHashCode(this.EqualityContract)
                 var typeTuple = Resolve(module.GetTypeReference(typeof(Type))!);
-                il.Emit(OpCodes.Call, typeTuple.Default_Get);
+                il.Emit(OpCodes.Call, typeTuple.DefaultGet);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Callvirt, equalityContract.GetMethod!);
                 il.Emit(OpCodes.Callvirt, typeTuple.HashCode);
@@ -178,7 +192,7 @@ public record RecordPlaceboWeaver : IWeaver
                 var typeTuple = Resolve(module.ImportReference(field.FieldType));
                 il.Emit(OpCodes.Ldc_I4, -1521134295);
                 il.Emit(OpCodes.Mul);
-                il.Emit(OpCodes.Call, typeTuple.Default_Get);
+                il.Emit(OpCodes.Call, typeTuple.DefaultGet);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldfld, field);
                 il.Emit(OpCodes.Callvirt, typeTuple.HashCode);
