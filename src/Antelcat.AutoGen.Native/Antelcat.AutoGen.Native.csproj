@@ -6,9 +6,18 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>preview</LangVersion>
+        
+        <AutoGenTasksPath>../Antelcat.AutoGen.AssemblyWeavers/bin/$(Configuration)</AutoGenTasksPath>
+        
+        <UserSecretsId>956d9030-8b78-4578-a776-2bba91b29543</UserSecretsId>
+        
+        <SignAssembly>true</SignAssembly>
+        
+        <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+        
     </PropertyGroup>
 
-    <Import Project="../Antelcat.AutoGen.AssemblyWeavers/Antelcat.AutoGen.AssemblyWeavers.targets"/>
+    <Import Project="../Antelcat.AutoGen/Antelcat.AutoGen.targets"/>
     
     <PropertyGroup Condition="$(TargetFramework) == 'net8.0'">
         <PublishAot>true</PublishAot>

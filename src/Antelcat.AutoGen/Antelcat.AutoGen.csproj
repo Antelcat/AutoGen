@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>3.0.0-preview-241121-1</Version>
+        <Version>3.0.0-preview-241125-1</Version>
         <FileVersion>3.0.0</FileVersion>
         <AssemblyVersion>3.0.0</AssemblyVersion>
         
@@ -44,5 +44,8 @@
         </None>
         <None Include="..\..\README.md" PackagePath="\" Pack="true" />
         <None Include="..\Antelcat.AutoGen.SourceGenerators\bin\$(Configuration)\netstandard2.0\Antelcat.AutoGen.SourceGenerators.dll" PackagePath="analyzers\dotnet\cs" Pack="true" />
+        <None Include="..\Antelcat.AutoGen.AssemblyWeavers\bin\$(Configuration)\netstandard2.0\Antelcat.AutoGen.AssemblyWeavers.dll" PackagePath="tasks\netstandard2.0" Pack="true" />
+        <None Include="..\Antelcat.AutoGen.AssemblyWeavers\bin\$(Configuration)\net472\Antelcat.AutoGen.AssemblyWeavers.dll" PackagePath="tasks\net472" Pack="true" />
+        <None Include="Antelcat.AutoGen.targets" PackagePath="build" Pack="true" />
     </ItemGroup>
 </Project>

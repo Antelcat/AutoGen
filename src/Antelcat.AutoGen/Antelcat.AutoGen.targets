@@ -1,0 +1,21 @@
+<Project>
+    <PropertyGroup>
+        <AutoGenTasksPath Condition="$(AutoGenTasksPath) == ''">$(MSBuildThisFileDirectory)../tasks</AutoGenTasksPath>
+        <AutoGenAssemblyWeaverDirectory Condition="$(MSBuildRuntimeType) == 'Core'">$(AutoGenTasksPath)/netstandard2.0</AutoGenAssemblyWeaverDirectory>
+        <AutoGenAssemblyWeaverDirectory Condition="$(MSBuildRuntimeType) != 'Core'">$(AutoGenTasksPath)/net472</AutoGenAssemblyWeaverDirectory>
+    </PropertyGroup>
+    
+    <UsingTask AssemblyFile="$(AutoGenAssemblyWeaverDirectory)/Antelcat.AutoGen.AssemblyWeavers.dll"
+               TaskName="Antelcat.AutoGen.AssemblyWeavers.WeaveTask"/>
+
+    <Target Name="WeaveAssembly" AfterTargets="PostBuildEvent">
+        <Antelcat.AutoGen.AssemblyWeavers.WeaveTask
+                AssemblyFile="$(TargetPath)"
+                AssemblyOriginatorKeyFile="$(AssemblyOriginatorKeyFile)"
+                IntermediateDirectory="$(ProjectDir)$(IntermediateOutputPath)"
+                SignAssembly="$(SignAssembly)"
+                DelaySign="$(DelaySign)">
+            <Output PropertyName="OutputPath" TaskParameter="Output"/>
+        </Antelcat.AutoGen.AssemblyWeavers.WeaveTask>
+    </Target>
+</Project>

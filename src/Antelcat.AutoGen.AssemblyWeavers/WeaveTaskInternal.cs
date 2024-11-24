@@ -10,7 +10,7 @@ namespace Antelcat.AutoGen.AssemblyWeavers;
 
 internal static class WeaveTaskInternal
 {
-    public static bool Execute(IWaveArguments arguments, Action<string>? errorLog = null)
+    public static bool Execute(IWaveArguments arguments, TaskLogger logger)
     {
         var resolver = new DefaultAssemblyResolver();
         resolver.AddSearchDirectory(Path.GetDirectoryName(arguments.AssemblyFile)!);
@@ -40,7 +40,7 @@ internal static class WeaveTaskInternal
 #if DEBUG
                 Debugger.Break();
 #endif
-                errorLog?.Invoke(exception.ToString());
+                logger.LogError(exception.ToString());
             }
 
             return false;
@@ -49,10 +49,17 @@ internal static class WeaveTaskInternal
         var temp = Path.GetTempFileName();
         try
         {
+            var strongKeyFinder = arguments.SignAssembly ? new StrongKeyFinder(arguments, assembly.MainModule,logger) : null;
+            strongKeyFinder?.FindStrongNameKey();
+            if (strongKeyFinder?.PublicKey is not null)
+            {
+                assembly.Name.PublicKey = strongKeyFinder.PublicKey;
+            }
             assembly.Write(temp, new WriterParameters
             {
                 SymbolWriterProvider = arguments.ReadWritePdb ? new PortablePdbWriterProvider() : default!,
                 WriteSymbols         = arguments.ReadWritePdb,
+                StrongNameKeyPair = strongKeyFinder?.StrongNameKeyPair!
             });
             File.Copy(temp, arguments.AssemblyFile, true);
             return true;
@@ -62,7 +69,7 @@ internal static class WeaveTaskInternal
 #if DEBUG
             throw;
 #endif
-            errorLog?.Invoke(exception.ToString());
+            logger.LogError(exception.ToString());
             return false;
         }
     }
@@ -71,4 +78,6 @@ internal static class WeaveTaskInternal
     {
         yield return new RecordPlaceboWeaver();
     }
+    
+    
 }

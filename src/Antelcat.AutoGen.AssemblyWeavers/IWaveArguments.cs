@@ -7,4 +7,5 @@ public interface IWaveArguments
     public bool    SignAssembly              { get; set; }
     public bool    DelaySign                 { get; set; }
     public bool    ReadWritePdb              { get; set; }
+    public string? IntermediateDirectory     { get; set; }
 }

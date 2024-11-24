@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Antelcat.AutoGen.AssemblyWeavers.Tests;
 
@@ -14,6 +15,24 @@ public class Tests
 
     private static readonly string Standard = Root / "netstandard2.0" / "Antelcat.AutoGen.Native.dll";
 
+    private class TestLogger : TaskLogger
+    {
+        public override void LogDebug(string message)
+        {
+            Console.WriteLine($"DEBUG: {message}");
+        }
+
+        public override void LogWarning(string message)
+        {
+            Console.WriteLine($"WARNING: {message}");
+        }
+
+        public override void LogError(string message)
+        {
+            Debugger.Break();
+            Console.Error.WriteLine($"ERROR: {message}");
+        }
+    }
 
     [SetUp]
     public void Setup()
@@ -27,21 +46,21 @@ public class Tests
         WeaveTaskInternal.Execute(new TestWaveArgument
         {
             AssemblyFile = Core,
-        }, x => throw new Exception(x));
+        }, new TestLogger());
 
     [Test]
     public void TestStandard() =>
         WeaveTaskInternal.Execute(new TestWaveArgument
         {
             AssemblyFile = Standard,
-        }, x => throw new Exception(x));
+        },  new TestLogger());
 #else
     [Test]
     public void TestFramework() =>
         WeaveTaskInternal.Execute(new TestWaveArgument
         {
             AssemblyFile = Framework,
-        }, x => throw new Exception(x));
+        },  new TestLogger());
 #endif
 }
 
@@ -52,4 +71,5 @@ public class TestWaveArgument : IWaveArguments
     public          bool    SignAssembly              { get; set; }
     public          bool    DelaySign                 { get; set; }
     public          bool    ReadWritePdb              { get; set; }
+    public          string? IntermediateDirectory     { get; set; }
 }
