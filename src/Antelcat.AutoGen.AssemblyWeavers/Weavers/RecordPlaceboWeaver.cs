@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -14,68 +15,95 @@ public record RecordPlaceboWeaver : IWeaver
 {
     private ModuleDefinition module;
 
-    private Lazy<AssemblyNameReference> System_Collections => new(() =>
-        module.AssemblyReferences.Single(x => x.Name ==
-#if NETSTANDARD
-                                              "System.Collections"
-#else
-                                                "mscorlib"
-#endif
-        ));
     
-    private AssemblyNameReference? system_Runtime;
+    [field: AllowNull, MaybeNull]
+    private TypeReference EqualityComparer => field ??=
+        module.TryGetTypeReference(typeof(EqualityComparer<>).FullName!, out var reference)
+            ? reference
+            : throw new KeyNotFoundException(typeof(EqualityComparer<>).FullName);
 
-    private AssemblyNameReference System_Runtime => system_Runtime ??=
-        module.AssemblyReferences.Single(x => x.Name == "System.Runtime");
+    [field: AllowNull, MaybeNull]
+    private TypeDefinition EqualityComparerDefinition => field ??= EqualityComparer.Resolve();
 
-    private ModuleDefinition? system_Collections_Module;
+    [field: AllowNull, MaybeNull]
+    private MethodReference EnsureSufficientExecutionStack
+    {
+        get
+        {
+            if (field is not null) return field;
+            field = module.ImportReference(module.TryGetTypeReference(typeof(RuntimeHelpers), out var reference)
+                    ? reference
+                        .Resolve()
+                        .Methods
+                        .First(x => x.Name == nameof(RuntimeHelpers.EnsureSufficientExecutionStack))
+                    : throw new NullReferenceException(nameof(RuntimeHelpers)));
+            switch (module.RuntimeFramework())
+            {
+                case RuntimeFramework.NET:
+                    field.DeclaringType.Scope = module.AssemblyReferences.ByName("System.Runtime");
+                    break;
+                case RuntimeFramework.NET_Standard:
+                    field.DeclaringType.Scope = module.AssemblyReferences.NETStandard();
+                    break;
+            }
+            return field;
+        }
+    }
 
-    private ModuleDefinition System_Collections_Module => system_Collections_Module ??=
-        module.AssemblyResolver.Resolve(System_Collections.Value).MainModule;
+    [field: AllowNull, MaybeNull]
+    private TypeDefinition StringBuilderDefinition => field ??= module
+        .GetTypeReference(typeof(StringBuilder))!
+        .Resolve();
 
-    private Lazy<MethodReference> EnsureSufficientExecutionStack => new(() =>
-        module.ImportReference(typeof(RuntimeHelpers).GetMethod(
-            nameof(RuntimeHelpers.EnsureSufficientExecutionStack)
-            , BindingFlags.Public | BindingFlags.Static)!));
+    [field: AllowNull, MaybeNull]
+    private MethodReference StringBuilder_Append_String => field ??= module.ImportReference(
+        StringBuilderDefinition
+            .Methods
+            .First(x => x.Name == nameof(StringBuilder.Append) &&
+                        x.Parameters.First().ParameterType.Is(typeof(string))));
 
-    private Lazy<MethodReference> StringBuilder_Append_String => new(() =>
-        module.ImportReference(typeof(StringBuilder).GetMethod(nameof(StringBuilder.Append), [typeof(string)])!));
-    
-    private Lazy<MethodReference> StringBuilder_Append_Object => new(() =>
-        module.ImportReference(typeof(StringBuilder).GetMethod(nameof(StringBuilder.Append), [typeof(object)])!));
+    [field: AllowNull, MaybeNull]
+    private MethodReference StringBuilder_Append_Object => field ??= module.ImportReference(
+        StringBuilderDefinition
+            .Methods
+            .First(x => x.Name == nameof(StringBuilder.Append) &&
+                        x.Parameters.First().ParameterType.Is(typeof(object))));
 
-    private Lazy<MethodReference> Object_ToString => new(() =>
-        module.ImportReference(typeof(object).GetMethod(nameof(ToString),
-            BindingFlags.Instance | BindingFlags.Public)!));
+    [field: AllowNull, MaybeNull]
+    private MethodReference Object_ToString => field ??= module.ImportReference(module
+            .GetTypeReference(typeof(object))!
+            .Resolve()
+            .Methods
+            .First(x => x.Name == nameof(object.ToString) &&
+                        x.Parameters.Count is 0));
 
     private (MethodReference Default_Get, MethodReference HashCode) Resolve(TypeReference type)
     {
-        var generic = module.ImportReference(typeof(EqualityComparer<>)).Resolve();
-        var get_Default = module.ImportReference(
-            generic.Properties.First(x => x.Name == "Default").GetMethod!);
+        var generic = EqualityComparer;
+        var genericDef = EqualityComparerDefinition;
+        var getDefault = module.ImportReference(
+            genericDef.Properties.First(x => x.Name == "Default").GetMethod);
         var getHashCode = module.ImportReference(
-            generic.Methods.First(x => x.Name == nameof(GetHashCode)));
-        var instance = new GenericInstanceType(generic);
-        instance.GenericArguments.Add(type);
-        var reference = type.IsGenericParameter || type.ContainsGenericParameter
-            ? module.ReflectionImporter.ImportReference(typeof(EqualityComparer<>), type)
-            : module.ImportReference(instance);
-
-        //generic.module   = System_Collections_Module;
-        generic.scope    = System_Collections.Value;
-        //reference.module = ModuleDefinition;
-        reference.scope  = System_Collections.Value;
-        if (reference is GenericInstanceType genericInstance)
+            genericDef.Methods.First(x => x.Name == nameof(GetHashCode)));
+        TypeReference containingType;
+        if (type.IsGenericParameter || type.ContainsGenericParameter)
         {
-            genericInstance.ElementType.scope  = System_Collections.Value;
-            //genericInstance.ElementType.module = System_Collections_Module;
+            containingType = module.MetadataImporter.ImportReference(generic, type);
+        }
+        else
+        {
+            var instance = new GenericInstanceType(generic);
+            instance.GenericArguments.Add(type);
+            containingType = module.ImportReference(instance);
         }
         
-        get_Default.DeclaringType       = reference;
-        get_Default.DeclaringType.scope = System_Collections.Value;
-        getHashCode.DeclaringType       = reference;
-        getHashCode.DeclaringType.scope = System_Collections.Value;
-        return (get_Default, getHashCode);
+        // EqualityComparer<T> EqualityComparer<MemberType>::get_Default() 
+        getDefault.DeclaringType                     = containingType;
+        getDefault.ReturnType.GetElementType().scope = containingType.Scope;
+        // int32 EqualityComparer<MemberType>::GetHashCode(T) 
+        getHashCode.DeclaringType = containingType;
+       
+        return (getDefault, getHashCode);
     }
 
     public void Execute(AssemblyDefinition assembly)
@@ -131,7 +159,7 @@ public record RecordPlaceboWeaver : IWeaver
             if (type.BaseType.Is(typeof(object)))
             {
                 // call EqualityComparer<Type>.Default.GetHashCode(this.EqualityContract)
-                var typeTuple = Resolve(module.ImportReference(typeof(Type)));
+                var typeTuple = Resolve(module.GetTypeReference(typeof(Type))!);
                 il.Emit(OpCodes.Call, typeTuple.Default_Get);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Callvirt, equalityContract.GetMethod!);
@@ -166,24 +194,27 @@ public record RecordPlaceboWeaver : IWeaver
             il.Clear();
             if (type.BaseType.Is(typeof(object)))
             {
-                il.Emit(OpCodes.Call, EnsureSufficientExecutionStack.Value);
+                il.Emit(OpCodes.Call, EnsureSufficientExecutionStack);
             }
             else
             {
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldarg_1);
-                il.Emit(OpCodes.Call, module.ImportReference(type.BaseType.Resolve().Methods.First(x =>
-                    x is
-                    {
-                        Name      : nameof(PrintMembers),
-                        Parameters: { Count: 1 } parameters
-                    } &&
-                    parameters[0].ParameterType.Is(typeof(StringBuilder)))));
+                il.Emit(OpCodes.Call, module.ImportReference(type.BaseType
+                    .Resolve()
+                    .Methods
+                    .First(x =>
+                        x is
+                        {
+                            Name      : nameof(PrintMembers),
+                            Parameters: { Count: 1 } parameters
+                        } &&
+                        parameters[0].ParameterType.Is(typeof(StringBuilder)))));
 
                 il.Emit(OpCodes.Brfalse_S, new Instruction(0x15, OpCodes.Ldarg_1));
                 il.Emit(OpCodes.Ldarg_1);
                 il.Emit(OpCodes.Ldstr, ", ");
-                il.Emit(OpCodes.Callvirt, StringBuilder_Append_String.Value);
+                il.Emit(OpCodes.Callvirt, StringBuilder_Append_String);
                 il.Emit(OpCodes.Pop);
             }
             foreach (var (member, index) in type.Properties
@@ -196,14 +227,14 @@ public record RecordPlaceboWeaver : IWeaver
             {
                 il.Emit(OpCodes.Ldarg_1);
                 il.Emit(OpCodes.Ldstr, $"{(index is 0 ? "" : ", ")}{member.Name} = ");
-                il.Emit(OpCodes.Callvirt, StringBuilder_Append_String.Value);
+                il.Emit(OpCodes.Callvirt, StringBuilder_Append_String);
                 il.Emit(OpCodes.Pop);
                 il.Emit(OpCodes.Ldarg_1);
                 il.Emit(OpCodes.Ldarg_0);
                 switch (member)
                 {
                     case PropertyDefinition property:
-                        il.Emit(OpCodes.Call, property.GetMethod!);
+                        il.Emit(OpCodes.Call, property.GetMethod);
                         EmitToAppend(property.PropertyType);
                         break;
                     case FieldDefinition field:
@@ -221,15 +252,15 @@ public record RecordPlaceboWeaver : IWeaver
                     if (!argType.IsValueType)
                     {
                         il.Emit(OpCodes.Box, argType);
-                        il.Emit(OpCodes.Callvirt, StringBuilder_Append_Object.Value);
+                        il.Emit(OpCodes.Callvirt, StringBuilder_Append_Object);
                     }
                     else
                     {
                         il.Emit(OpCodes.Stloc_0);
                         il.Emit(OpCodes.Ldloca_S, (byte)0);
                         il.Emit(OpCodes.Constrained, argType);
-                        il.Emit(OpCodes.Callvirt, Object_ToString.Value);
-                        il.Emit(OpCodes.Callvirt, StringBuilder_Append_String.Value);
+                        il.Emit(OpCodes.Callvirt, Object_ToString);
+                        il.Emit(OpCodes.Callvirt, StringBuilder_Append_String);
                     }
                     il.Emit(OpCodes.Pop);
                 }

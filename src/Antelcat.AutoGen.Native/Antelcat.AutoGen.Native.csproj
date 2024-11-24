@@ -1,23 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <Import Project="../Antelcat.AutoGen.AssemblyWeavers/Antelcat.AutoGen.AssemblyWeavers.targets"/>
-    
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFrameworks>net8.0;net462;netstandard2.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <PublishAot>true</PublishAot>
         <LangVersion>preview</LangVersion>
     </PropertyGroup>
+
+    <Import Project="../Antelcat.AutoGen.AssemblyWeavers/Antelcat.AutoGen.AssemblyWeavers.targets"/>
     
+    <PropertyGroup Condition="$(TargetFramework) == 'net8.0'">
+        <PublishAot>true</PublishAot>
+    </PropertyGroup>
+
     <ItemGroup>
-      <ProjectReference ReferenceOutputAssembly="false" Include="..\Antelcat.AutoGen.AssemblyWeavers\Antelcat.AutoGen.AssemblyWeavers.csproj" />
-      <ProjectReference Include="..\Antelcat.AutoGen.Sample\Antelcat.AutoGen.Sample.csproj" />
-      <ProjectReference ReferenceOutputAssembly="false" 
-                        OutputItemType="Analyzer" 
-                        Include="..\Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj" />
+        <ProjectReference ReferenceOutputAssembly="false"
+                          OutputItemType="Analyzer"
+                          Include="..\Antelcat.AutoGen.SourceGenerators\Antelcat.AutoGen.SourceGenerators.csproj"/>
+        <ProjectReference Include="..\Antelcat.AutoGen\Antelcat.AutoGen.csproj"/>
     </ItemGroup>
 
-  
+    <ItemGroup>
+        <PackageReference Include="PolySharp" Version="1.15.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.Text.Json" Version="8.0.5"/>
+    </ItemGroup>
+
+
 </Project>

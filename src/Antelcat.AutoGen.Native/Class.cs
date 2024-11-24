@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Antelcat.AutoGen.Sample.Models;
+using Antelcat.AutoGen.ComponentModel;
+
+[assembly: AutoObjectClone]
 
 namespace Antelcat.AutoGen.Native;
 
@@ -95,24 +96,6 @@ public class Class
         time = watch.ElapsedTicks;
         Console.WriteLine($"Clone : {time}");
     }
-
-    static Class()
-    {
-        Register(typeof(Class));
-        Register(typeof(List<>));
-        Register(typeof(Dictionary<,>));
-        Register(typeof(EqualityComparer<>));
-        Register(typeof(KeyValuePair<,>));
-    }
-
-    private static void Register([DynamicallyAccessedMembers(
-                                     DynamicallyAccessedMemberTypes.PublicConstructors |
-                                     DynamicallyAccessedMemberTypes.NonPublicConstructors|
-                                     DynamicallyAccessedMemberTypes.PublicFields|
-                                     DynamicallyAccessedMemberTypes.NonPublicFields|
-                                     DynamicallyAccessedMemberTypes.PublicNestedTypes |
-                                     DynamicallyAccessedMemberTypes.NonPublicNestedTypes 
-                                     )] Type type){}
 }
 
 [JsonSerializable(typeof(Class))]

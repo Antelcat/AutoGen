@@ -9,16 +9,18 @@ public record A
     
 }
 
-public record B : A
+public record B
 {
-
+    [RecordIgnore]
+    public C C { get; set; }
 }
 
 public partial record C : B
 {
-
+    
 }
 
 partial record C
 {
+    public B B { get; set; }
 }

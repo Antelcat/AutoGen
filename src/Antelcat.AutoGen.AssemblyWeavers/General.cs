@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -97,4 +98,39 @@ public static class General
         field.Name.StartsWith("<") && field.Name.EndsWith(">k__BackingField");
 
     public static bool IsStatic(this PropertyDefinition property) => property.GetMethod.IsStatic || property.SetMethod.IsStatic;
+    
+    public static RuntimeFramework RuntimeFramework(this ModuleDefinition moduleDefinition)
+    {
+        foreach (var reference in moduleDefinition.AssemblyReferences)
+        {
+            switch (reference.Name)
+            {
+                case "netstandard":
+                    return AssemblyWeavers.RuntimeFramework.NET_Standard;
+                case "mscorlib":
+                    return AssemblyWeavers.RuntimeFramework.NET_Framework;
+            }
+        }
+        return AssemblyWeavers.RuntimeFramework.NET;
+    }
+
+    public static AssemblyNameReference NETStandard(this IEnumerable<AssemblyNameReference> assemblyNameReferences)
+        => assemblyNameReferences.First(static x => x.Name == "netstandard");
+
+    public static AssemblyNameReference MSCorLib(this IEnumerable<AssemblyNameReference> assemblyNameReferences)
+        => assemblyNameReferences.First(static x => x.Name == "mscorlib");
+
+    public static AssemblyNameReference ByName(this IEnumerable<AssemblyNameReference> assemblyNameReferences,
+                                                string assemblyName)
+        => assemblyNameReferences.First(x => x.Name == assemblyName);
+
+    public static TypeReference? GetTypeReference(this ModuleDefinition moduleDefinition, Type type)
+        => moduleDefinition.TryGetTypeReference(type.FullName!, out var reference)
+            ? reference
+            : null;
+
+
+    public static bool TryGetTypeReference(this ModuleDefinition moduleDefinition, Type type,
+                                           [NotNullWhen(true)] out TypeReference? reference) =>
+        moduleDefinition.TryGetTypeReference(type.FullName!, out reference);
 }
