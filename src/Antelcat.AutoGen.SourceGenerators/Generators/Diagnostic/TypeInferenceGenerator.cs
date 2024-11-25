@@ -28,7 +28,11 @@ public class TypeInferenceGenerator : IIncrementalGenerator
         {
             var (syntax, attrs) = tuple;
 
-            var attr     = attrs.First().GetAttributes<AutoTypeInferenceAttribute>().First();
+            if (attrs.Length == 0) return;
+            var attr = attrs
+                .First()
+                .GetAttributes<AutoTypeInferenceAttribute>()
+                .First();
             var prefixes = attr.Prefixes;
             var suffixes = attr.Suffixes;
 

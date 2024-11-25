@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Antelcat.AutoGen.AssemblyWeavers.Weavers;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -20,12 +21,24 @@ internal static class WeaveTaskInternal
             SymbolReaderProvider = arguments.ReadWritePdb ? new PortablePdbReaderProvider() : default!,
             AssemblyResolver = resolver,
         });
-        List<Exception> exceptions = [];
-        foreach (var weaver in Weavers())
+        List<Exception> exceptions    = [];
+
+        var weaverContext = Weavers(assembly)
+            .Select(weaver => (weaver, new List<TypeDefinition>()))
+            .ToArray();
+        
+        foreach (var mainModuleType in assembly.MainModule.Types)
+        {
+            foreach (var (weaver, typeDefinitions) in weaverContext)
+            {
+                if (weaver.FilterMainModuleType(mainModuleType)) typeDefinitions.Add(mainModuleType);
+            }
+        }
+        foreach (var(weaver, typeDefinitions) in weaverContext)
         {
             try
             {
-                weaver.Execute(assembly);
+                weaver.Execute(typeDefinitions);
             }
             catch (Exception ex)
             {
@@ -74,9 +87,12 @@ internal static class WeaveTaskInternal
         }
     }
 
-    private static IEnumerable<IWeaver> Weavers()
+    private static IEnumerable<Weaver> Weavers(AssemblyDefinition assembly)
     {
-        yield return new RecordPlaceboWeaver();
+        yield return new RecordPlaceboWeaver
+        {
+            AssemblyDefinition = assembly
+        };
     }
     
     
