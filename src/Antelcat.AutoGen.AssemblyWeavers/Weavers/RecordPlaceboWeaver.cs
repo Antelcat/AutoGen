@@ -77,35 +77,28 @@ public record RecordPlaceboWeaver : IWeaver
             m.DeclaringType.Scope = a;
         });
 
-    
+
 
 
     private (MethodReference DefaultGet, MethodReference HashCode) Resolve(TypeReference type)
     {
-        var generic = EqualityComparer;
+        var generic    = EqualityComparer;
         var genericDef = EqualityComparerDefinition;
         var getDefault = module.ImportReference(
             genericDef.Properties.First(static x => x.Name == "Default").GetMethod);
         var getHashCode = module.ImportReference(
             genericDef.Methods.First(static x => x.Name == nameof(GetHashCode)));
-        TypeReference containingType;
-        if (type.IsGenericParameter || type.ContainsGenericParameter)
-        {
-            containingType = module.MetadataImporter.ImportReference(generic, type);
-        }
-        else
-        {
-            var instance = new GenericInstanceType(generic);
-            instance.GenericArguments.Add(type);
-            containingType = module.ImportReference(instance);
-        }
-        
+        var instance = new GenericInstanceType(generic);
+        instance.GenericArguments.Add(type);
+        var containingType = module.ImportReference(instance);
+
         // EqualityComparer<T> EqualityComparer<MemberType>::get_Default() 
         getDefault.DeclaringType                     = containingType;
         getDefault.ReturnType.GetElementType().scope = containingType.Scope;
+
         // int32 EqualityComparer<MemberType>::GetHashCode(T) 
         getHashCode.DeclaringType = containingType;
-       
+
         return (getDefault, getHashCode);
     }
 

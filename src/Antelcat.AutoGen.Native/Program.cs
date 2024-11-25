@@ -13,9 +13,9 @@ Console.WriteLine(b);
 Debugger.Break();
 
 
-record Record<T>([property: RecordIgnore] T Arg)
+record Record<T>([property: RecordIgnore]T Arg)
 {
-    public int    GetOnly  { get; }
+    public IEnumerable<T>    GetOnly  { get; }
     public int    GetOnly2 { get; }
     public object GetOnly3 { get; }
 

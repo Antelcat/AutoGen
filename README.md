@@ -9,17 +9,22 @@ Auto generate anything you may want
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
-+ #### `[AutoMetadataFrom(Type, MemberTypes)]` :
++ `Diagnostic`
+  + #### `[AutoMetadataFrom(Type, MemberTypes)]` :
   
-  Auto generate code using `Template` from target type members  
+    Auto generate code using `Template` from target type members  
 
-  ![AutoMetadata](./docs/AutoMetadata.png)
+    ![AutoMetadata](./docs/AutoMetadata.png)
 
-+ #### `[AutoTypeInference]` :
+  + #### `[AutoTypeInference]` :
   
-  Auto generate `Type` detected from `anonymous`object creation
+    Auto generate `Type` detected from `anonymous`object creation
 
-  ![AutoTypeInference](./docs/AutoTypeInference.png)
+    ![AutoTypeInference](./docs/AutoTypeInference.png)
+
+  + #### `[RecordIgnore]` :
+    
+    Auto exclude member calculation in `GetHashCode` and `PrintMembers` of record
 
 + #### `[AutoStringTo(string, Accessibility)]` :
 
