@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
@@ -235,9 +236,10 @@ file static class ExpressionExtensions
                 ),
             _ => semanticModel.GetSymbolInfo(expression).Symbol switch
             {
-                ILocalSymbol localSymbol       => localSymbol.Type,
-                IPropertySymbol propertySymbol => propertySymbol.Type,
-                IFieldSymbol fieldSymbol       => fieldSymbol.Type,
+                ILocalSymbol localSymbol         => localSymbol.Type,
+                IPropertySymbol propertySymbol   => propertySymbol.Type,
+                IParameterSymbol parameterSymbol => parameterSymbol.Type,
+                IFieldSymbol fieldSymbol         => fieldSymbol.Type,
                 IMethodSymbol methodSymbol => methodSymbol.MethodKind == MethodKind.Constructor
                     ? methodSymbol.ContainingSymbol as ITypeSymbol
                     : methodSymbol.ReturnType,

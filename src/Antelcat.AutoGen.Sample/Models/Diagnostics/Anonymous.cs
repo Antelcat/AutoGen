@@ -27,7 +27,7 @@ public class Anonymous
 {
     public int? field;
 
-    public void Test()
+    public void Test(string argument)
     {
         var local = () =>
         {
@@ -62,7 +62,8 @@ public class Anonymous
             L = null,
             M = field ?? 2,
             N = local(),
-            O = typeof(int)
+            O = typeof(int),
+            P = argument
         };
 
         var namespaceandclass = new Namespace.Then.Temp

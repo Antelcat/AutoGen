@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>3.0.0-preview-241125-2</Version>
+        <Version>3.0.0-preview-241217-1</Version>
         <FileVersion>3.0.0</FileVersion>
         <AssemblyVersion>3.0.0</AssemblyVersion>
         
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Fix type construction</PackageReleaseNotes>
+        <PackageReleaseNotes>Fix TypeInference empty attribute &amp; parameter expression syntax</PackageReleaseNotes>
 
     </PropertyGroup>
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 
+#nullable enable
+
 namespace Antelcat.AutoGen.SourceGenerators;
 
 [Literal($"{nameof(Antelcat)}.{nameof(AutoGen)}.{nameof(FilePath)}")]
@@ -83,7 +85,8 @@ public readonly ref struct FilePath
     public static FilePath operator <<(FilePath to, FilePath from) => global::System.IO.Path.GetRelativePath(from, to);
 #endif
 
-    public static implicit operator FilePath(string path)    => new(path);
+    public static implicit operator FilePath(string? path) =>
+        path is null ? throw new ArgumentNullException(nameof(path)) : new(path);
     public static implicit operator FilePath(string[] paths) => Path.Combine(paths);
     public static implicit operator string(FilePath path)    => path.path;
 }

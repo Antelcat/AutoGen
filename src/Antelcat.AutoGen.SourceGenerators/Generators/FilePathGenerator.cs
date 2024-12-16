@@ -24,8 +24,8 @@ public class FilePathGenerator : AttributeDetectBaseGenerator<AutoFilePathAttrib
                 .GetAttributes<AutoFilePathAttribute>()
                 .FirstOrDefault(static x => x.Namespace.IsValidNamespace());
             if (attr is null) continue;
-            var text = Antelcat.AutoGen.FilePath.Text.Replace(
-                $"{nameof(Antelcat)}.{nameof(AutoGen)}.{nameof(SourceGenerators)}", attr.Namespace);
+            var text = Antelcat.AutoGen.FilePath.Text
+                .Replace($"{nameof(Antelcat)}.{nameof(AutoGen)}.{nameof(SourceGenerators)}", attr.Namespace);
             if (attr.Accessibility is Accessibility.Internal)
             {
                 text = text.Replace("public readonly", "internal readonly");
