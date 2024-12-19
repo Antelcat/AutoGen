@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -20,9 +21,17 @@ public class WeaveTask : Task, IWaveArguments
 
     public override bool Execute()
     {
-        Log.LogMessage(MessageImportance.High, $"[{category}] Weaving start");
-        if (!WeaveTaskInternal.Execute(this, new Logger(Log))) return false;
-        Log.LogMessage(MessageImportance.High, $"[{category}] Weaving complete");
+        var name = Path.GetFileName(AssemblyFile);
+        Log.LogMessage(MessageImportance.High, $"[{category}] Weaving start : {name}");
+        try
+        {
+            if (!WeaveTaskInternal.Execute(this, new Logger(Log))) return false;
+            Log.LogMessage(MessageImportance.High, $"[{category}] Weaving complete : {name}");
+        }
+        catch
+        {
+            //
+        }
         return true;
     }
 
