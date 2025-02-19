@@ -46,21 +46,26 @@ public class Tests
         WeaveTaskInternal.Execute(new TestWaveArgument
         {
             AssemblyFile = Core,
-        }, new TestLogger());
+            References = ""
+
+        }, new TestLogger(), CancellationToken.None);
 
     [Test]
     public void TestStandard() =>
         WeaveTaskInternal.Execute(new TestWaveArgument
         {
             AssemblyFile = Standard,
-        },  new TestLogger());
+            References = ""
+
+        },  new TestLogger(), CancellationToken.None);
 #else
     [Test]
     public void TestFramework() =>
         WeaveTaskInternal.Execute(new TestWaveArgument
         {
             AssemblyFile = Framework,
-        },  new TestLogger());
+            References = ""
+        },  new TestLogger(), CancellationToken.None);
 #endif
 }
 
@@ -72,4 +77,5 @@ public class TestWaveArgument : IWaveArguments
     public          bool    DelaySign                 { get; set; }
     public          bool    ReadWritePdb              { get; set; }
     public          string? IntermediateDirectory     { get; set; }
+    public          string  References                { get; set; }
 }

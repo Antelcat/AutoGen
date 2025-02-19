@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>3.0.0-preview-241219-1</Version>
+        <Version>3.0.0-preview-250219-1</Version>
         <FileVersion>3.0.0</FileVersion>
         <AssemblyVersion>3.0.0</AssemblyVersion>
         

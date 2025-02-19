@@ -13,6 +13,7 @@
                 AssemblyFile="$(TargetPath)"
                 AssemblyOriginatorKeyFile="$(AssemblyOriginatorKeyFile)"
                 IntermediateDirectory="$(ProjectDir)$(IntermediateOutputPath)"
+                References="@(ReferencePath)"
                 SignAssembly="$(SignAssembly)"
                 DelaySign="$(DelaySign)">
             <Output PropertyName="OutputPath" TaskParameter="Output"/>

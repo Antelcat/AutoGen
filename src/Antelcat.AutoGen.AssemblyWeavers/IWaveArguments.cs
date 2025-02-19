@@ -8,4 +8,5 @@ public interface IWaveArguments
     public bool    DelaySign                 { get; set; }
     public bool    ReadWritePdb              { get; set; }
     public string? IntermediateDirectory     { get; set; }
+    public string  References                { get; set; }
 }
