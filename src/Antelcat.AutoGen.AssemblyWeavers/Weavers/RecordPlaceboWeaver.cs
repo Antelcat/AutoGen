@@ -101,7 +101,9 @@ public class RecordPlaceboWeaver : Weaver
         return (getDefault, getHashCode);
     }
 
-    public override bool FilterMainModuleType(TypeDefinition typeDefinition) => typeDefinition.IsRecord();
+    public override string Name => nameof(RecordPlaceboWeaver);
+    
+    public override bool   FilterMainModuleType(TypeDefinition typeDefinition) => typeDefinition.IsRecord();
 
     public override void Execute(IReadOnlyList<TypeDefinition> typeDefinitions)
     {

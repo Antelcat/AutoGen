@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using Antelcat.AutoGen.AssemblyWeavers.Exceptions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -29,12 +30,23 @@ public class WeaveTask : Task, ICancelableTask, IWaveArguments
         Log.LogMessage(MessageImportance.High, $"[{category}] Weaving start : {name}");
         try
         {
-            if (!WeaveTaskInternal.Execute(this, new Logger(Log),cancel.Token)) return false;
+            if (!WeaveTaskInternal.Execute(this, new Logger(Log), cancel.Token)) return false;
             Log.LogMessage(MessageImportance.High, $"[{category}] Weaving complete : {name}");
         }
-        catch
+        catch (WeaverExceptions exceptions)
         {
-            //
+            foreach (var exception in exceptions.Exceptions) Log.LogError(exception.ToString());
+            return true;
+        }
+        catch (OperationCanceledException exception)
+        {
+            Log.LogWarningFromException(exception, true);
+            return true;
+        }
+
+        catch (Exception exception)
+        {
+            Log.LogErrorFromException(exception, true, true, null);
             return false;
         }
 

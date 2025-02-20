@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using Antelcat.AutoGen.AssemblyWeavers.Exceptions;
 using Antelcat.AutoGen.AssemblyWeavers.Weavers;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -34,17 +35,9 @@ internal static class WeaveTaskInternal
             SymbolReaderProvider = arguments.ReadWritePdb ? new PortablePdbReaderProvider() : null!,
             AssemblyResolver     = new AssemblyResolver(logger, SplitUpReferences(arguments.References, logger)),
         });
-        try
-        {
-            module.ReadSymbols();
-        }
-        catch
-        {
-            //
-        }
+        module.ReadSymbols();
         token.ThrowIfCancellationRequested();
 
-        List<Exception> exceptions = [];
 
         var weaverContext = Weavers(module)
             .Select(weaver => (weaver, new List<TypeDefinition>()))
@@ -59,60 +52,48 @@ internal static class WeaveTaskInternal
                 if (weaver.FilterMainModuleType(mainModuleType)) typeDefinitions.Add(mainModuleType);
             }
         }
-        foreach (var(weaver, typeDefinitions) in weaverContext)
+
+        List<WeaverException> stashedExceptions = []; //stashed exceptions
+
+        foreach (var (weaver, typeDefinitions) in weaverContext)
         {
             token.ThrowIfCancellationRequested();
             try
             {
                 weaver.Execute(typeDefinitions);
             }
+            catch (WeaverException ex)
+            {
+                stashedExceptions.Add(ex);
+            }
             catch (Exception ex)
             {
-                exceptions.Add(ex);
+                stashedExceptions.Add(new WeaverException(ex)
+                {
+                    WeaverName = weaver.Name
+                });
             }
-            token.ThrowIfCancellationRequested();
         }
-
-        if (exceptions.Count > 0)
-        {
-            foreach (var exception in exceptions)
-            {
-#if DEBUG
-                Debugger.Break();
-#endif
-                logger.LogError(exception.ToString());
-            }
-
-            return false;
-        }
-
         var temp = Path.GetTempFileName();
         token.ThrowIfCancellationRequested();
-        try
+
+        var strongKeyFinder = arguments.SignAssembly ? new StrongKeyFinder(arguments, module, logger) : null;
+        strongKeyFinder?.FindStrongNameKey();
+        if (strongKeyFinder?.PublicKey is not null)
         {
-            var strongKeyFinder = arguments.SignAssembly ? new StrongKeyFinder(arguments, module,logger) : null;
-            strongKeyFinder?.FindStrongNameKey();
-            if (strongKeyFinder?.PublicKey is not null)
-            {
-                module.Assembly.Name.PublicKey = strongKeyFinder.PublicKey;
-            }
-            module.Write(temp, new WriterParameters
-            {
-                SymbolWriterProvider = arguments.ReadWritePdb ? new PortablePdbWriterProvider() : null!,
-                WriteSymbols         = arguments.ReadWritePdb,
-                StrongNameKeyPair = strongKeyFinder?.StrongNameKeyPair!
-            });
-            File.Copy(temp, arguments.AssemblyFile, true);
-            return true;
+            module.Assembly.Name.PublicKey = strongKeyFinder.PublicKey;
         }
-        catch (Exception exception)
+
+        module.Write(temp, new WriterParameters
         {
-#if DEBUG
-            throw;
-#endif
-            logger.LogError(exception.ToString());
-            return false;
-        }
+            SymbolWriterProvider = arguments.ReadWritePdb ? new PortablePdbWriterProvider() : null!,
+            WriteSymbols         = arguments.ReadWritePdb,
+            StrongNameKeyPair    = strongKeyFinder?.StrongNameKeyPair!
+        });
+        File.Copy(temp, arguments.AssemblyFile, true);
+
+        if (stashedExceptions.Count > 0) throw new WeaverExceptions(stashedExceptions);
+        return true;
     }
 
     private static IEnumerable<Weaver> Weavers(ModuleDefinition module)
