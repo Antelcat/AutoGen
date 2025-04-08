@@ -131,7 +131,8 @@ public class StringToExtensionGenerator : AttributeDetectBaseGenerator<AutoStrin
 
         public override void VisitNamespace(INamespaceSymbol symbol)
         {
-            foreach (var member in symbol.GetMembers())
+            foreach (var member in symbol.GetMembers()
+                .Where(x => x.IsNamespace || x.DeclaredAccessibility == Microsoft.CodeAnalysis.Accessibility.Public))
             {
                 member.Accept(this);
             }

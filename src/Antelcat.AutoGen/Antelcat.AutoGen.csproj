@@ -7,7 +7,7 @@
         <IsPackable>true</IsPackable>
         <LangVersion>preview</LangVersion>
 
-        <Version>3.0.0-preview-250220-1</Version>
+        <Version>3.0.0-preview-250408-1</Version>
         <FileVersion>3.0.0</FileVersion>
         <AssemblyVersion>3.0.0</AssemblyVersion>
         
@@ -27,7 +27,7 @@
         
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Add weave catch &amp; add assembly report</PackageReleaseNotes>
+        <PackageReleaseNotes>StringTo exclude internal member</PackageReleaseNotes>
 
     </PropertyGroup>
 
