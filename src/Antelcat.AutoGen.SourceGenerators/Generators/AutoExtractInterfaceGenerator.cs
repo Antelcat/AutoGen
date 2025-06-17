@@ -6,6 +6,7 @@ using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
+using Feast.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -80,7 +81,7 @@ public class AutoExtractInterfaceGenerator : AttributeDetectBaseGenerator<AutoEx
                                 break;
                             case MethodDeclarationSyntax method:
                                 if (attribute.Exclude?.Contains(method.Identifier.Text) is true) continue;
-                                member = method.FullQualifiedMethod(semantic);
+                                member = method.FullQualifiedEmptyMethod(semantic);
                                 break;
                             case EventDeclarationSyntax @event:
                                 if (attribute.Exclude?.Contains(@event.Identifier.Text) is true) continue;
@@ -252,15 +253,12 @@ file static class Extensions
             ReceiveGeneric = [0, 1, 2]
         };*/
     }
+    
+   
 
-    public static MethodDeclarationSyntax FullQualifiedMethod(this MethodDeclarationSyntax syntax,
+    public static MethodDeclarationSyntax FullQualifiedEmptyMethod(this MethodDeclarationSyntax syntax,
                                                               SemanticModel semanticModel)
-        => syntax.WithBody(null)
-            .WithReturnType(syntax.ReturnType.FullQualifiedType(semanticModel))
-            .WithParameterList(ParameterList(
-                SeparatedList(
-                    syntax.ParameterList.Parameters.Select(x =>
-                        x.WithType(x.Type?.FullQualifiedType(semanticModel))).ToArray())))
+        => syntax.FullQualifiedMethod(semanticModel)
             .WithBody(null)
             .WithExpressionBody(null)
             .WithModifiers(SyntaxTokenList.Create(Token(SyntaxKind.PublicKeyword))) //remove partial and async
@@ -329,4 +327,12 @@ file static class Extensions
         SymbolEqualityComparer.Default.Equals(type, generic) ||
         (type is INamedTypeSymbol namedTypeSymbol &&
          namedTypeSymbol.TypeArguments.Any(x => x.UsingType(generic)));
+    
+    public static SeparatedSyntaxList<T> ToSeparatedSyntaxList<T>(this IEnumerable<T> enumerable)
+        where T : SyntaxNode =>
+        enumerable.Aggregate(new SeparatedSyntaxList<T>(), (s, t) => s.Add(t));
+
+    public static SyntaxList<T> ToSyntaxList<T>(this IEnumerable<T> enumerable)
+        where T : SyntaxNode =>
+        enumerable.Aggregate(new SyntaxList<T>(), (s, t) => s.Add(t));
 }

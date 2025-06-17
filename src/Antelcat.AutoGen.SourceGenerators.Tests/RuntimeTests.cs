@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using Antelcat.AutoGen.ComponentModel.Diagnostic;
 
 namespace Antelcat.AutoGen.SourceGenerators.Tests;
 
