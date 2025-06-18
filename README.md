@@ -10,6 +10,12 @@ Auto generate anything you may want
 ### `Antelcat.AutoGen.ComponentModel` :  
 
 + `Diagnostic`
+  + #### `[MetadataScript]`
+
+    Auto generate code executed by `Execute`
+
+    ![MetadataScript](./docs/MetadataScript.png)
+  
   + #### `[AutoMetadataFrom(Type, MemberTypes)]` :
   
     Auto generate code using `Template` from target type members  
