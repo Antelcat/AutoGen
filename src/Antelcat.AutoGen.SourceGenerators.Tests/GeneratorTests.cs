@@ -118,4 +118,11 @@ public class SampleIncrementalSourceGeneratorTests
         RunTest<RecordPlaceboGenerator>(File.ReadAllText(file));
     }
     
+    
+    [Test]
+    public void TestMetadata()
+    {
+        var file = (General.Dir().FullPath << 2) / "Antelcat.AutoGen.Sample" / "Models" / "Diagnostics" / "Metadata.cs";
+        RunTest<MetadataGenerator>(File.ReadAllText(file));
+    }
 }

@@ -73,7 +73,6 @@ Global
 		Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems*{2af94890-5351-4827-933d-9a193812a811}*SharedItemsImports = 5
 		Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems*{332d088c-0399-4ece-9f4c-7b2495a1f718}*SharedItemsImports = 13
 		Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems*{5bf0e91f-7e68-4077-812d-f3bd310e5f4e}*SharedItemsImports = 5
-		..\extern\CodeAnalysis\src\Feast.CodeAnalysis.Shared\Feast.CodeAnalysis.Shared.projitems*{abc886da-de89-42dc-a7fe-8f1ed08bd5c3}*SharedItemsImports = 5
-		..\extern\CodeAnalysis\src\Feast.CodeAnalysis.Shared\Feast.CodeAnalysis.Shared.projitems*{ac314f19-4427-4d6f-a4f2-e04df165c7df}*SharedItemsImports = 5
+		Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems*{f46a37e9-c49a-41e2-ac29-6e046d6d5854}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

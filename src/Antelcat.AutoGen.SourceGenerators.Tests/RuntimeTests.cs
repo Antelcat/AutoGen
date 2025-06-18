@@ -1,9 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
+using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 
+
+
 namespace Antelcat.AutoGen.SourceGenerators.Tests;
+
+public class CustomScript : MetadataScript
+{
+    public override object? Execute(params object[] Value)
+    {
+        Value.ToString();
+        return "//123";
+    }
+}
 
 public class RuntimeTests
 {
@@ -32,3 +44,4 @@ public class RuntimeTests
         };
     }
 }
+

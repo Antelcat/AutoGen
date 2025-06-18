@@ -16,7 +16,7 @@ public abstract class AttributeDetectBaseGenerator<TAttribute> : IIncrementalGen
             (node, _) => FilterSyntax(node),
             (ctx, _) => ctx
         );
-
+        
         context.RegisterSourceOutput(context.CompilationProvider.Combine(provider.Collect()), 
             (ctx, tuple) =>
         {
