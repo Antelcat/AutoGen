@@ -9,6 +9,12 @@
 
 ### `Antelcat.AutoGen.ComponentModel` :  
 
++ #### `[MetadataScript]`
+
+  不多说了自行理解
+  
+  ![MetadataScript](./docs/MetadataScript.png)
+
 + #### `[AutoStringTo(string, Accessibility)]` :  
 
     自动生成 string To 的扩展
