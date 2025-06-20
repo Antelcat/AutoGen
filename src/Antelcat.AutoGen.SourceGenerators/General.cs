@@ -29,7 +29,7 @@ internal static class General
     internal static string Nullable(Type? type) => type?.IsValueType == true ? string.Empty : "?";
     internal static string Generic(string? name) => name             != null ? $"<{name}>" : string.Empty;
 
-    internal static SourceText SourceText(string text) =>
+    internal static SourceText Source(string text) =>
         Microsoft.CodeAnalysis.Text.SourceText.From(text, Encoding.UTF8);
 
     internal static bool IsValidDeclaration(this string name) => Regex.IsMatch(name, "[a-zA-Z_][a-zA-Z0-9_]*");

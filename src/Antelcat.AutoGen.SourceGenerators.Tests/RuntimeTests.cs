@@ -8,9 +8,9 @@ using Antelcat.AutoGen.ComponentModel.Diagnostic;
 
 namespace Antelcat.AutoGen.SourceGenerators.Tests;
 
-public class CustomScript : MetadataScript
+public class CustomScript
 {
-    public override object? Execute(params object[] Value)
+    public object? Execute(params object[] Value)
     {
         Value.ToString();
         return "//123";

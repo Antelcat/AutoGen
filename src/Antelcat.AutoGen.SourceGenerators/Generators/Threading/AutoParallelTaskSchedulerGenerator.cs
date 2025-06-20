@@ -124,7 +124,7 @@ public class AutoParallelTaskSchedulerGenerator : AttributeDetectBaseGenerator<A
                         .AddMembers(members.Select(s => ParseMemberDeclaration(s)!).ToArray());
                 });
             context.AddSource($"{nameSpace}{className}".ToQualifiedFileName("AutoParallelTaskScheduler"),
-                SourceText(unit.NormalizeWhitespace().ToFullString()));
+                Source(unit.NormalizeWhitespace().ToFullString()));
         }
     }
 }

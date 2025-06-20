@@ -20,7 +20,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoKeyEnumerableAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoObjectCloneAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\AutoStringToAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\MetadataScript.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\MetadataScriptAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoMetadataFromAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoRecordPlaceboAttribute.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ComponentModel\Diagnostic\AutoTypeInferenceAttribute.cs" />

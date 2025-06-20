@@ -70,7 +70,7 @@ public class KeyEnumerableGenerator: AttributeDetectBaseGenerator<AutoKeyEnumera
             nameSpace = nameSpace is null ? "" : $"{nameSpace}.";
             var unit = CompilationUnit().AddPartialType(typeSymbol, x => x.AddMembers(ParseMemberDeclaration(method)!));
             context.AddSource($"{nameSpace}{className}".ToQualifiedFileName("AutoKeyEnumerable"),
-                SourceText(unit.NormalizeWhitespace().ToFullString()));
+                Source(unit.NormalizeWhitespace().ToFullString()));
             continue;
 
             bool Filter(ISymbol symbol, out bool isSelf)

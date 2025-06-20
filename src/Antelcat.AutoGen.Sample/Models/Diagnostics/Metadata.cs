@@ -1,33 +1,30 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
 
 namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
 
-public class Demo
+public partial class Demo
 {
-    public int    Number { get; set; }
-    public string Name   { get; set; }
+    public void SampleMethod() { }
 }
 
-public class CustomScript : MetadataScript
+public class CustomScript
 {
     [MetadataScript(typeof(Demo))]
-    public override object? Execute(params object[] Value)
+    public object? WhatEverItCalls(Type type)
     {
-        var sb = new StringBuilder("public class New_Demo {");
-        foreach (var property in (Value[0] as Type).GetProperties())
+        var sb = new StringBuilder("//this is a generated class\n")
+            .AppendLine("namespace Antelcat.AutoGen.Sample.Models.Diagnostics;")
+            .AppendLine("public partial class Demo{");
+        foreach (var method in (type).GetMethods().Where(x => x.Name.EndsWith("Method")))
         {
-            sb.AppendLine($"public {property.PropertyType.FullName} New_{property.Name} {{ get; set; }}");
+            sb.AppendLine("public System.Windows.Input.ICommand " + method.Name +
+                          "Command" + " => "+ 
+                          $" new CommunityToolkit.Mvvm.Input.RelayCommand({method.Name});");
         }
 
-        return sb.Append("}");
-    }
-
-    public void Test()
-    {
-        Debug.Write(nameof(New_Demo.New_Name));
-        Debug.Write(nameof(New_Demo.New_Number));
+        return sb.AppendLine("}");
     }
 }

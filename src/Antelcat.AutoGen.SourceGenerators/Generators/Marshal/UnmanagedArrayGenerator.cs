@@ -41,7 +41,7 @@ public class UnmanagedArrayGenerator : AttributeDetectBaseGenerator<AutoUnmanage
             var source   = unit.NormalizeWhitespace().ToFullString();
             context.AddSource(
                 $"AutoKeyAccessor__{fileName}.g.cs",
-                SourceText(source));
+                Source(source));
         }
     }
 }

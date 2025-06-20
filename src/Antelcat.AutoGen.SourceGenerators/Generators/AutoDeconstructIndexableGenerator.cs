@@ -81,7 +81,7 @@ public class AutoDeconstructIndexableGenerator : AttributeDetectBaseGenerator<Au
                             ])));
 
         context.AddSource($"AutoDeconstructIndexable__{attr.Namespace}.DeconstructIndexableExtension.g.cs",
-            SourceText(unit.NormalizeWhitespace().ToFullString()));
+            Source(unit.NormalizeWhitespace().ToFullString()));
     }
 
     private const string Prefix = "public static void Deconstruct";

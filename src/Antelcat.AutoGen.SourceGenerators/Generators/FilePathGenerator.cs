@@ -31,7 +31,7 @@ public class FilePathGenerator : AttributeDetectBaseGenerator<AutoFilePathAttrib
                 text = text.Replace("public readonly", "internal readonly");
             }
 
-            context.AddSource($"{attr.Namespace}.{Class}.g.cs", SourceText(text));
+            context.AddSource($"{attr.Namespace}.{Class}.g.cs", Source(text));
         }
     }
 }
