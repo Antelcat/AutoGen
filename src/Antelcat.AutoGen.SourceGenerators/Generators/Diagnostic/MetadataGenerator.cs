@@ -24,7 +24,8 @@ public class MetadataGenerator : AttributeDetectBaseGenerator<MetadataScriptAttr
             .CurrentDomain
             .GetAssemblies()
             .OrderBy(x => x.FullName)
-            .Where(x => !x.IsDynamic && !string.IsNullOrEmpty(x.Location)));
+            .Where(x => !x.IsDynamic && !string.IsNullOrEmpty(x.Location)))
+        .WithImports("System", "System.Linq");
 
     protected override bool FilterSyntax(SyntaxNode node) 
     {
