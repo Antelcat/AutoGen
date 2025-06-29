@@ -8,6 +8,8 @@ namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
 public partial class Demo
 {
     public void SampleMethod() { }
+    
+    public int Number { get; set; }
 }
 
 public class CustomScript
@@ -18,7 +20,7 @@ public class CustomScript
         var sb = new StringBuilder("//this is a generated class\n")
             .AppendLine("namespace Antelcat.AutoGen.Sample.Models.Diagnostics;")
             .AppendLine("public partial class Demo{");
-        foreach (var method in (type).GetMethods().Where(x => x.Name.EndsWith("Method")))
+        foreach (var method in (type).GetMethods().Where(x=>!x.IsSpecialName))
         {
             sb.AppendLine("public System.Windows.Input.ICommand " + method.Name +
                           "Command" + " => "+ 
