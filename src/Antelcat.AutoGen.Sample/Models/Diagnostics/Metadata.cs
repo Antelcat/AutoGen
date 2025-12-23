@@ -7,7 +7,10 @@ namespace Antelcat.AutoGen.Sample.Models.Diagnostics;
 
 public partial class Demo
 {
-    public void SampleMethod() { }
+    public void SampleMethod()
+    {
+        SampleMethodCommand.CanExecute(null);
+    }
     
     public int Number { get; set; }
 }
