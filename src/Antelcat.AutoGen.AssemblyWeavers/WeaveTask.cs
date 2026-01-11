@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using Antelcat.AutoGen.AssemblyWeavers.Exceptions;
+﻿using Antelcat.AutoGen.AssemblyWeavers.Exceptions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Task = Microsoft.Build.Utilities.Task;
 
 namespace Antelcat.AutoGen.AssemblyWeavers;
 

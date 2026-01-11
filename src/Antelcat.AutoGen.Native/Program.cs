@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Antelcat.AutoGen.ComponentModel.Diagnostic;
-
+#nullable disable
 var a = new A();
 var b = new B { A = a };
 a.B = b;

@@ -1,51 +1,54 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net40;</TargetFrameworks>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <IsPackable>true</IsPackable>
-        <LangVersion>preview</LangVersion>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net40;</TargetFrameworks>
+      
+    <RootNamespace>Antelcat.AutoGen</RootNamespace>
+  </PropertyGroup>
 
-        <Version>3.0.4</Version>
-        <FileVersion>3.0.0</FileVersion>
-        <AssemblyVersion>3.0.0</AssemblyVersion>
-        
-        <Authors>Antelcat</Authors>
-        <Title>Antelcat.AutoGen</Title>
-        <PackageId>Antelcat.AutoGen</PackageId>
-        <RootNamespace>Antelcat.AutoGen</RootNamespace>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Description>Auto generate anything you want</Description>
-        <Copyright>Copyright Antelcat. All rights reserved</Copyright>
-        <PackageTags>mapping;extension;auto;generate;roslyn;metadata</PackageTags>
+  <PropertyGroup Condition="$(Configuration) == 'Release'">
+    <Version>3.0.5</Version>
+    <FileVersion>3.0.0</FileVersion>
+    <AssemblyVersion>3.0.0</AssemblyVersion>
 
-        <RepositoryType>git</RepositoryType>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/Antelcat/Antelcat.AutoGen</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/Antelcat/Antelcat.AutoGen.git</RepositoryUrl>
-        
-        <PackageIcon>icon.png</PackageIcon>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Really fix MetadataScript not working under net10</PackageReleaseNotes>
+    <IsPackable>true</IsPackable>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Really fix MetadataScript not working on debian...</PackageReleaseNotes>
 
-    </PropertyGroup>
-
-    <Import Project="..\Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems" Label="Shared" />
-
-    <ItemGroup>
-        <InternalsVisibleTo Include="Antelcat.AutoGen.Sample" />
-        <InternalsVisibleTo Include="Antelcat.AutoGen.Native" />
-    </ItemGroup>
+    <Authors>Antelcat</Authors>
+    <Title>Antelcat.AutoGen</Title>
+    <PackageId>Antelcat.AutoGen</PackageId>
     
-    <ItemGroup Label="Package">
-        <None Include="..\..\icon.png"  PackagePath="\" Pack="true">
-            <Link>icon.png</Link>
-        </None>
-        <None Include="..\..\README.md" PackagePath="\" Pack="true" />
-        <None Include="..\Antelcat.AutoGen.SourceGenerators\bin\$(Configuration)\netstandard2.0\Antelcat.AutoGen.SourceGenerators.dll" PackagePath="analyzers\dotnet\cs" Pack="true" />
-        <None Include="..\Antelcat.AutoGen.AssemblyWeavers\bin\$(Configuration)\netstandard2.0\Antelcat.AutoGen.AssemblyWeavers.dll" PackagePath="tasks\netstandard2.0" Pack="true" />
-        <None Include="..\Antelcat.AutoGen.AssemblyWeavers\bin\$(Configuration)\net472\Antelcat.AutoGen.AssemblyWeavers.dll" PackagePath="tasks\net472" Pack="true" />
-        <None Include="Antelcat.AutoGen.targets" PackagePath="build" Pack="true" />
-    </ItemGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Auto generate anything you want</Description>
+    <Copyright>Copyright Antelcat. All rights reserved</Copyright>
+    <PackageTags>mapping;extension;auto;generate;roslyn;metadata</PackageTags>
+    
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Antelcat/Antelcat.AutoGen</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Antelcat/Antelcat.AutoGen.git</RepositoryUrl>
+  </PropertyGroup>
+
+  <Import Project="..\Antelcat.AutoGen.Shared\Antelcat.AutoGen.Shared.projitems" Label="Shared"/>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Antelcat.AutoGen.Sample"/>
+    <InternalsVisibleTo Include="Antelcat.AutoGen.Native"/>
+  </ItemGroup>
+
+  <ItemGroup Label="Package">
+    <None Include="..\Antelcat.AutoGen.SourceGenerators\bin\$(Configuration)\netstandard2.0\Antelcat.AutoGen.SourceGenerators.dll" PackagePath="analyzers\dotnet\cs" Pack="true"/>
+    <None Include="..\Antelcat.AutoGen.AssemblyWeavers\bin\$(Configuration)\netstandard2.0\Antelcat.AutoGen.AssemblyWeavers.dll" PackagePath="tasks\netstandard2.0" Pack="true"/>
+    <None Include="..\Antelcat.AutoGen.AssemblyWeavers\bin\$(Configuration)\net472\Antelcat.AutoGen.AssemblyWeavers.dll" PackagePath="tasks\net472" Pack="true"/>
+    <None Include="Antelcat.AutoGen.targets" PackagePath="build" Pack="true"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="$(Configuration) == 'Release'">
+    <None Include="..\..\icon.png" PackagePath="\" Pack="true">
+      <Link>icon.png</Link>
+    </None>
+    <None Include="..\..\README.md" PackagePath="\" Pack="true"/>
+  </ItemGroup>
 </Project>

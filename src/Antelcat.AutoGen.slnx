@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/Solution Items/" />
+  <Folder Name="/Tests/">
+    <Project Path="Antelcat.AutoGen.AssemblyWeavers.Tests/Antelcat.AutoGen.AssemblyWeavers.Tests.csproj" />
+    <Project Path="Antelcat.AutoGen.SourceGenerators.Tests/Antelcat.AutoGen.SourceGenerators.Tests.csproj" />
+  </Folder>
+  <Folder Name="/_/">
+    <File Path="../README.md" />
+    <File Path="../README.zh.md" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Project Path="Antelcat.AutoGen.AssemblyWeavers/Antelcat.AutoGen.AssemblyWeavers.csproj" />
+  <Project Path="Antelcat.AutoGen.Native/Antelcat.AutoGen.Native.csproj" />
+  <Project Path="Antelcat.AutoGen.Sample/Antelcat.AutoGen.Sample.csproj" />
+  <Project Path="Antelcat.AutoGen.Shared/Antelcat.AutoGen.Shared.shproj" />
+  <Project Path="Antelcat.AutoGen.SourceGenerators/Antelcat.AutoGen.SourceGenerators.csproj" />
+  <Project Path="Antelcat.AutoGen/Antelcat.AutoGen.csproj" />
+</Solution>

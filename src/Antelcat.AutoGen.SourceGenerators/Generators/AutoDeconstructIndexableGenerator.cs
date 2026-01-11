@@ -66,6 +66,7 @@ public class AutoDeconstructIndexableGenerator : AttributeDetectBaseGenerator<Au
         var unit = CompilationUnit()
             .AddMembers(
                 NamespaceDeclaration(ParseName(attr.Namespace))
+                    .WithLeadingTrivia(Header)
                     .AddMembers(
                         ClassDeclaration("DeconstructIndexableExtension")
                             .AddModifiers(SyntaxKind.PublicKeyword, SyntaxKind.StaticKeyword, SyntaxKind.PartialKeyword)
@@ -78,7 +79,8 @@ public class AutoDeconstructIndexableGenerator : AttributeDetectBaseGenerator<Au
                                     true,
                                     true),
                                 ..extra.SelectMany(x => x).ToArray()
-                            ])));
+                            ]))
+                    );
 
         context.AddSource($"AutoDeconstructIndexable__{attr.Namespace}.DeconstructIndexableExtension.g.cs",
             Source(unit.NormalizeWhitespace().ToFullString()));

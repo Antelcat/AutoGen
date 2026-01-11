@@ -5,6 +5,7 @@ using Antelcat.AutoGen.ComponentModel.Diagnostic;
 using static Antelcat.AutoGen.ComponentModel.Diagnostic.AutoExtractInterfaceAttribute.GenericConstrain;
 namespace Antelcat.AutoGen.Sample.Models;
 
+
 [AutoExtractInterface(ReceiveGeneric = [1,0], 
     PassGeneric = ["0", "0,1"], 
     Interfaces = [typeof(IList<>),typeof(IDictionary<,>)],

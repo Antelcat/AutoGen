@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Antelcat.AutoGen.ComponentModel;
+﻿using Antelcat.AutoGen.ComponentModel;
 using Antelcat.AutoGen.SourceGenerators.Extensions;
 using Antelcat.AutoGen.SourceGenerators.Generators.Base;
-using Feast.CodeAnalysis.CompileTime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Accessibility = Microsoft.CodeAnalysis.Accessibility;
+using Type = Feast.CodeAnalysis.CompileTime.Type;
 
 namespace Antelcat.AutoGen.SourceGenerators.Generators;
 
